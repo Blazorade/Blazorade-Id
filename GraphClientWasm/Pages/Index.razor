@@ -1,0 +1,16 @@
+﻿@page "/"
+@inject BlazoradeAuthenticationService AuthService
+
+<PageTitle>Index</PageTitle>
+
+<h1>Get Tokens</h1>
+
+<button @onclick="@this.OnIdTokenClick">Get Identity Token</button>
+
+@code{
+    async Task OnIdTokenClick(MouseEventArgs e)
+    {
+        var token = await this.AuthService.AcquireIdentityTokenAsync();
+
+    }
+}
