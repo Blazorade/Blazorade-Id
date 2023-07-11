@@ -18,7 +18,9 @@ namespace Microsoft.Extensions.DependencyInjection
         {
             return services
                 .AddScoped<BlazoradeAuthenticationService>()
-                .AddScoped<StorageProxy>()
+                .AddScoped<StorageService>()
+                .AddSingleton<EndpointService>()
+                .AddBlazoradeCore()
                 .AddBlazoredLocalStorage()
                 .AddBlazoredSessionStorage()
                 ;
@@ -39,6 +41,17 @@ namespace Microsoft.Extensions.DependencyInjection
             return services
                 .AddBlazoradeAuthentication()
                 .AddOptions<BlazoradeAuthenticationOptions>()
+                .Configure<IServiceProvider>((o, sp) =>
+                {
+                    config.Invoke(sp, o);
+                }).Services;
+        }
+
+        public static IServiceCollection AddBlazoradeAuthentication(this IServiceCollection services, string optionsName, Action<IServiceProvider, BlazoradeAuthenticationOptions> config)
+        {
+            return services
+                .AddBlazoradeAuthentication()
+                .AddOptions<BlazoradeAuthenticationOptions>(optionsName)
                 .Configure<IServiceProvider>((o, sp) =>
                 {
                     config.Invoke(sp, o);

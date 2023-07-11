@@ -16,7 +16,7 @@ namespace Blazorade.Authentication.Services
     public sealed class BlazoradeAuthenticationService
     {
 
-        public BlazoradeAuthenticationService(IOptionsFactory<BlazoradeAuthenticationOptions> factory, StorageProxy storage, NavigationManager navMan, IJSRuntime jsRuntime)
+        public BlazoradeAuthenticationService(IOptionsFactory<BlazoradeAuthenticationOptions> factory, StorageService storage, NavigationManager navMan, IJSRuntime jsRuntime)
         {
             this.OptionsFactory = factory ?? throw new ArgumentNullException(nameof(factory));
             this.Storage = storage ?? throw new ArgumentNullException(nameof(storage));
@@ -25,24 +25,36 @@ namespace Blazorade.Authentication.Services
         }
 
         private readonly IOptionsFactory<BlazoradeAuthenticationOptions> OptionsFactory;
-        private readonly StorageProxy Storage;
+        private readonly StorageService Storage;
         private readonly NavigationManager NavMan;
         private readonly IJSRuntime JsRuntime;
 
         public async Task<TokenResult?> AcquireIdentityTokenAsync()
         {
-            var idToken = await this.Storage.GetItemAsync<TokenResult>(StorageProxy.IdentityToken);
-            if(null == idToken)
-            {
-                await this.JsRuntime.InvokeVoidAsync("open", "https://blazorade.com");
-            }
-            return idToken;
+            var token = await this.Storage.GetItemAsync<TokenResult>(StorageService.IdentityToken);
+
+            return token;
+        }
+
+        public async Task<TokenResult> AcquireIdentityTokenAsync(string optionsName)
+        {
+            var token = await this.Storage.GetItemAsync<TokenResult>(optionsName, $"{optionsName}.{StorageService.IdentityToken}");
+
+            return token;
         }
 
         public async Task<TokenResult?> AcquireAccessTokenAsync()
         {
+            var token = await this.Storage.GetItemAsync<TokenResult>(StorageService.AccessToken);
 
-            return null;
+            return token;
+        }
+
+        public async Task<TokenResult?> AcquireAccessTokenAsync(string optionsName)
+        {
+            var token = await this.Storage.GetItemAsync<TokenResult>(optionsName, $"{optionsName}.{StorageService.AccessToken}");
+
+            return token;
         }
     }
 }
