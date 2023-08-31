@@ -18,14 +18,14 @@ namespace Blazorade.Authentication.Configuration
 
 
 
-        public static async Task<IAuthorizationEndpointUriBuilder> CreateAuthorizationEndpointUriBuilderAsync(BlazoradeAuthenticationOptions options, IHttpClientFactory? clientFactory)
+        public static async Task<IAuthorizationEndpointUriBuilder> CreateAuthorizationEndpointUriBuilderAsync(BlazoradeAuthenticationOptions options, IHttpClientFactory? clientFactory = null)
         {
             var svc = new EndpointService(clientFactory);
             var uri = await svc.GetAuthorizationEndpointAsync(options) ?? throw new NullReferenceException("Could not resolve URI for authorization endpoint.");
             return new EndpointUriBuilder(uri);
         }
 
-        public static async Task<ITokenEndpointUriBuilder> CreateTokenEndpointUriBuilderAsync(BlazoradeAuthenticationOptions options, IHttpClientFactory? clientFactory)
+        public static async Task<ITokenEndpointUriBuilder> CreateTokenEndpointUriBuilderAsync(BlazoradeAuthenticationOptions options, IHttpClientFactory? clientFactory = null)
         {
             var svc = new EndpointService(clientFactory);
             var uri = await svc.GetTokenEndpointAsync(options) ?? throw new NullReferenceException("Could not resolve URI for token endpoint.");

@@ -29,25 +29,32 @@ namespace Blazorade.Authentication.Services
         private readonly NavigationManager NavMan;
         private readonly IJSRuntime JsRuntime;
 
-        public async Task<TokenResult?> AcquireIdentityTokenAsync()
+        public Task<TokenResult?> AcquireIdentityTokenAsync()
         {
-            var token = await this.Storage.GetItemAsync<TokenResult>(StorageService.IdentityToken);
-
-            return token;
+            return this.AcquireIdentityTokenAsync(string.Empty);
         }
 
-        public async Task<TokenResult> AcquireIdentityTokenAsync(string optionsName)
+        public async Task<TokenResult?> AcquireIdentityTokenAsync(string optionsName)
         {
             var token = await this.Storage.GetItemAsync<TokenResult>(optionsName, $"{optionsName}.{StorageService.IdentityToken}");
+            if(token?.Expires < DateTime.UtcNow)
+            {
+                token = null;
+            }
+
+            if(null == token)
+            {
+                var options = this.OptionsFactory.Create(optionsName);
+                var authBuilder = await EndpointUriBuilder.CreateAuthorizationEndpointUriBuilderAsync(options);
+                
+            }
 
             return token;
         }
 
-        public async Task<TokenResult?> AcquireAccessTokenAsync()
+        public Task<TokenResult?> AcquireAccessTokenAsync()
         {
-            var token = await this.Storage.GetItemAsync<TokenResult>(StorageService.AccessToken);
-
-            return token;
+            return this.AcquireAccessTokenAsync(string.Empty);
         }
 
         public async Task<TokenResult?> AcquireAccessTokenAsync(string optionsName)
