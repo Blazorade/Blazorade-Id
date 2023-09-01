@@ -11,11 +11,15 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GraphClientWasm", "GraphCli
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Blazorade.Authentication.Tests", "Blazorade.Authentication.Tests\Blazorade.Authentication.Tests.csproj", "{233119FE-20F6-4913-8D65-984E0E02A22D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlazorWasmAuthSample", "BlazorWasmAuthSample\BlazorWasmAuthSample.csproj", "{B27F2001-44CE-492B-9357-FA962AB53762}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlazorWasmAuthSample", "BlazorWasmAuthSample\BlazorWasmAuthSample.csproj", "{B27F2001-44CE-492B-9357-FA962AB53762}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PlaygroundComponents", "PlaygroundComponents\PlaygroundComponents.csproj", "{8268A706-F5AD-4F30-90DA-6B0333907A34}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PlaygroundComponents", "PlaygroundComponents\PlaygroundComponents.csproj", "{8268A706-F5AD-4F30-90DA-6B0333907A34}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PlaygroundWasm", "PlaygroundWasm\PlaygroundWasm.csproj", "{1AEA7A66-625C-40D0-B1F6-DF7FF6EF9B70}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PlaygroundWasm", "PlaygroundWasm\PlaygroundWasm.csproj", "{1AEA7A66-625C-40D0-B1F6-DF7FF6EF9B70}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "MiscFiles", "MiscFiles", "{B5710DA4-60C9-4E33-9F6F-88F9E0B001E7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PlaygroundServer", "PlaygroundServer\PlaygroundServer.csproj", "{346CCF9B-1378-42F9-96E0-C643B710E28A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -47,6 +51,10 @@ Global
 		{1AEA7A66-625C-40D0-B1F6-DF7FF6EF9B70}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1AEA7A66-625C-40D0-B1F6-DF7FF6EF9B70}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1AEA7A66-625C-40D0-B1F6-DF7FF6EF9B70}.Release|Any CPU.Build.0 = Release|Any CPU
+		{346CCF9B-1378-42F9-96E0-C643B710E28A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{346CCF9B-1378-42F9-96E0-C643B710E28A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{346CCF9B-1378-42F9-96E0-C643B710E28A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{346CCF9B-1378-42F9-96E0-C643B710E28A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -56,6 +64,7 @@ Global
 		{B27F2001-44CE-492B-9357-FA962AB53762} = {81458429-2994-4447-947A-DE6335BF72EC}
 		{8268A706-F5AD-4F30-90DA-6B0333907A34} = {81458429-2994-4447-947A-DE6335BF72EC}
 		{1AEA7A66-625C-40D0-B1F6-DF7FF6EF9B70} = {81458429-2994-4447-947A-DE6335BF72EC}
+		{346CCF9B-1378-42F9-96E0-C643B710E28A} = {81458429-2994-4447-947A-DE6335BF72EC}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {065AFC3E-116F-4307-8BCE-513210EF3786}

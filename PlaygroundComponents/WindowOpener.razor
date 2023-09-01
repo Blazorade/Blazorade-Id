@@ -1,0 +1,11 @@
+﻿@inject IJSRuntime jsRuntime
+<h3>Window Opener</h3>
+
+<button @onclick="this.OnOpenDialogClick">Open Dialog</button>
+
+@code {
+    private async Task OnOpenDialogClick()
+    {
+        await this.jsRuntime.InvokeVoidAsync("open", "/.", "blazoradeauth", "scrollbars=no,resizable=no,status=no,location=no,toolbar=no,menubar=no,width=480,height=640,left=200,top=200");
+    }
+}
