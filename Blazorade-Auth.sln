@@ -3,13 +3,15 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Blazorade.Authentication", "Blazorade.Authentication\Blazorade.Authentication.csproj", "{62ACA28F-78B0-4AC9-BB1D-24DDBAA2F2DA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Blazorade.Authentication", "Blazorade.Authentication\Blazorade.Authentication.csproj", "{62ACA28F-78B0-4AC9-BB1D-24DDBAA2F2DA}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Sample Apps", "Sample Apps", "{81458429-2994-4447-947A-DE6335BF72EC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GraphClientWasm", "GraphClientWasm\GraphClientWasm.csproj", "{B85F7146-2A9A-48F7-8B9F-4F33F4914831}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GraphClientWasm", "GraphClientWasm\GraphClientWasm.csproj", "{B85F7146-2A9A-48F7-8B9F-4F33F4914831}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Blazorade.Authentication.Tests", "Blazorade.Authentication.Tests\Blazorade.Authentication.Tests.csproj", "{233119FE-20F6-4913-8D65-984E0E02A22D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Blazorade.Authentication.Tests", "Blazorade.Authentication.Tests\Blazorade.Authentication.Tests.csproj", "{233119FE-20F6-4913-8D65-984E0E02A22D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlazorWasmAuthSample", "BlazorWasmAuthSample\BlazorWasmAuthSample.csproj", "{B27F2001-44CE-492B-9357-FA962AB53762}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -29,12 +31,17 @@ Global
 		{233119FE-20F6-4913-8D65-984E0E02A22D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{233119FE-20F6-4913-8D65-984E0E02A22D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{233119FE-20F6-4913-8D65-984E0E02A22D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B27F2001-44CE-492B-9357-FA962AB53762}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B27F2001-44CE-492B-9357-FA962AB53762}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B27F2001-44CE-492B-9357-FA962AB53762}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B27F2001-44CE-492B-9357-FA962AB53762}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{B85F7146-2A9A-48F7-8B9F-4F33F4914831} = {81458429-2994-4447-947A-DE6335BF72EC}
+		{B27F2001-44CE-492B-9357-FA962AB53762} = {81458429-2994-4447-947A-DE6335BF72EC}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {065AFC3E-116F-4307-8BCE-513210EF3786}
