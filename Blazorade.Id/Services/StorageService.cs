@@ -1,4 +1,4 @@
-﻿using Blazorade.Authentication.Configuration;
+﻿using Blazorade.Id.Configuration;
 using Blazored.LocalStorage;
 using Blazored.SessionStorage;
 using Microsoft.Extensions.Options;
@@ -8,7 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Blazorade.Authentication.Services
+namespace Blazorade.Id.Services
 {
     /// <summary>
     /// Acts as a wrapper for both local and session storage.

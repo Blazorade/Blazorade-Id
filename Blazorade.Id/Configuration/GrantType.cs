@@ -4,11 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Blazorade.Authentication.Configuration
+namespace Blazorade.Id.Configuration
 {
-    public enum ResponseType
+    public enum GrantType
     {
-        Code,
-        Id_Token
+        Authorization_Code
     }
 }

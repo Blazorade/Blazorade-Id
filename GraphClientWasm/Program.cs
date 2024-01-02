@@ -7,16 +7,16 @@ builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
 
 builder.Services
-    .AddBlazoradeAuthentication((sp, opt) =>
+    .AddBlazoradeId((sp, opt) =>
     {
         var config = sp.GetRequiredService<IConfiguration>();
-        var authConfig = config.GetRequiredSection("blazorade:authentication");
+        var authConfig = config.GetRequiredSection("blazorade:id");
         authConfig.Bind(opt);
     })
-    .AddBlazoradeAuthentication("foo", (sp, opt) =>
+    .AddBlazoradeId("foo", (sp, opt) =>
     {
         opt.MetadataUri = "foo";
-        opt.CacheMode = Blazorade.Authentication.Configuration.TokenCacheMode.Session;
+        opt.CacheMode = Blazorade.Id.Configuration.TokenCacheMode.Session;
     })
     .AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
 

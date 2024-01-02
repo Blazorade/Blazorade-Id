@@ -1,4 +1,4 @@
-﻿using Blazorade.Authentication.Configuration;
+﻿using Blazorade.Id.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,7 +7,7 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 
-namespace Blazorade.Authentication.Services
+namespace Blazorade.Id.Services
 {
     public class EndpointService
     {

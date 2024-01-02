@@ -1,4 +1,4 @@
-﻿using Blazorade.Authentication.Services;
+﻿using Blazorade.Id.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,7 +7,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
-namespace Blazorade.Authentication.Configuration
+namespace Blazorade.Id.Configuration
 {
     public class EndpointUriBuilder : IAuthorizationEndpointUriBuilder, ITokenEndpointUriBuilder
     {

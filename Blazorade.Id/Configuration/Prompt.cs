@@ -4,10 +4,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Blazorade.Authentication.Configuration
+namespace Blazorade.Id.Configuration
 {
-    public enum GrantType
+    public enum Prompt
     {
-        Authorization_Code
+        None,
+        Login,
+        Consent,
+        Select_Account
     }
 }

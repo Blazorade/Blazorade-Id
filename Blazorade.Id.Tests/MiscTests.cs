@@ -1,7 +1,7 @@
-using Blazorade.Authentication.Configuration;
-using Blazorade.Authentication.Services;
+using Blazorade.Id.Configuration;
+using Blazorade.Id.Services;
 
-namespace Blazorade.Authentication.Tests
+namespace Blazorade.Id.Tests
 {
     [TestClass]
     public class MiscTests

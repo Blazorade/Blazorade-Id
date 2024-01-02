@@ -1,5 +1,5 @@
-﻿using Blazorade.Authentication.Configuration;
-using Blazorade.Authentication.Services;
+﻿using Blazorade.Id.Configuration;
+using Blazorade.Id.Services;
 using Blazored.LocalStorage;
 using Blazored.SessionStorage;
 using System;
@@ -14,7 +14,7 @@ namespace Microsoft.Extensions.DependencyInjection
     public static class ServiceCollectionExtensions
     {
 
-        public static IServiceCollection AddBlazoradeAuthentication(this IServiceCollection services)
+        public static IServiceCollection AddBlazoradeId(this IServiceCollection services)
         {
             return services
                 .AddScoped<BlazoradeAuthenticationService>()
@@ -26,20 +26,20 @@ namespace Microsoft.Extensions.DependencyInjection
                 ;
         }
 
-        public static IServiceCollection AddBlazoradeAuthentication(this IServiceCollection services, Action<BlazoradeAuthenticationOptions> config)
+        public static IServiceCollection AddBlazoradeId(this IServiceCollection services, Action<BlazoradeAuthenticationOptions> config)
         {
             return services
-                .AddBlazoradeAuthentication()
-                .AddBlazoradeAuthentication((sp, options) =>
+                .AddBlazoradeId()
+                .AddBlazoradeId((sp, options) =>
                 {
                     config?.Invoke(options);
                 });
         }
 
-        public static IServiceCollection AddBlazoradeAuthentication(this IServiceCollection services, Action<IServiceProvider, BlazoradeAuthenticationOptions> config)
+        public static IServiceCollection AddBlazoradeId(this IServiceCollection services, Action<IServiceProvider, BlazoradeAuthenticationOptions> config)
         {
             return services
-                .AddBlazoradeAuthentication()
+                .AddBlazoradeId()
                 .AddOptions<BlazoradeAuthenticationOptions>()
                 .Configure<IServiceProvider>((o, sp) =>
                 {
@@ -47,10 +47,10 @@ namespace Microsoft.Extensions.DependencyInjection
                 }).Services;
         }
 
-        public static IServiceCollection AddBlazoradeAuthentication(this IServiceCollection services, string optionsName, Action<IServiceProvider, BlazoradeAuthenticationOptions> config)
+        public static IServiceCollection AddBlazoradeId(this IServiceCollection services, string optionsName, Action<IServiceProvider, BlazoradeAuthenticationOptions> config)
         {
             return services
-                .AddBlazoradeAuthentication()
+                .AddBlazoradeId()
                 .AddOptions<BlazoradeAuthenticationOptions>(optionsName)
                 .Configure<IServiceProvider>((o, sp) =>
                 {

@@ -17,7 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Blazorade.Authentication\Blazorade.Authentication.csproj" />
+    <ProjectReference Include="..\Blazorade.Id\Blazorade.Id.csproj" />
   </ItemGroup>
 
 </Project>

@@ -1,5 +1,5 @@
-﻿using Blazorade.Authentication.Configuration;
-using Blazorade.Authentication.Model;
+﻿using Blazorade.Id.Configuration;
+using Blazorade.Id.Model;
 using Blazored.LocalStorage;
 using Blazored.SessionStorage;
 using Microsoft.AspNetCore.Components;
@@ -11,7 +11,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Blazorade.Authentication.Services
+namespace Blazorade.Id.Services
 {
     public sealed class BlazoradeAuthenticationService
     {
