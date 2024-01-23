@@ -7,6 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Blazorade.Id\Blazorade.Id.csproj" />
     <ProjectReference Include="..\PlaygroundComponents\PlaygroundComponents.csproj" />
   </ItemGroup>
 
