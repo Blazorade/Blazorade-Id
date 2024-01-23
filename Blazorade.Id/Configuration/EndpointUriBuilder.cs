@@ -107,6 +107,12 @@ namespace Blazorade.Id.Configuration
             return this;
         }
 
+        IAuthorizationEndpointUriBuilder IAuthorizationEndpointUriBuilder.WithPrompt(Prompt prompt)
+        {
+            this.AddParameterValue("prompt", prompt.ToString().ToLower());
+            return this;
+        }
+
         #endregion
 
         #region ITokenEndpointUriBuilder Members
@@ -226,6 +232,17 @@ namespace Blazorade.Id.Configuration
         /// Adds a login hint to the URI.
         /// </summary>
         IAuthorizationEndpointUriBuilder WithLoginHint(string loginHint);
+
+        /// <summary>
+        /// Adds a prompt parameter to the URI.
+        /// </summary>
+        /// <remarks>
+        /// The prompt controls how the user will be prompted in a UI.
+        /// </remarks>
+        /// <param name="prompt"></param>
+        /// <returns></returns>
+        IAuthorizationEndpointUriBuilder WithPrompt(Prompt prompt);
+
     }
 
     /// <summary>
