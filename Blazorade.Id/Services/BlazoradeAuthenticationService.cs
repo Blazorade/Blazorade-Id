@@ -1,4 +1,4 @@
-﻿using Blazorade.Id.Configuration;
+﻿using Blazorade.Id.Core.Configuration;
 using Blazorade.Id.Model;
 using Blazored.LocalStorage;
 using Blazored.SessionStorage;

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Blazorade.Id.Configuration
+namespace Blazorade.Id.Core.Services
 {
     /// <summary>
     /// Defines different options for prompting users during authentication.

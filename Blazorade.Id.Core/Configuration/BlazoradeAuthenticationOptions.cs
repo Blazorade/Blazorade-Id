@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
-namespace Blazorade.Id.Configuration
+namespace Blazorade.Id.Core.Configuration
 {
     public class BlazoradeAuthenticationOptions
     {
@@ -51,6 +49,11 @@ namespace Blazorade.Id.Configuration
         /// </para>
         /// </remarks>
         public string? TokenEndpoint { get; set; }
+
+        /// <summary>
+        /// The endpoint that should be called when the user wants to log out.
+        /// </summary>
+        public string? EndSessionEndpoint { get; set; }
 
         /// <summary>
         /// Defines what type of storage is used when caching tokens.

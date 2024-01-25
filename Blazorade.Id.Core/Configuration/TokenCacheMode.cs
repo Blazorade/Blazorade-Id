@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Blazorade.Id.Configuration
+namespace Blazorade.Id.Core.Configuration
 {
     /// <summary>
     /// Defines different storages for caching tokens in.

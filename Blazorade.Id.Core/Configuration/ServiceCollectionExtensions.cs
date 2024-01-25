@@ -1,7 +1,5 @@
-﻿using Blazorade.Id.Configuration;
-using Blazorade.Id.Services;
-using Blazored.LocalStorage;
-using Blazored.SessionStorage;
+﻿using Blazorade.Id.Core.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,14 +14,7 @@ namespace Microsoft.Extensions.DependencyInjection
 
         public static IServiceCollection AddBlazoradeId(this IServiceCollection services)
         {
-            return services
-                .AddScoped<BlazoradeAuthenticationService>()
-                .AddScoped<StorageService>()
-                .AddSingleton<EndpointService>()
-                .AddBlazoradeCore()
-                .AddBlazoredLocalStorage()
-                .AddBlazoredSessionStorage()
-                ;
+            return services;
         }
 
         public static IServiceCollection AddBlazoradeId(this IServiceCollection services, Action<BlazoradeAuthenticationOptions> config)
