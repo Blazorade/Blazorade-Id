@@ -30,13 +30,95 @@ namespace Blazorade.Id.Core.Services
             throw new Exception("Unable to resolve token endpoint URI.");
         }
 
+        public TokenRequestBuilder WithClientId(string clientId)
+        {
+            this.Parameters[ClientIdName] = clientId;
+            return this;
+        }
+
+        public TokenRequestBuilder WithScope(string? scope)
+        {
+            if(scope?.Length > 0)
+            {
+                this.AddParameterValue(ScopeName, scope);
+            }
+            return this;
+        }
+
+        public TokenRequestBuilder WithAuthorizationCode(string? code)
+        {
+            if(code?.Length > 0)
+            {
+                this.RemoveParameterValue(RefreshTokenName);
+                this.Parameters[CodeName] = code;
+                this.Parameters[GrantTypeName] = GrantTypeValueCode;
+            }
+            return this;
+        }
+
+        public TokenRequestBuilder WithRefreshToken(string? refreshToken)
+        {
+            if(refreshToken?.Length > 0)
+            {
+                this.RemoveParameterValue(CodeName);
+                this.Parameters[RefreshTokenName] = refreshToken;
+                this.Parameters[GrantTypeName] = GrantTypeValueRefreshToken;
+            }
+            return this;
+        }
+
+        public TokenRequestBuilder WithRedirectUri(string? redirectUri)
+        {
+            if(redirectUri?.Length > 0)
+            {
+                this.Parameters[RedirectUriName] = redirectUri;
+            }
+            return this;
+        }
+
+        public TokenRequestBuilder WithCodeVerifier(string? codeVerifier)
+        {
+            if(codeVerifier?.Length > 0)
+            {
+                if(codeVerifier.Length < 43)
+                {
+                    throw new ArgumentException("The code verifier must be at least 43 characters long.");
+                }
+                this.Parameters[CodeVerifierName] = codeVerifier;
+            }
+            return this;
+        }
+
+        public TokenRequestBuilder WithClientSecret(string? clientSecret)
+        {
+            if(clientSecret?.Length > 0)
+            {
+                this.Parameters[ClientSecretName] = clientSecret;
+            }
+            return this;
+        }
+
 
         public override HttpRequestMessage Build()
         {
-            var request = new HttpRequestMessage(HttpMethod.Post, this.TokenEndpointUri)
+            HttpRequestMessage request = null!;
+
+            try
             {
-                
-            };
+                request = new HttpRequestMessage(HttpMethod.Post, this.TokenEndpointUri)
+                {
+                    Content = new FormUrlEncodedContent(this.Parameters)
+                };
+
+                if (this.Parameters.ContainsKey(RedirectUriName))
+                {
+                    request.Headers.Add("Origin", this.Parameters[RedirectUriName]);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error occured while building token request message.", ex);
+            }
 
             return request;
         }
