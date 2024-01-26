@@ -1,4 +1,5 @@
 ﻿using Blazorade.Id.Core.Configuration;
+using Blazorade.Id.Core.Model;
 using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
@@ -19,24 +20,24 @@ namespace Blazorade.Id.Core.Services
 
         private readonly HttpClient Client;
 
-        public async Task<string?> GetAuthorizationEndpointAsync(BlazoradeAuthenticationOptions options)
+        public async Task<string?> GetAuthorizationEndpointAsync(AuthenticationOptions options)
         {
-            return await this.GetEndpointFromMetadataDocumentAsync(options.AuthorizationEndpoint, options.MetadataUri, doc => doc.authorization_endpoint);
+            return await this.GetEndpointFromOpenIdConfigurationAsync(options.AuthorizationEndpoint, options.MetadataUri, doc => doc.AuthorizationEndpointUri);
         }
 
-        public async Task<string?> GetTokenEndpointAsync(BlazoradeAuthenticationOptions options)
+        public async Task<string?> GetTokenEndpointAsync(AuthenticationOptions options)
         {
-            return await this.GetEndpointFromMetadataDocumentAsync(options.TokenEndpoint, options.MetadataUri, doc => doc.token_endpoint);
+            return await this.GetEndpointFromOpenIdConfigurationAsync(options.TokenEndpoint, options.MetadataUri, doc => doc.TokenEndpointUri);
         }
 
-        public async Task<string?> GetEndSessionEndpointAsync(BlazoradeAuthenticationOptions options)
+        public async Task<string?> GetEndSessionEndpointAsync(AuthenticationOptions options)
         {
-            return await this.GetEndpointFromMetadataDocumentAsync(options.EndSessionEndpoint, options.MetadataUri, doc => doc.end_session_endpoint);
+            return await this.GetEndpointFromOpenIdConfigurationAsync(options.EndSessionEndpoint, options.MetadataUri, doc => doc.EndSessionEndpointUri);
         }
 
 
 
-        private async Task<string?> GetEndpointFromMetadataDocumentAsync(string? endpointUri, string? metadataUri, Func<MetadataDocument, string?> uriResolver)
+        private async Task<string?> GetEndpointFromOpenIdConfigurationAsync(string? endpointUri, string? metadataUri, Func<OpenIdConfiguration, string?> uriResolver)
         {
             string? result = null;
 
@@ -46,7 +47,7 @@ namespace Blazorade.Id.Core.Services
             }
             else if(metadataUri?.Length > 0)
             {
-                var doc = await this.LoadMetadataDocumentAsync(metadataUri);
+                var doc = await this.LoadOpenIdConfigurationAsync(metadataUri);
                 if(null != doc)
                 {
                     result = uriResolver(doc);
@@ -56,50 +57,27 @@ namespace Blazorade.Id.Core.Services
             return result;
         }
 
-        private Dictionary<string, MetadataDocument> MetaDocs = new Dictionary<string, MetadataDocument>();
-        private async Task<MetadataDocument?> LoadMetadataDocumentAsync(string metadataUri)
+        private async Task<OpenIdConfiguration?> LoadOpenIdConfigurationAsync(string metadataUri)
         {
-            MetadataDocument? metadata = null!;
-            if(this.MetaDocs.ContainsKey(metadataUri))
-            {
-                metadata = this.MetaDocs[metadataUri];
-            }
-            else
-            {
-                var request = new HttpRequestMessage
-                {
-                    Method = HttpMethod.Get,
-                    RequestUri = new Uri(metadataUri)
-                };
-                var response = await this.Client.SendAsync(request);
-                if (response.IsSuccessStatusCode)
-                {
-                    using (var strm = await response.Content.ReadAsStreamAsync())
-                    {
-                        metadata = await JsonSerializer.DeserializeAsync<MetadataDocument>(await response.Content.ReadAsStreamAsync());
-                    }
-                }
+            OpenIdConfiguration? metadata = null!;
 
-                if(null != metadata)
+            var request = new HttpRequestMessage
+            {
+                Method = HttpMethod.Get,
+                RequestUri = new Uri(metadataUri)
+            };
+            var response = await this.Client.SendAsync(request);
+            if (response.IsSuccessStatusCode)
+            {
+                using (var strm = await response.Content.ReadAsStreamAsync())
                 {
-                    this.MetaDocs[metadataUri] = metadata;
+                    metadata = await JsonSerializer.DeserializeAsync<OpenIdConfiguration>(await response.Content.ReadAsStreamAsync());
                 }
             }
 
             return metadata;
         }
 
-
-
-        private class MetadataDocument
-        {
-
-            public string authorization_endpoint { get; set; } = null!;
-
-            public string token_endpoint { get; set; } = null!;
-
-            public string end_session_endpoint { get; set; } = null!;
-        }
     }
 
 }

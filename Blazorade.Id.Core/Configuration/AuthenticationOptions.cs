@@ -4,12 +4,32 @@ using System.Text;
 
 namespace Blazorade.Id.Core.Configuration
 {
-    public class BlazoradeAuthenticationOptions
+    public class AuthenticationOptions
     {
+
+        /// <summary>
+        /// The Client ID (Application ID) of the application that uses these options.
+        /// </summary>
+        public string ClientId { get; set; } = string.Empty;
 
         /// <summary>
         /// The full URI to the metadata JSON document for the authorization endpoint to use.
         /// </summary>
+        /// <remarks>
+        /// <para>
+        /// The metadata document contains all endpoints that Blazorade ID need to work.
+        /// </para>
+        /// <para>
+        /// If the metadata URI is not specified, you need to separately specify both
+        /// <see cref="AuthorizationEndpoint"/> and <see cref="TokenEndpoint"/>. If you
+        /// want to support signing out, you also need to configure <see cref="EndSessionEndpoint"/>.
+        /// </para>
+        /// <para>
+        /// If you specify the metadata URI, you can still "override" <see cref="AuthorizationEndpoint"/>,
+        /// <see cref="TokenEndpoint"/> or <see cref="EndSessionEndpoint"/> by specifying them
+        /// separately.
+        /// </para>
+        /// </remarks>
         public string? MetadataUri { get; set; }
 
         /// <summary>
@@ -17,10 +37,18 @@ namespace Blazorade.Id.Core.Configuration
         /// </summary>
         /// <remarks>
         /// <para>
-        /// The authorization endpoint for Azure AD tenants typically looks something like this.
+        /// The authorization endpoint for Microsoft Entra ID (formerly Azure AD) tenants
+        /// typically looks something like this.
         /// </para>
         /// <para>
         /// https://login.microsoftonline.com/[TenantId]/oauth2/v2.0/authorize
+        /// </para>
+        /// <para>
+        /// In Microsoft Entra External ID, authorization endpoints usually look something like
+        /// the following.
+        /// </para>
+        /// <para>
+        /// https://[TenantName].ciamlogin.com/[TenantName].onmicrosoft.com/oauth2/v2.0/authorize
         /// </para>
         /// <para>
         /// For Azure AD B2C tenants the authorization endpoint looks typically like this.
@@ -36,10 +64,16 @@ namespace Blazorade.Id.Core.Configuration
         /// </summary>
         /// <remarks>
         /// <para>
-        /// The token endpoint for Azure AD tenants typically looks like this.
+        /// The token endpoint for Microsoft Entra ID tenants typically looks like this.
         /// </para>
         /// <para>
         /// https://login.microsoftonline.com/[TenantId]/oauth2/v2.0/token
+        /// </para>
+        /// <para>
+        /// For Microsoft Entra External ID, the token endpoint is typically constructed as follows.
+        /// </para>
+        /// <para>
+        /// https://[TenantName].ciamlogin.com/[TenantName].onmicrosoft.com/oauth2/v2.0/token
         /// </para>
         /// <para>
         /// For Azure AD B2C tenants the token endpoint looks typically something like this.

@@ -18,7 +18,7 @@ namespace Blazorade.Id.Core.Services
         private readonly string TokenEndpointUri;
         private readonly HttpClient Client;
 
-        public static async Task<TokenRequestBuilder> CreateAsync(BlazoradeAuthenticationOptions options, IHttpClientFactory? clientFactory = null)
+        public static async Task<TokenRequestBuilder> CreateAsync(AuthenticationOptions options, IHttpClientFactory? clientFactory = null)
         {
             var epService = new EndpointService(clientFactory);
             var uri = await epService.GetTokenEndpointAsync(options);

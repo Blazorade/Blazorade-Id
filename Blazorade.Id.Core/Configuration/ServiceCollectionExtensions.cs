@@ -1,4 +1,5 @@
 ﻿using Blazorade.Id.Core.Configuration;
+using Blazorade.Id.Core.Services;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
@@ -12,41 +13,14 @@ namespace Microsoft.Extensions.DependencyInjection
     public static class ServiceCollectionExtensions
     {
 
-        public static IServiceCollection AddBlazoradeId(this IServiceCollection services)
+        public static BlazoradeIdBuilder AddBlazoradeId(this IServiceCollection services)
         {
-            return services;
+            services
+                .AddSingleton<EndpointService>()
+                .AddHttpClient();
+
+            return new BlazoradeIdBuilder(services);
         }
 
-        public static IServiceCollection AddBlazoradeId(this IServiceCollection services, Action<BlazoradeAuthenticationOptions> config)
-        {
-            return services
-                .AddBlazoradeId()
-                .AddBlazoradeId((sp, options) =>
-                {
-                    config?.Invoke(options);
-                });
-        }
-
-        public static IServiceCollection AddBlazoradeId(this IServiceCollection services, Action<IServiceProvider, BlazoradeAuthenticationOptions> config)
-        {
-            return services
-                .AddBlazoradeId()
-                .AddOptions<BlazoradeAuthenticationOptions>()
-                .Configure<IServiceProvider>((o, sp) =>
-                {
-                    config.Invoke(sp, o);
-                }).Services;
-        }
-
-        public static IServiceCollection AddBlazoradeId(this IServiceCollection services, string optionsName, Action<IServiceProvider, BlazoradeAuthenticationOptions> config)
-        {
-            return services
-                .AddBlazoradeId()
-                .AddOptions<BlazoradeAuthenticationOptions>(optionsName)
-                .Configure<IServiceProvider>((o, sp) =>
-                {
-                    config.Invoke(sp, o);
-                }).Services;
-        }
     }
 }

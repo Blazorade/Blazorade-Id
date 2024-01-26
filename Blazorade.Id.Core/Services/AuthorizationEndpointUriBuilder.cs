@@ -21,7 +21,7 @@ namespace Blazorade.Id.Core.Services
 
 
 
-        public static async Task<AuthorizationEndpointUriBuilder> CreateAuthorizationEndpointUriBuilderAsync(BlazoradeAuthenticationOptions options, IHttpClientFactory? clientFactory = null)
+        public static async Task<AuthorizationEndpointUriBuilder> CreateAuthorizationEndpointUriBuilderAsync(AuthenticationOptions options, IHttpClientFactory? clientFactory = null)
         {
             var svc = new EndpointService(clientFactory);
             var uri = await svc.GetAuthorizationEndpointAsync(options) ?? throw new NullReferenceException("Could not resolve URI for authorization endpoint.");

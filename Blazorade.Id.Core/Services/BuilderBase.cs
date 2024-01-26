@@ -5,6 +5,7 @@ using System.Text;
 
 namespace Blazorade.Id.Core.Services
 {
+
     /// <summary>
     /// Base class for builder implementations.
     /// </summary>
