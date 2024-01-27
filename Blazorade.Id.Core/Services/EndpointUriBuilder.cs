@@ -14,12 +14,12 @@ namespace Blazorade.Id.Core.Services
 {
     public class EndpointUriBuilder : BuilderBase<string>
     {
-        public EndpointUriBuilder(string authorizationEndpoint)
+        public EndpointUriBuilder(string endpointUri)
         {
-            this.AuthorizationEndpoint = authorizationEndpoint;
+            this.EndpointUri = endpointUri;
         }
 
-        private string AuthorizationEndpoint;
+        private string EndpointUri;
 
 
 
@@ -225,7 +225,7 @@ namespace Blazorade.Id.Core.Services
         public override string Build()
         {
             var sb = new StringBuilder()
-                .Append(this.AuthorizationEndpoint)
+                .Append(this.EndpointUri)
                 .Append("?");
 
             for (int i = 0; i < this.Parameters.Count; i++)

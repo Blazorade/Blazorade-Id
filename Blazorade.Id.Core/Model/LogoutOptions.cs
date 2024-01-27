@@ -4,10 +4,10 @@ using System.Text;
 
 namespace Blazorade.Id.Core.Model
 {
-    public class TokenRequestOptions : TokenServiceOptionsBase
+    public class LogoutOptions : TokenServiceOptionsBase
     {
 
-        public string? AuthorizationToken { get;set; }
+        public string? PostLogoutRedirectUri { get; set; }
 
     }
 }

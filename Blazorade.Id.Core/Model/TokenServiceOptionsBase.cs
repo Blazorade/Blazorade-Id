@@ -4,10 +4,8 @@ using System.Text;
 
 namespace Blazorade.Id.Core.Model
 {
-    public class TokenRequestOptions : TokenServiceOptionsBase
+    public abstract class TokenServiceOptionsBase
     {
-
-        public string? AuthorizationToken { get;set; }
-
+        public string? Key { get; set; }
     }
 }

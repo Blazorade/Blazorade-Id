@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Blazorade.Id.Core.Services;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -31,6 +32,21 @@ namespace Blazorade.Id.Core.Configuration
                 {
                     config.Invoke(sp, o);
                 });
+            return this;
+        }
+
+        public BlazoradeIdBuilder AddNavigator<TNavigator>() where TNavigator : class, INavigator
+        {
+            this.Services.AddScoped<INavigator, TNavigator>();
+            return this;
+        }
+
+        public BlazoradeIdBuilder AddStorage<TSessionStorage, TPersistentStorage>() where TSessionStorage : class, ISessionStorage where TPersistentStorage : class, IPersistentStorage
+        {
+            this.Services
+                .AddScoped<ISessionStorage, TSessionStorage>()
+                .AddScoped<IPersistentStorage, TPersistentStorage>();
+
             return this;
         }
     }

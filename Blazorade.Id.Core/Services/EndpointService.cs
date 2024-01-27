@@ -26,11 +26,18 @@ namespace Blazorade.Id.Core.Services
             return new EndpointUriBuilder(uri);
         }
 
+        public async ValueTask<EndpointUriBuilder> CreateEndSessionUriBuilderAsync(AuthenticationOptions options)
+        {
+            var uri = await this.GetEndSessionEndpointAsync(options) ?? throw new Exception("Could not resolve URI for end session endpoint.");
+            return new EndpointUriBuilder(uri);
+        }
+
         public async ValueTask<TokenRequestBuilder> CreateTokenRequestBuilderAsync(AuthenticationOptions options)
         {
             var uri = await this.GetTokenEndpointAsync(options) ?? throw new Exception("Could not resolve URI for token endpoint");
             return new TokenRequestBuilder(uri);
         }
+
         public async ValueTask<string?> GetAuthorizationEndpointAsync(AuthenticationOptions options)
         {
             return await this.GetEndpointFromOpenIdConfigurationAsync(options.AuthorizationEndpoint, options.MetadataUri, doc => doc.AuthorizationEndpointUri);
