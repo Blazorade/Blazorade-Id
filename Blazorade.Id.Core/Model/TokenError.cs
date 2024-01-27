@@ -5,7 +5,7 @@ using System.Text.Json.Serialization;
 
 namespace Blazorade.Id.Core.Model
 {
-    public class TokenRequestError
+    public class TokenError
     {
         [JsonPropertyName("error")]
         public string Error { get; set; } = string.Empty;

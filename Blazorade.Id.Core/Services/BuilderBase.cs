@@ -20,8 +20,8 @@ namespace Blazorade.Id.Core.Services
     public abstract class BuilderBase
     {
         protected const string ClientIdName = "client_id";
-        protected const string ClientSecretName = "client_secret";
         protected const string RedirectUriName = "redirect_uri";
+        protected const string PostLogoutRedirectUriName = "post_logout_redirect_uri";
         protected const string CodeName = "code";
         protected const string CodeVerifierName = "code_verifier";
         protected const string CodeChallengeName = "code_challenge";

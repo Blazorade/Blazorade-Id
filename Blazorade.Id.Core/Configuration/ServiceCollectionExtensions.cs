@@ -17,6 +17,7 @@ namespace Microsoft.Extensions.DependencyInjection
         {
             services
                 .AddSingleton<EndpointService>()
+                .AddSingleton<TokenService>()
                 .AddHttpClient();
 
             return new BlazoradeIdBuilder(services);

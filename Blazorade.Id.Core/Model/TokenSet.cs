@@ -5,7 +5,7 @@ using System.Text.Json.Serialization;
 
 namespace Blazorade.Id.Core.Model
 {
-    public class TokenRequestSuccess
+    public class TokenSet
     {
         [JsonPropertyName("access_token")]
         public string AccessToken { get; set; } = string.Empty;

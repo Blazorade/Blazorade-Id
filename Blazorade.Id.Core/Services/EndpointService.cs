@@ -20,24 +20,35 @@ namespace Blazorade.Id.Core.Services
 
         private readonly HttpClient Client;
 
-        public async Task<string?> GetAuthorizationEndpointAsync(AuthenticationOptions options)
+        public async ValueTask<EndpointUriBuilder> CreateAuthorizationUriBuilderAsync(AuthenticationOptions options)
+        {
+            var uri = await this.GetAuthorizationEndpointAsync(options) ?? throw new Exception("Could not resolve URI for authorization endpoint.");
+            return new EndpointUriBuilder(uri);
+        }
+
+        public async ValueTask<TokenRequestBuilder> CreateTokenRequestBuilderAsync(AuthenticationOptions options)
+        {
+            var uri = await this.GetTokenEndpointAsync(options) ?? throw new Exception("Could not resolve URI for token endpoint");
+            return new TokenRequestBuilder(uri);
+        }
+        public async ValueTask<string?> GetAuthorizationEndpointAsync(AuthenticationOptions options)
         {
             return await this.GetEndpointFromOpenIdConfigurationAsync(options.AuthorizationEndpoint, options.MetadataUri, doc => doc.AuthorizationEndpointUri);
         }
 
-        public async Task<string?> GetTokenEndpointAsync(AuthenticationOptions options)
+        public async ValueTask<string?> GetTokenEndpointAsync(AuthenticationOptions options)
         {
             return await this.GetEndpointFromOpenIdConfigurationAsync(options.TokenEndpoint, options.MetadataUri, doc => doc.TokenEndpointUri);
         }
 
-        public async Task<string?> GetEndSessionEndpointAsync(AuthenticationOptions options)
+        public async ValueTask<string?> GetEndSessionEndpointAsync(AuthenticationOptions options)
         {
             return await this.GetEndpointFromOpenIdConfigurationAsync(options.EndSessionEndpoint, options.MetadataUri, doc => doc.EndSessionEndpointUri);
         }
 
 
 
-        private async Task<string?> GetEndpointFromOpenIdConfigurationAsync(string? endpointUri, string? metadataUri, Func<OpenIdConfiguration, string?> uriResolver)
+        private async ValueTask<string?> GetEndpointFromOpenIdConfigurationAsync(string? endpointUri, string? metadataUri, Func<OpenIdConfiguration, string?> uriResolver)
         {
             string? result = null;
 
@@ -57,7 +68,7 @@ namespace Blazorade.Id.Core.Services
             return result;
         }
 
-        private async Task<OpenIdConfiguration?> LoadOpenIdConfigurationAsync(string metadataUri)
+        private async ValueTask<OpenIdConfiguration?> LoadOpenIdConfigurationAsync(string metadataUri)
         {
             OpenIdConfiguration? metadata = null!;
 

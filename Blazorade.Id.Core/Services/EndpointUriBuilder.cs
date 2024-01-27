@@ -12,29 +12,21 @@ using System.Threading.Tasks;
 
 namespace Blazorade.Id.Core.Services
 {
-    public class AuthorizationEndpointUriBuilder : BuilderBase<string>
+    public class EndpointUriBuilder : BuilderBase<string>
     {
-        public AuthorizationEndpointUriBuilder(string authorizationEndpoint)
+        public EndpointUriBuilder(string authorizationEndpoint)
         {
             this.AuthorizationEndpoint = authorizationEndpoint;
-        }
-
-
-
-        public static async Task<AuthorizationEndpointUriBuilder> CreateAuthorizationEndpointUriBuilderAsync(AuthenticationOptions options, IHttpClientFactory? clientFactory = null)
-        {
-            var svc = new EndpointService(clientFactory);
-            var uri = await svc.GetAuthorizationEndpointAsync(options) ?? throw new NullReferenceException("Could not resolve URI for authorization endpoint.");
-            return new AuthorizationEndpointUriBuilder(uri);
         }
 
         private string AuthorizationEndpoint;
 
 
+
         /// <summary>
         /// Adds a client ID to the URI.
         /// </summary>
-        public AuthorizationEndpointUriBuilder WithClientId(string clientId)
+        public EndpointUriBuilder WithClientId(string clientId)
         {
             this.Parameters[ClientIdName] = clientId;
             return this;
@@ -46,7 +38,7 @@ namespace Blazorade.Id.Core.Services
         /// <remarks>
         /// The code verifier is the same that you need to specify when acquiring the token with a code generated from the authorization endpoint.
         /// </remarks>
-        public AuthorizationEndpointUriBuilder WithCodeVerifier(string? codeVerifier)
+        public EndpointUriBuilder WithCodeVerifier(string? codeVerifier)
         {
             if(codeVerifier?.Length > 0)
             {
@@ -71,7 +63,7 @@ namespace Blazorade.Id.Core.Services
         /// <summary>
         /// Adds a login hint to the URI.
         /// </summary>
-        public AuthorizationEndpointUriBuilder WithLoginHint(string? loginHint)
+        public EndpointUriBuilder WithLoginHint(string? loginHint)
         {
             if(loginHint?.Length > 0)
             {
@@ -84,11 +76,34 @@ namespace Blazorade.Id.Core.Services
         /// <summary>
         /// Adds a redirect URI to the URI.
         /// </summary>
-        public AuthorizationEndpointUriBuilder WithRedirectUri(string? redirectUri)
+        /// <remarks>
+        /// <para>
+        /// This is the URI where the user is redirected back to your application after signing in.
+        /// </para>
+        /// <para>
+        /// Note that this URI must match one of the redirect URIs you have configured in the
+        /// authentication settings for your application.
+        /// </para>
+        /// </remarks>
+        public EndpointUriBuilder WithRedirectUri(string? redirectUri)
         {
             if(redirectUri?.Length > 0)
             {
-                this.Parameters[redirectUri] = redirectUri;
+                this.Parameters[RedirectUriName] = redirectUri;
+            }
+
+            return this;
+        }
+
+        /// <summary>
+        /// Adds a post-logout redirect URI to the URI.
+        /// </summary>
+        /// <remarks>This is the URI where the user is redirected after logging out.</remarks>
+        public EndpointUriBuilder WithPostLogoutRedirectUri(string? postLogoutRedirectUri)
+        {
+            if(postLogoutRedirectUri?.Length > 0)
+            {
+                this.Parameters[PostLogoutRedirectUriName] = postLogoutRedirectUri;
             }
 
             return this;
@@ -100,20 +115,37 @@ namespace Blazorade.Id.Core.Services
         /// <remarks>
         /// You can add multiple response types by calling the method multiple times.
         /// </remarks>
-        public AuthorizationEndpointUriBuilder WithResponseType(ResponseType responseType)
+        public EndpointUriBuilder WithResponseType(ResponseType responseType)
         {
-            this.AddParameterValue(ResponseTypeName, responseType.ToString().ToLower());
+            return this.WithResponseType(responseType.ToString().ToLower());
+        }
+
+        /// <summary>
+        /// Adds a response type to the URI.
+        /// </summary>
+        /// <remarks>
+        /// You can add multiple response types by calling the method multiple times.
+        /// </remarks>
+        public EndpointUriBuilder WithResponseType(string responseType)
+        {
+            this.AddParameterValue(ResponseTypeName, responseType);
             return this;
         }
 
         /// <summary>
         /// Adds a response mode to the URI.
         /// </summary>
-        /// <param name="responseMode"></param>
-        /// <returns></returns>
-        public AuthorizationEndpointUriBuilder WithResponseMode(ResponseMode responseMode)
+        public EndpointUriBuilder WithResponseMode(ResponseMode responseMode)
         {
-            this.Parameters[ResponseModeName] = responseMode.ToString().ToLower();
+            return this.WithResponseMode(responseMode.ToString().ToLower());
+        }
+
+        /// <summary>
+        /// Adds a response mode to the URI.
+        /// </summary>
+        public EndpointUriBuilder WithResponseMode(string responseMode)
+        {
+            this.Parameters[ResponseModeName] = responseMode.ToLower();
             return this;
         }
 
@@ -123,7 +155,7 @@ namespace Blazorade.Id.Core.Services
         /// <remarks>
         /// You can add multiple scopes in one go by separating them with a space. You can also add one scope at a time by calling this method multiple times.
         /// </remarks>
-        public AuthorizationEndpointUriBuilder WithScope(string? scope)
+        public EndpointUriBuilder WithScope(string? scope)
         {
             if(scope?.Length > 0)
             {
@@ -136,7 +168,7 @@ namespace Blazorade.Id.Core.Services
         /// <summary>
         /// Adds a state to the URI.
         /// </summary>
-        public AuthorizationEndpointUriBuilder WithState(string? state)
+        public EndpointUriBuilder WithState(string? state)
         {
             if(state?.Length > 0)
             {
@@ -153,7 +185,7 @@ namespace Blazorade.Id.Core.Services
         /// The prompt controls how the user will be prompted in a UI.
         /// </remarks>
         /// <param name="prompt"></param>
-        public AuthorizationEndpointUriBuilder WithPrompt(Prompt prompt)
+        public EndpointUriBuilder WithPrompt(Prompt prompt)
         {
             return this.WithPrompt(prompt.ToString().ToLower());
         }
@@ -164,11 +196,11 @@ namespace Blazorade.Id.Core.Services
         /// <remarks>
         /// The prompt controls how the user will be prompted in a UI.
         /// </remarks>
-        public AuthorizationEndpointUriBuilder WithPrompt(string? prompt)
+        public EndpointUriBuilder WithPrompt(string? prompt)
         {
             if(prompt?.Length > 0)
             {
-                this.AddParameterValue(PromptName, prompt);
+                this.Parameters[PromptName] = prompt;
             }
             return this;
         }
@@ -177,7 +209,7 @@ namespace Blazorade.Id.Core.Services
         /// If specified, the email-based discovery process is skipped on the sign-in
         /// page, and the user is taken directly to the home tenant for authentication.
         /// </summary>
-        public AuthorizationEndpointUriBuilder WithDomainHint(string? domainHint)
+        public EndpointUriBuilder WithDomainHint(string? domainHint)
         {
             if(domainHint?.Length > 0)
             {

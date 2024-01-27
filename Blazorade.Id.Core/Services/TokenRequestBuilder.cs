@@ -9,26 +9,14 @@ namespace Blazorade.Id.Core.Services
 {
     public class TokenRequestBuilder : BuilderBase<HttpRequestMessage>
     {
-        public TokenRequestBuilder(string tokenEndpointUri, IHttpClientFactory? clientFactory = null)
+        public TokenRequestBuilder(string tokenEndpointUri)
         {
             this.TokenEndpointUri = tokenEndpointUri;
-            this.Client = clientFactory?.CreateClient() ?? new HttpClient();
         }
 
         private readonly string TokenEndpointUri;
-        private readonly HttpClient Client;
 
-        public static async Task<TokenRequestBuilder> CreateAsync(AuthenticationOptions options, IHttpClientFactory? clientFactory = null)
-        {
-            var epService = new EndpointService(clientFactory);
-            var uri = await epService.GetTokenEndpointAsync(options);
-            if(uri?.Length > 0)
-            {
-                return new TokenRequestBuilder(uri, clientFactory);
-            }
 
-            throw new Exception("Unable to resolve token endpoint URI.");
-        }
 
         public TokenRequestBuilder WithClientId(string clientId)
         {
@@ -89,14 +77,6 @@ namespace Blazorade.Id.Core.Services
             return this;
         }
 
-        public TokenRequestBuilder WithClientSecret(string? clientSecret)
-        {
-            if(clientSecret?.Length > 0)
-            {
-                this.Parameters[ClientSecretName] = clientSecret;
-            }
-            return this;
-        }
 
 
         public override HttpRequestMessage Build()
