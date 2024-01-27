@@ -9,9 +9,9 @@ using System.Threading.Tasks;
 
 namespace Blazorade.Id.Core.Services
 {
-    public class TokenService
+    public class BlazoradeIdService
     {
-        public TokenService(IOptionsFactory<AuthenticationOptions> optionsFactory, IHttpClientFactory clientFactory, EndpointService epService, ISessionStorage sessionStorage, IPersistentStorage persistentStorage, INavigator navigator)
+        public BlazoradeIdService(IOptionsFactory<AuthenticationOptions> optionsFactory, IHttpClientFactory clientFactory, EndpointService epService, ISessionStorage sessionStorage, IPersistentStorage persistentStorage, INavigator navigator)
         {
             this.OptionsFactory = optionsFactory ?? throw new ArgumentNullException(nameof(optionsFactory));
             this.ClientFactory = clientFactory ?? throw new ArgumentNullException(nameof(clientFactory));

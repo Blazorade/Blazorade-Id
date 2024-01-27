@@ -17,6 +17,8 @@ namespace Blazorade.Id.Services
 
         private readonly NavigationManager NavMan;
 
+        public string? CurrentUri => this.NavMan.Uri;
+
         public ValueTask NavigateToAsync(string uri)
         {
             this.NavMan.NavigateTo(uri);

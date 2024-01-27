@@ -17,7 +17,7 @@ namespace Microsoft.Extensions.DependencyInjection
         {
             services
                 .AddScoped<EndpointService>()
-                .AddScoped<TokenService>()
+                .AddScoped<BlazoradeIdService>()
                 .AddHttpClient();
 
             return new BlazoradeIdBuilder(services);

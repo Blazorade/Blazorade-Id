@@ -1,5 +1,6 @@
 ﻿using Blazorade.Id.Core.Configuration;
 using Blazorade.Id.Core.Model;
+using Blazorade.Id.Core.Services;
 using Microsoft.AspNetCore.Components;
 using System;
 using System.Collections.Generic;
@@ -9,8 +10,13 @@ using System.Threading.Tasks;
 
 namespace Blazorade.Id.Components
 {
-    partial class TokenHandler
+    partial class BlazoradeIdManager
     {
+        [Inject]
+        public BlazoradeIdService IdService { get;set; }
+
+        [Parameter]
+        public EventCallback<object> IdentityTokenAcquired { get; set; }
 
         [Parameter]
         public string? OptionsKey { get; set; }
@@ -22,6 +28,10 @@ namespace Blazorade.Id.Components
         public string? PostLogoutRedirectUri { get; set; }
 
 
+        public async ValueTask LogoutAsync(LogoutOptions? options = null)
+        {
+            await this.IdService.LogoutAsync(options: options);
+        }
 
         protected async override Task OnAfterRenderAsync(bool firstRender)
         {
@@ -37,11 +47,5 @@ namespace Blazorade.Id.Components
             await base.OnAfterRenderAsync(firstRender);
         }
 
-
-        private AuthenticationOptions GetOptions()
-        {
-            var options = this.AuthOptions.Create(this.OptionsKey ?? string.Empty);
-            return options;
-        }
     }
 }
