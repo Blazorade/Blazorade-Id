@@ -1,12 +1,15 @@
 ﻿using Blazorade.Id.Core.Configuration;
 using Blazorade.Id.Core.Services;
 using Microsoft.Extensions.Primitives;
+using Microsoft.IdentityModel.Tokens;
 using System;
+using System.Buffers.Text;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
@@ -104,6 +107,23 @@ namespace Blazorade.Id.Core.Services
         }
 
         /// <summary>
+        /// Adds a redirect URI to the URI.
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// This is the URI where the user is redirected back to your application after signing in.
+        /// </para>
+        /// <para>
+        /// Note that this URI must match one of the redirect URIs you have configured in the
+        /// authentication settings for your application.
+        /// </para>
+        /// </remarks>
+        public EndpointUriBuilder WithRedirectUri(Uri? redirectUri)
+        {
+            return this.WithRedirectUri(redirectUri?.ToString());
+        }
+
+        /// <summary>
         /// Adds a post-logout redirect URI to the URI.
         /// </summary>
         /// <remarks>This is the URI where the user is redirected after logging out.</remarks>
@@ -123,9 +143,9 @@ namespace Blazorade.Id.Core.Services
         /// <remarks>
         /// You can add multiple response types by calling the method multiple times.
         /// </remarks>
-        public EndpointUriBuilder WithResponseType(ResponseType responseType)
+        public EndpointUriBuilder WithResponseType(ResponseType? responseType)
         {
-            return this.WithResponseType(responseType.ToString().ToLower());
+            return this.WithResponseType(responseType?.ToString()?.ToLower());
         }
 
         /// <summary>
@@ -134,26 +154,32 @@ namespace Blazorade.Id.Core.Services
         /// <remarks>
         /// You can add multiple response types by calling the method multiple times.
         /// </remarks>
-        public EndpointUriBuilder WithResponseType(string responseType)
+        public EndpointUriBuilder WithResponseType(string? responseType)
         {
-            this.AddParameterValue(ResponseTypeName, responseType);
+            if(responseType?.Length > 0)
+            {
+                this.AddParameterValue(ResponseTypeName, responseType);
+            }
             return this;
         }
 
         /// <summary>
         /// Adds a response mode to the URI.
         /// </summary>
-        public EndpointUriBuilder WithResponseMode(ResponseMode responseMode)
+        public EndpointUriBuilder WithResponseMode(ResponseMode? responseMode)
         {
-            return this.WithResponseMode(responseMode.ToString().ToLower());
+            return this.WithResponseMode(responseMode?.ToString()?.ToLower());
         }
 
         /// <summary>
         /// Adds a response mode to the URI.
         /// </summary>
-        public EndpointUriBuilder WithResponseMode(string responseMode)
+        public EndpointUriBuilder WithResponseMode(string? responseMode)
         {
-            this.Parameters[ResponseModeName] = responseMode.ToLower();
+            if(responseMode?.Length > 0)
+            {
+                this.Parameters[ResponseModeName] = responseMode.ToLower();
+            }
             return this;
         }
 
@@ -168,6 +194,18 @@ namespace Blazorade.Id.Core.Services
             if(scope?.Length > 0)
             {
                 this.AddParameterValue(ScopeName, scope);
+            }
+
+            return this;
+        }
+
+        public EndpointUriBuilder WithState(object? state)
+        {
+            if(null != state)
+            {
+                var str = JsonSerializer.Serialize(state, options: new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
+                var base64 = Base64UrlEncoder.Encode(str);
+                this.WithState(base64);
             }
 
             return this;
@@ -193,9 +231,9 @@ namespace Blazorade.Id.Core.Services
         /// The prompt controls how the user will be prompted in a UI.
         /// </remarks>
         /// <param name="prompt"></param>
-        public EndpointUriBuilder WithPrompt(Prompt prompt)
+        public EndpointUriBuilder WithPrompt(Prompt? prompt)
         {
-            return this.WithPrompt(prompt.ToString().ToLower());
+            return this.WithPrompt(prompt?.ToString()?.ToLower());
         }
 
         /// <summary>

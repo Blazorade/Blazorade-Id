@@ -31,12 +31,14 @@ namespace Blazorade.Id.Core.Services
         /// Creates an endpoint builder that is used to build the authorization endpoint URI with.
         /// </summary>
         /// <param name="options">The options to use when resolving the authorization endpoint URI for the configured authority.</param>
-        /// <returns></returns>
+        /// <returns>
+        /// The builder returned is configured with the <see cref="AuthorityOptions.ClientId"/> from <paramref name="options"/>.
+        /// </returns>
         /// <exception cref="Exception">The exception that is thrown when the authorization endpoint URI could not be resolved.</exception>
         public async ValueTask<EndpointUriBuilder> CreateAuthorizationUriBuilderAsync(AuthorityOptions options)
         {
             var uri = await this.GetAuthorizationEndpointAsync(options) ?? throw new Exception("Could not resolve URI for authorization endpoint.");
-            return new EndpointUriBuilder(uri);
+            return new EndpointUriBuilder(uri).WithClientId(options.ClientId);
         }
 
         public async ValueTask<EndpointUriBuilder> CreateEndSessionUriBuilderAsync(AuthorityOptions options)
@@ -48,7 +50,7 @@ namespace Blazorade.Id.Core.Services
         public async ValueTask<TokenRequestBuilder> CreateTokenRequestBuilderAsync(AuthorityOptions options)
         {
             var uri = await this.GetTokenEndpointAsync(options) ?? throw new Exception("Could not resolve URI for token endpoint");
-            return new TokenRequestBuilder(uri);
+            return new TokenRequestBuilder(uri).WithClientId(options.ClientId);
         }
 
         public async ValueTask<string?> GetAuthorizationEndpointAsync(AuthorityOptions options)

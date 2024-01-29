@@ -97,5 +97,14 @@ namespace Blazorade.Id.Core.Configuration
         /// </remarks>
         public TokenCacheMode CacheMode { get; set; } = TokenCacheMode.Session;
 
+        /// <summary>
+        /// The redirect URI where to redirect the users back after logging in.
+        /// </summary>
+        /// <remarks>
+        /// This must be configured in the application registration and is typically
+        /// stored as a URI relative to the home / root URI of the application.
+        /// </remarks>
+        public string? RedirectUri { get; set; }
+
     }
 }
