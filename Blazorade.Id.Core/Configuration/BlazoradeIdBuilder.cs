@@ -15,9 +15,9 @@ namespace Blazorade.Id.Core.Configuration
 
         public IServiceCollection Services { get; }
 
-        public BlazoradeIdBuilder AddOptions(Action<IServiceProvider, AuthenticationOptions> config)
+        public BlazoradeIdBuilder AddAuthority(Action<IServiceProvider, AuthorityOptions> config)
         {
-            this.Services.AddOptions<AuthenticationOptions>()
+            this.Services.AddOptions<AuthorityOptions>()
                 .Configure<IServiceProvider>((o, sp) =>
                 {
                     config.Invoke(sp, o);
@@ -25,9 +25,9 @@ namespace Blazorade.Id.Core.Configuration
             return this;
         }
 
-        public BlazoradeIdBuilder AddOptions(string key, Action<IServiceProvider, AuthenticationOptions> config)
+        public BlazoradeIdBuilder AddAuthority(string key, Action<IServiceProvider, AuthorityOptions> config)
         {
-            this.Services.AddOptions<AuthenticationOptions>(key)
+            this.Services.AddOptions<AuthorityOptions>(key)
                 .Configure<IServiceProvider>((o, sp) =>
                 {
                     config.Invoke(sp, o);

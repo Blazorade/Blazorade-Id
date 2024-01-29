@@ -8,8 +8,10 @@ using System.Threading.Tasks;
 
 namespace Blazorade.Id.Services
 {
+    /// <inheritdoc/>
     public class BlazorPersistentStorage : StorageBase, IPersistentStorage
     {
+        /// <inheritdoc/>
         public BlazorPersistentStorage(ILocalStorageService service)
         {
             this.Service = service ?? throw new ArgumentNullException(nameof(service));
@@ -30,9 +32,9 @@ namespace Blazorade.Id.Services
         }
 
         /// <inheritdoc/>
-        public override ValueTask<string> GetItemAsync(string key)
+        public override ValueTask<T> GetItemAsync<T>(string key)
         {
-            return this.Service.GetItemAsStringAsync(key);
+            return this.Service.GetItemAsync<T>(key);
         }
 
         /// <inheritdoc/>
@@ -54,9 +56,9 @@ namespace Blazorade.Id.Services
         }
 
         /// <inheritdoc/>
-        public override ValueTask SetItemAsync(string key, string value)
+        public override ValueTask SetItemAsync<T>(string key, T value)
         {
-            return this.Service.SetItemAsStringAsync(key, value);
+            return this.Service.SetItemAsync(key, value);
         }
     }
 }

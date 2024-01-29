@@ -7,7 +7,7 @@ namespace Blazorade.Id.Core.Model
     public class TokenResponse
     {
 
-        public TokenResponse(TokenSet set)
+        public TokenResponse(RefreshableTokenSet set)
         {
             this.Tokens = set;
             this.Error = null;
@@ -23,7 +23,7 @@ namespace Blazorade.Id.Core.Model
 
         public bool IsSuccess { get; private set; }
 
-        public TokenSet? Tokens { get; private set; }
+        public RefreshableTokenSet? Tokens { get; private set; }
 
         public TokenError? Error { get; private set; }
 

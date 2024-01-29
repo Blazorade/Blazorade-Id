@@ -12,7 +12,7 @@ namespace Blazorade.Id.Core.Services
 
         public abstract ValueTask<bool> ContainsKeyAsync(string key);
 
-        public abstract ValueTask<string> GetItemAsync(string key);
+        public abstract ValueTask<T> GetItemAsync<T>(string key);
 
         public abstract ValueTask<int> GetItemCountAsync();
 
@@ -28,6 +28,6 @@ namespace Blazorade.Id.Core.Services
             }
         }
 
-        public abstract ValueTask SetItemAsync(string key, string value);
+        public abstract ValueTask SetItemAsync<T>(string key, T value);
     }
 }

@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Blazorade.Id.Core.Configuration
 {
-    public class AuthenticationOptions
+    public class AuthorityOptions
     {
 
         /// <summary>

@@ -12,11 +12,19 @@ using System.Threading.Tasks;
 
 namespace Blazorade.Id.Core.Services
 {
+    /// <summary>
+    /// A builder that is used to build URIs to various endpoints.
+    /// </summary>
     public class EndpointUriBuilder : BuilderBase<string>
     {
+        /// <summary>
+        /// Creates an instance of the class and specifies the base URI to start building on.
+        /// </summary>
+        /// <param name="endpointUri">The endpoint URI to start building on. This must be an absolute URI.</param>
         public EndpointUriBuilder(string endpointUri)
         {
-            this.EndpointUri = endpointUri;
+            var uri = new Uri(endpointUri, UriKind.Absolute);
+            this.EndpointUri = uri.ToString();
         }
 
         private string EndpointUri;

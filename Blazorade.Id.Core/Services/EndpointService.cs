@@ -11,8 +11,15 @@ using System.Threading.Tasks;
 
 namespace Blazorade.Id.Core.Services
 {
+    /// <summary>
+    /// A service implementation that is used to resolve various endpoints with.
+    /// </summary>
     public class EndpointService
     {
+        /// <summary>
+        /// Creates an instance of the class.
+        /// </summary>
+        /// <param name="clientFactory">The HTTP client factory that is a dependency to this service instance.</param>
         public EndpointService(IHttpClientFactory? clientFactory)
         {
             this.Client = clientFactory?.CreateClient() ?? new HttpClient();
@@ -20,35 +27,41 @@ namespace Blazorade.Id.Core.Services
 
         private readonly HttpClient Client;
 
-        public async ValueTask<EndpointUriBuilder> CreateAuthorizationUriBuilderAsync(AuthenticationOptions options)
+        /// <summary>
+        /// Creates an endpoint builder that is used to build the authorization endpoint URI with.
+        /// </summary>
+        /// <param name="options">The options to use when resolving the authorization endpoint URI for the configured authority.</param>
+        /// <returns></returns>
+        /// <exception cref="Exception">The exception that is thrown when the authorization endpoint URI could not be resolved.</exception>
+        public async ValueTask<EndpointUriBuilder> CreateAuthorizationUriBuilderAsync(AuthorityOptions options)
         {
             var uri = await this.GetAuthorizationEndpointAsync(options) ?? throw new Exception("Could not resolve URI for authorization endpoint.");
             return new EndpointUriBuilder(uri);
         }
 
-        public async ValueTask<EndpointUriBuilder> CreateEndSessionUriBuilderAsync(AuthenticationOptions options)
+        public async ValueTask<EndpointUriBuilder> CreateEndSessionUriBuilderAsync(AuthorityOptions options)
         {
             var uri = await this.GetEndSessionEndpointAsync(options) ?? throw new Exception("Could not resolve URI for end session endpoint.");
             return new EndpointUriBuilder(uri);
         }
 
-        public async ValueTask<TokenRequestBuilder> CreateTokenRequestBuilderAsync(AuthenticationOptions options)
+        public async ValueTask<TokenRequestBuilder> CreateTokenRequestBuilderAsync(AuthorityOptions options)
         {
             var uri = await this.GetTokenEndpointAsync(options) ?? throw new Exception("Could not resolve URI for token endpoint");
             return new TokenRequestBuilder(uri);
         }
 
-        public async ValueTask<string?> GetAuthorizationEndpointAsync(AuthenticationOptions options)
+        public async ValueTask<string?> GetAuthorizationEndpointAsync(AuthorityOptions options)
         {
             return await this.GetEndpointFromOpenIdConfigurationAsync(options.AuthorizationEndpoint, options.MetadataUri, doc => doc.AuthorizationEndpointUri);
         }
 
-        public async ValueTask<string?> GetTokenEndpointAsync(AuthenticationOptions options)
+        public async ValueTask<string?> GetTokenEndpointAsync(AuthorityOptions options)
         {
             return await this.GetEndpointFromOpenIdConfigurationAsync(options.TokenEndpoint, options.MetadataUri, doc => doc.TokenEndpointUri);
         }
 
-        public async ValueTask<string?> GetEndSessionEndpointAsync(AuthenticationOptions options)
+        public async ValueTask<string?> GetEndSessionEndpointAsync(AuthorityOptions options)
         {
             return await this.GetEndpointFromOpenIdConfigurationAsync(options.EndSessionEndpoint, options.MetadataUri, doc => doc.EndSessionEndpointUri);
         }
