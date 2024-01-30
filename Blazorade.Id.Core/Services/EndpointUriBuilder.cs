@@ -35,6 +35,21 @@ namespace Blazorade.Id.Core.Services
 
 
         /// <summary>
+        /// Adds an authorization code to the URI.
+        /// </summary>
+        public EndpointUriBuilder WithAuthorizationCode(string? code)
+        {
+            if (code?.Length > 0)
+            {
+                this.RemoveParameterValue(RefreshTokenName);
+                this.Parameters[CodeName] = code;
+                this.Parameters[GrantTypeName] = GrantTypeValueCode;
+            }
+
+            return this;
+        }
+
+        /// <summary>
         /// Adds a client ID to the URI.
         /// </summary>
         public EndpointUriBuilder WithClientId(string clientId)
@@ -47,9 +62,10 @@ namespace Blazorade.Id.Core.Services
         /// Uses the given code verifier and produces a code challenge that is added to the URI.
         /// </summary>
         /// <remarks>
-        /// The code verifier is the same that you need to specify when acquiring the token with a code generated from the authorization endpoint.
+        /// The code verifier is the same that you need to specify when acquiring the token
+        /// with a code generated from the authorization endpoint.
         /// </remarks>
-        public EndpointUriBuilder WithCodeVerifier(string? codeVerifier)
+        public EndpointUriBuilder WithCodeChallenge(string? codeVerifier)
         {
             if(codeVerifier?.Length > 0)
             {
@@ -81,6 +97,15 @@ namespace Blazorade.Id.Core.Services
                 this.Parameters[LoginHintName] = loginHint;
             }
 
+            return this;
+        }
+
+        public EndpointUriBuilder WithNonce(string? nonce)
+        {
+            if(nonce?.Length > 0)
+            {
+                this.Parameters[NonceName] = nonce;
+            }
             return this;
         }
 
@@ -121,6 +146,20 @@ namespace Blazorade.Id.Core.Services
         public EndpointUriBuilder WithRedirectUri(Uri? redirectUri)
         {
             return this.WithRedirectUri(redirectUri?.ToString());
+        }
+
+        /// <summary>
+        /// Adds a refresh token to the URI.
+        /// </summary>
+        public EndpointUriBuilder WithRefreshToken(string? refreshToken)
+        {
+            if (refreshToken?.Length > 0)
+            {
+                this.RemoveParameterValue(CodeName);
+                this.Parameters[RefreshTokenName] = refreshToken;
+                this.Parameters[GrantTypeName] = GrantTypeValueRefreshToken;
+            }
+            return this;
         }
 
         /// <summary>
@@ -194,18 +233,6 @@ namespace Blazorade.Id.Core.Services
             if(scope?.Length > 0)
             {
                 this.AddParameterValue(ScopeName, scope);
-            }
-
-            return this;
-        }
-
-        public EndpointUriBuilder WithState(object? state)
-        {
-            if(null != state)
-            {
-                var str = JsonSerializer.Serialize(state, options: new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
-                var base64 = Base64UrlEncoder.Encode(str);
-                this.WithState(base64);
             }
 
             return this;

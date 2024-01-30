@@ -17,7 +17,7 @@ namespace Blazorade.Id.Core.Model
         public List<int> ErrorCodes { get; set; } = new List<int>();
 
         [JsonPropertyName("timestamp")]
-        public DateTimeOffset Timestamp { get; set; }
+        public string Timestamp { get; set; } = string.Empty;
 
         [JsonPropertyName("trace_id")]
         public string TraceId { get; set; } = string.Empty;

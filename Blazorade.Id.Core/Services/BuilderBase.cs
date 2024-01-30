@@ -29,6 +29,7 @@ namespace Blazorade.Id.Core.Services
         protected const string RefreshTokenName = "refresh_token";
         protected const string LoginHintName = "login_hint";
         protected const string DomainHintName = "domain_hint";
+        protected const string NonceName = "nonce";
         protected const string ResponseTypeName = "response_type";
         protected const string ResponseModeName = "response_mode";
         protected const string ScopeName = "scope";

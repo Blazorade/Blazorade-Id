@@ -64,6 +64,11 @@ namespace Blazorade.Id.Core.Services
             return this;
         }
 
+        public TokenRequestBuilder WithRedirectUri(Uri? redirectUri)
+        {
+            return this.WithRedirectUri(redirectUri?.ToString());
+        }
+
         public TokenRequestBuilder WithCodeVerifier(string? codeVerifier)
         {
             if(codeVerifier?.Length > 0)

@@ -1,12 +1,17 @@
 ﻿using Blazorade.Id.Core.Configuration;
 using Blazorade.Id.Core.Model;
 using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
 using System.Net.Http;
+using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace Blazorade.Id.Core.Services
@@ -34,26 +39,81 @@ namespace Blazorade.Id.Core.Services
         private readonly IPersistentStorage PersistentStorage;
         private readonly INavigator Navigator;
 
-        public async ValueTask CompleteLoginAsync(string authorizationCode, LoginState? state)
+        public async ValueTask<LoginCompletedState> CompleteLoginAsync(string authorizationCode, LoginState state)
         {
             var codeVerifierKey = this.CreateCodeVerifierStorageKey();
             var codeVerifier = await this.SessionStorage.GetItemAsync<string>(codeVerifierKey);
 
+            var scopeKey = this.CreateScopeStorageKey();
+            var scope = await this.SessionStorage.GetItemAsync<string>(scopeKey);
+
             await this.SessionStorage.RemoveItemAsync(codeVerifierKey);
 
-            var redirUri = state?.Uri ?? this.Navigator.HomeUri;
-            await this.Navigator.NavigateToAsync(redirUri ?? "/");
+            var authOptions = this.GetAuthOptions(state.AuthorityKey);
+            var redirUri = this.CreateRedirectUri(authOptions);
+
+            var tokenEndpointUri = await this.EPService.GetTokenEndpointAsync(authOptions) ?? throw new NullReferenceException("Unable to resolve token endpoint URI.");
+            var tokenRequest = new TokenRequestBuilder(tokenEndpointUri)
+                .WithClientId(authOptions.ClientId)
+                .WithCodeVerifier(codeVerifier)
+                .WithAuthorizationCode(authorizationCode)
+                .WithScope(scope)
+                .WithRedirectUri(redirUri)
+                .Build();
+
+            RefreshableTokenSet tokens = null!;
+            var completedState = new LoginCompletedState { ApplicationState = state.ApplicationState, AuthorityKey = state.AuthorityKey };
+            var client = this.ClientFactory.CreateClient();
+            using (var response = await client.SendAsync(tokenRequest))
+            {
+                var now = DateTime.UtcNow;
+                var json = await response.Content.ReadAsStringAsync();
+                if(response.IsSuccessStatusCode)
+                {
+                    tokens = JsonSerializer.Deserialize<RefreshableTokenSet>(json) ?? throw new Exception($"Unable to deserialize response from token endpoint at '{tokenEndpointUri}'.");
+                    tokens.ExpiresAtUtc = now.AddSeconds(tokens.ExpiresIn);
+                    completedState.IsSuccess = true;
+                }
+                else
+                {
+                    completedState.Error = JsonSerializer.Deserialize<TokenError>(json) ?? throw new Exception($"Unable to deserialize the error response from the token endpoint at '{tokenEndpointUri}'");
+                }
+            }
+
+            if(completedState.IsSuccess)
+            {
+                var idToken = new JwtSecurityToken(tokens.IdentityToken);
+                completedState.DisplayName = idToken.Claims.FirstOrDefault(x => x.Type == "name")?.Value;
+                completedState.Username = idToken.Claims.FirstOrDefault(x => x.Type == "preferred_username")?.Value;
+
+                if(completedState.Username?.Length > 0)
+                {
+                    var storage = this.GetConfiguredStorage(authOptions);
+                    var tokenStorageKey = this.CreateTokenSetKey(state.AuthorityKey, completedState.Username);
+                    var usernameStorageKey = this.CreateCurrentUsernameStorageKey();
+
+                    await storage.SetItemAsync(tokenStorageKey, tokens);
+                    await storage.SetItemAsync(usernameStorageKey, completedState.Username);
+                }
+                else
+                {
+                    throw new Exception($"Could not resolve username from identity token received from token endpoint at '{tokenEndpointUri}'.");
+                }
+            }
+
+            return completedState;
+        }
+
+        public TState DeserializeState<TState>(string base64) where TState : new()
+        {
+            var json = Base64UrlEncoder.Decode(base64);
+            var state = JsonSerializer.Deserialize<TState>(json);
+            return state ?? new TState();
         }
 
         public async ValueTask<TokenSet?> GetTokenSetSilentAsync(string scope = "openid profile offline_access")
         {
-            TokenSet? tokens = null;
-            var set = await this.GetCurrentTokenSetAsync();
-            if(set?.ExpiresAtUtc > DateTime.UtcNow && set.ContainsScopes(scope))
-            {
-                tokens = set;
-            }
-
+            TokenSet? tokens = await this.GetCurrentTokenSetAsync(includeExpired: false);
             return tokens;
         }
 
@@ -63,11 +123,25 @@ namespace Blazorade.Id.Core.Services
         public async ValueTask<string?> GetCurrentUsernameAsync()
         {
             var authorityKey = await this.GetCurrentAuthorityKeyAsync();
-            var key = this.CreateCurrentLoginHintStorageKey();
+            var key = this.CreateCurrentUsernameStorageKey();
             var storage = this.GetConfiguredStorage(authorityKey);
             var loginHint = await storage.GetItemAsync<string>(key);
 
             return loginHint?.Length > 0 ? loginHint : null;
+        }
+
+        public async ValueTask<ClaimsPrincipal?> GetCurrentUserPrincipalAsync()
+        {
+            ClaimsPrincipal? principal = null;
+            var tokens = await this.GetCurrentTokenSetAsync(includeExpired: false);
+            if(tokens?.IdentityToken?.Length > 0)
+            {
+                var idToken = new JwtSecurityToken(tokens.IdentityToken);
+                var identity = new ClaimsIdentity(idToken.Claims, "Password", "name", "roles");
+                principal = new ClaimsPrincipal(identity);
+            }
+
+            return principal;
         }
 
         /// <summary>
@@ -90,29 +164,15 @@ namespace Blazorade.Id.Core.Services
         {
             var authOptions = this.GetAuthOptions(authorityKey);
             var homeUri = new Uri(this.Navigator.HomeUri);
-            Uri redirUri;
-
-            if(authOptions.RedirectUri?.Length > 0)
-            {
-                var uri = new Uri(authOptions.RedirectUri, UriKind.RelativeOrAbsolute);
-                if(uri.IsAbsoluteUri)
-                {
-                    redirUri = uri;
-                }
-                else
-                {
-                    redirUri = new Uri(homeUri, uri.ToString());
-                }
-            }
-            else
-            {
-                redirUri = homeUri;
-            }
-
+            var redirUri = this.CreateRedirectUri(authOptions);
             var currentUri = homeUri.MakeRelativeUri(new Uri(this.Navigator.CurrentUri));
+
             var codeVerifier = this.CreateCodeVerifier();
             var codeVerifierKey = this.CreateCodeVerifierStorageKey();
             await this.SessionStorage.SetItemAsync(codeVerifierKey, codeVerifier);
+
+            var scopeKey = this.CreateScopeStorageKey();
+            await this.SessionStorage.SetItemAsync(scopeKey, scope);
 
             var builder = await this.EPService.CreateAuthorizationUriBuilderAsync(authOptions);
             var authUri = builder
@@ -123,8 +183,9 @@ namespace Blazorade.Id.Core.Services
                 .WithResponseType(ResponseType.Code)
                 .WithResponseMode(ResponseMode.Fragment)
                 .WithRedirectUri(redirUri)
-                .WithCodeVerifier(codeVerifier)
-                .WithState(new LoginState { ApplicationState = state, Uri = currentUri.ToString(), AuthorityKey = authorityKey })
+                .WithCodeChallenge(codeVerifier)
+                .WithNonce(Guid.NewGuid().ToString())
+                .WithState(this.SerializeState(new LoginState { ApplicationState = state, Uri = currentUri.ToString(), AuthorityKey = authorityKey }))
                 .Build();
 
             await this.Navigator.NavigateToAsync(authUri);
@@ -150,8 +211,15 @@ namespace Blazorade.Id.Core.Services
             var authorityKey = await this.PersistentStorage.GetItemAsync<string>(authKeyKey);
 
             var authOptions = this.GetAuthOptions(authorityKey);
-            var builder = await this.EPService.CreateEndSessionUriBuilderAsync(authOptions);
+            var usernameKey = this.CreateCurrentUsernameStorageKey();
+            var username = await this.GetCurrentUsernameAsync();
+            var tokenSetKey = this.CreateTokenSetKey(authorityKey, username ?? string.Empty);
 
+            var store = this.GetConfiguredStorage(authOptions);
+            await store.RemoveItemAsync(usernameKey);
+            await store.RemoveItemAsync(tokenSetKey);
+
+            var builder = await this.EPService.CreateEndSessionUriBuilderAsync(authOptions);
             var logoutUri = builder
                 .WithPostLogoutRedirectUri(
                     postLogoutRedirectUri?.Length > 0
@@ -160,11 +228,19 @@ namespace Blazorade.Id.Core.Services
                             ? this.Navigator.CurrentUri
                             : null
                 )
+                .WithLoginHint(username)
                 .Build();
 
             await this.Navigator.NavigateToAsync(logoutUri);
+
         }
 
+        public string SerializeState(object state)
+        {
+            var json = JsonSerializer.Serialize(state);
+            var base64 = Base64UrlEncoder.Encode(json);
+            return base64;
+        }
 
 
 
@@ -191,14 +267,44 @@ namespace Blazorade.Id.Core.Services
             return this.PrefixStorageKey(null, "codeVerifier");
         }
 
-        private string CreateCurrentLoginHintStorageKey()
+        private string CreateCurrentUsernameStorageKey()
         {
-            return this.PrefixStorageKey(null, "currentLogin");
+            return this.PrefixStorageKey(null, "currentUsername");
         }
 
         private string CreateCurrentAuthorityKeyStorageKey()
         {
             return this.PrefixStorageKey(null, "currentAuthKey");
+        }
+
+        private Uri CreateRedirectUri(AuthorityOptions authOptions)
+        {
+            Uri redirUri;
+            var homeUri = new Uri(this.Navigator.HomeUri);
+
+            if (authOptions.RedirectUri?.Length > 0)
+            {
+                var uri = new Uri(authOptions.RedirectUri, UriKind.RelativeOrAbsolute);
+                if (uri.IsAbsoluteUri)
+                {
+                    redirUri = uri;
+                }
+                else
+                {
+                    redirUri = new Uri(homeUri, uri.ToString());
+                }
+            }
+            else
+            {
+                redirUri = homeUri;
+            }
+
+            return redirUri;
+        }
+
+        private string CreateScopeStorageKey()
+        {
+            return this.PrefixStorageKey(null, "scope");
         }
 
         private string CreateTokenSetKey(string? authKey, string username)
@@ -241,16 +347,24 @@ namespace Blazorade.Id.Core.Services
             return await this.PersistentStorage.GetItemAsync<string>(storageKey);
         }
 
-        private async ValueTask<TokenSet?> GetCurrentTokenSetAsync()
+        private async ValueTask<TokenSet?> GetCurrentTokenSetAsync(bool includeExpired = false)
         {
-            TokenSet? tokens = null;
             var authKey = await this.GetCurrentAuthorityKeyAsync();
             var username = await this.GetCurrentUsernameAsync();
-            if (username?.Length > 0)
+            return await this.GetCurrentTokenSetAsync(authKey, username, includeExpired: includeExpired);
+        }
+
+        private async ValueTask<TokenSet?> GetCurrentTokenSetAsync(string? authKey, string? username, bool includeExpired = false)
+        {
+            TokenSet? tokens = null;
+            if(username?.Length > 0)
             {
-                var tokensKey = this.CreateTokenSetKey(authKey, username);
-                var storage = this.GetConfiguredStorage(authKey);
-                tokens = await storage.GetItemAsync<TokenSet?>(tokensKey);
+                var key = this.CreateTokenSetKey(authKey, username);
+                var set = await this.GetConfiguredStorage(authKey).GetItemAsync<TokenSet?>(key);
+                if(null != set && (set.ExpiresAtUtc > DateTime.UtcNow || includeExpired))
+                {
+                    tokens = set;
+                }
             }
 
             return tokens;
