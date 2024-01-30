@@ -27,7 +27,6 @@ namespace Blazorade.Id.Components
         [Inject]
         public IHostEnvironmentAuthenticationStateProvider AuthStateSetter { get; set; } = null!;
 
-
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
             await base.OnAfterRenderAsync(firstRender);

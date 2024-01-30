@@ -4,8 +4,11 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
+using Blazorade.Id.Components;
 using Blazorade.Id.Core.Configuration;
 using Blazorade.Id.Services;
+using Blazored.LocalStorage;
+using Blazored.SessionStorage;
 using Microsoft.AspNetCore.Components.Authorization;
 
 namespace Microsoft.Extensions.DependencyInjection
@@ -16,23 +19,41 @@ namespace Microsoft.Extensions.DependencyInjection
         public static BlazoradeIdBuilder AddBlazoradeIdServerApplication(this IServiceCollection services)
         {
             return services
-                .AddBlazoradeIdWasmApplication()
-                ;
-        }
-
-        public static BlazoradeIdBuilder AddBlazoradeIdWasmApplication(this IServiceCollection services)
-        {
-            return services
+                .AddAuthorizationCore()
                 .AddCascadingAuthenticationState()
                 .AddScoped<IHostEnvironmentAuthenticationStateProvider>(sp =>
                 {
                     var stateProvider = sp.GetRequiredService<AuthenticationStateProvider>();
                     return (IHostEnvironmentAuthenticationStateProvider)stateProvider;
                 })
+                .AddBlazoredSessionStorage()
+                .AddBlazoredLocalStorage()
                 .AddBlazoradeId()
                 .AddStorage<BlazorSessionStorage, BlazorPersistentStorage>()
                 .AddNavigator<BlazorNavigator>()
                 ;
+        }
+
+        public static BlazoradeIdBuilder AddBlazoradeIdWasmApplication(this IServiceCollection services)
+        {
+            return services
+                .AddScoped<AuthenticationStateProvider, BlazoradeIdAuthenticationStateProvider>()
+                .AddBlazoradeIdServerApplication()
+                ;
+            //return services
+            //    .AddScoped<AuthenticationStateProvider, BlazoradeIdAuthenticationStateProvider>()
+            //    .AddCascadingAuthenticationState()
+            //    .AddScoped<IHostEnvironmentAuthenticationStateProvider>(sp =>
+            //    {
+            //        var stateProvider = sp.GetRequiredService<AuthenticationStateProvider>();
+            //        return (IHostEnvironmentAuthenticationStateProvider)stateProvider;
+            //    })
+            //    .AddBlazoredSessionStorage()
+            //    .AddBlazoredLocalStorage()
+            //    .AddBlazoradeId()
+            //    .AddStorage<BlazorSessionStorage, BlazorPersistentStorage>()
+            //    .AddNavigator<BlazorNavigator>()
+            //    ;
         }
     }
 }
