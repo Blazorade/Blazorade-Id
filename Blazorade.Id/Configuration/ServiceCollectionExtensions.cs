@@ -5,6 +5,8 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using Blazorade.Id.Core.Configuration;
+using Blazorade.Id.Services;
+using Microsoft.AspNetCore.Components.Authorization;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -13,14 +15,24 @@ namespace Microsoft.Extensions.DependencyInjection
 
         public static BlazoradeIdBuilder AddBlazoradeIdServerApplication(this IServiceCollection services)
         {
-            return services.AddBlazoradeIdWasmApplication();
+            return services
+                .AddBlazoradeIdWasmApplication()
+                ;
         }
 
         public static BlazoradeIdBuilder AddBlazoradeIdWasmApplication(this IServiceCollection services)
         {
             return services
                 .AddCascadingAuthenticationState()
-                .AddBlazoradeId();
+                .AddScoped<IHostEnvironmentAuthenticationStateProvider>(sp =>
+                {
+                    var stateProvider = sp.GetRequiredService<AuthenticationStateProvider>();
+                    return (IHostEnvironmentAuthenticationStateProvider)stateProvider;
+                })
+                .AddBlazoradeId()
+                .AddStorage<BlazorSessionStorage, BlazorPersistentStorage>()
+                .AddNavigator<BlazorNavigator>()
+                ;
         }
     }
 }

@@ -48,6 +48,7 @@ namespace Blazorade.Id.Core.Services
             var scope = await this.SessionStorage.GetItemAsync<string>(scopeKey);
 
             await this.SessionStorage.RemoveItemAsync(codeVerifierKey);
+            await this.SessionStorage.RemoveItemAsync(scopeKey);
 
             var authOptions = this.GetAuthOptions(state.AuthorityKey);
             var redirUri = this.CreateRedirectUri(authOptions);

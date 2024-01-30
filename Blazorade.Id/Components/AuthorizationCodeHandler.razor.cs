@@ -25,11 +25,12 @@ namespace Blazorade.Id.Components
         public NavigationManager NavMan { get; set; } = null!;
 
         [Inject]
-        public AuthenticationStateProvider AuthProvider { get; set; } = null!;
+        public IHostEnvironmentAuthenticationStateProvider AuthStateSetter { get; set; } = null!;
 
-        protected override async Task OnInitializedAsync()
+
+        protected override async Task OnAfterRenderAsync(bool firstRender)
         {
-            await base.OnInitializedAsync();
+            await base.OnAfterRenderAsync(firstRender);
 
             if (this.NavMan.Uri.Contains("#code=") && this.NavMan.Uri.Contains("&state="))
             {
@@ -51,16 +52,11 @@ namespace Blazorade.Id.Components
                 this.NavMan.NavigateTo(redirUri);
             }
 
-
             var username = await this.BidService.GetCurrentUsernameAsync();
             if (username?.Length > 0)
             {
-                var authSetter = this.AuthProvider as IHostEnvironmentAuthenticationStateProvider;
-                if (null != authSetter)
-                {
-                    var user = await this.BidService.GetCurrentUserPrincipalAsync() ?? new ClaimsPrincipal();
-                    authSetter.SetAuthenticationState(Task.FromResult(new AuthenticationState(user)));
-                }
+                var user = await this.BidService.GetCurrentUserPrincipalAsync() ?? new ClaimsPrincipal();
+                this.AuthStateSetter.SetAuthenticationState(Task.FromResult(new AuthenticationState(user)));
             }
         }
 
