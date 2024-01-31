@@ -1,4 +1,6 @@
-using Blazorade.Id.Configuration;
+using Blazorade.Id;
+using Blazorade.Id.Core.Configuration;
+using Blazorade.Id.Core.Services;
 using Blazorade.Id.Services;
 
 namespace Blazorade.Id.Tests
@@ -10,7 +12,7 @@ namespace Blazorade.Id.Tests
         public async Task LoadEndpoint01()
         {
             var svc = new EndpointService(null);
-            var endpoint = await svc.GetAuthorizationEndpointAsync(new BlazoradeAuthenticationOptions
+            var endpoint = await svc.GetAuthorizationEndpointAsync(new AuthorityOptions
             {
                 MetadataUri = "https://login.microsoftonline.com/blazorade.com/v2.0/.well-known/openid-configuration"
             });
@@ -22,7 +24,7 @@ namespace Blazorade.Id.Tests
         public async Task LoadEndpoint02()
         {
             var svc = new EndpointService(null);
-            var endpoint = await svc.GetTokenEndpointAsync(new BlazoradeAuthenticationOptions
+            var endpoint = await svc.GetTokenEndpointAsync(new AuthorityOptions
             {
                 MetadataUri = "https://login.microsoftonline.com/blazorade.com/v2.0/.well-known/openid-configuration"
             });
@@ -34,7 +36,7 @@ namespace Blazorade.Id.Tests
         public async Task LoadEndpoint03()
         {
             var svc = new EndpointService(null);
-            var endpoint = await svc.GetAuthorizationEndpointAsync(new BlazoradeAuthenticationOptions
+            var endpoint = await svc.GetAuthorizationEndpointAsync(new AuthorityOptions
             {
                 AuthorizationEndpoint = "https://site.com/foo/auth"
             });
@@ -46,7 +48,7 @@ namespace Blazorade.Id.Tests
         public async Task LoadEndpoint04()
         {
             var svc = new EndpointService(null);
-            var endpoint = await svc.GetTokenEndpointAsync(new BlazoradeAuthenticationOptions
+            var endpoint = await svc.GetTokenEndpointAsync(new AuthorityOptions
             {
                 TokenEndpoint = "https://site.com/foo/token"
             });
@@ -58,7 +60,7 @@ namespace Blazorade.Id.Tests
         public async Task LoadEndpoint05()
         {
             var svc = new EndpointService(null);
-            var options = new BlazoradeAuthenticationOptions
+            var options = new AuthorityOptions
             {
                 MetadataUri = "https://blazoradeapps.b2clogin.com/blazoradeapps.onmicrosoft.com/v2.0/.well-known/openid-configuration?p=B2C_1_unit-test"
             };
