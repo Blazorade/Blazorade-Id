@@ -161,7 +161,7 @@ namespace Blazorade.Id.Core.Services
         /// This is the same key as you configure your authorities during application startup using the method
         /// <see cref="BlazoradeIdBuilder.AddAuthority"/>.
         /// </param>
-        public async ValueTask LoginAsync(string? scope = "openid profile offline_access", string? loginHint = null, string? domainHint = null, Prompt? prompt = null, object? state = null, string? authorityKey = null)
+        public async ValueTask LoginAsync(string? scope = "openid profile offline_access", string? loginHint = null, string? domainHint = null, Prompt? prompt = null, string? responseType = null, object? state = null, string? authorityKey = null)
         {
             var authOptions = this.GetAuthOptions(authorityKey);
             var homeUri = new Uri(this.Navigator.HomeUri);
@@ -181,7 +181,7 @@ namespace Blazorade.Id.Core.Services
                 .WithLoginHint(loginHint)
                 .WithDomainHint(domainHint)
                 .WithPrompt(prompt)
-                .WithResponseType(ResponseType.Code)
+                .WithResponseType(responseType ?? "code")
                 .WithResponseMode(ResponseMode.Fragment)
                 .WithRedirectUri(redirUri)
                 .WithCodeChallenge(codeVerifier)

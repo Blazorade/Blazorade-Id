@@ -1,5 +1,5 @@
 ﻿@page "/"
-@inject BlazoradeAuthenticationService AuthService
+@inject BlazoradeIdService AuthService
 
 <PageTitle>Index</PageTitle>
 
@@ -10,7 +10,6 @@
 @code{
     async Task OnIdTokenClick(MouseEventArgs e)
     {
-        var token = await this.AuthService.AcquireIdentityTokenAsync();
 
     }
 }
