@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace Microsoft.Extensions.DependencyInjection
@@ -18,7 +19,16 @@ namespace Microsoft.Extensions.DependencyInjection
             services
                 .AddScoped<EndpointService>()
                 .AddScoped<BlazoradeIdService>()
-                .AddHttpClient();
+                .AddScoped<SerializationService>()
+                .AddHttpClient()
+
+                .AddOptions<JsonSerializerOptions>()
+                .Configure(opt =>
+                {
+                    opt.PropertyNameCaseInsensitive = true;
+                    opt.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+                })
+                ;
 
             return new BlazoradeIdBuilder(services);
         }

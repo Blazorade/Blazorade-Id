@@ -22,7 +22,7 @@ namespace Blazorade.Id.Core.Services
     /// </summary>
     public class BlazoradeIdService
     {
-        public BlazoradeIdService(IOptionsFactory<AuthorityOptions> optionsFactory, IHttpClientFactory clientFactory, EndpointService epService, ISessionStorage sessionStorage, IPersistentStorage persistentStorage, INavigator navigator)
+        public BlazoradeIdService(IOptionsFactory<AuthorityOptions> optionsFactory, IHttpClientFactory clientFactory, EndpointService epService, ISessionStorage sessionStorage, IPersistentStorage persistentStorage, INavigator navigator, SerializationService serialization)
         {
             this.OptionsFactory = optionsFactory ?? throw new ArgumentNullException(nameof(optionsFactory));
             this.ClientFactory = clientFactory ?? throw new ArgumentNullException(nameof(clientFactory));
@@ -30,6 +30,7 @@ namespace Blazorade.Id.Core.Services
             this.SessionStorage = sessionStorage ?? throw new ArgumentNullException(nameof(sessionStorage));
             this.PersistentStorage = persistentStorage ?? throw new ArgumentNullException(nameof(persistentStorage));
             this.Navigator = navigator ?? throw new ArgumentNullException(nameof(navigator));
+            this.SerializationService = serialization ?? throw new ArgumentNullException(nameof(serialization));
         }
 
         private readonly IOptionsFactory<AuthorityOptions> OptionsFactory;
@@ -38,6 +39,7 @@ namespace Blazorade.Id.Core.Services
         private readonly ISessionStorage SessionStorage;
         private readonly IPersistentStorage PersistentStorage;
         private readonly INavigator Navigator;
+        private readonly SerializationService SerializationService;
 
         public async ValueTask<LoginCompletedState> CompleteLoginAsync(string authorizationCode, LoginState state)
         {
@@ -103,13 +105,6 @@ namespace Blazorade.Id.Core.Services
             }
 
             return completedState;
-        }
-
-        public TState DeserializeState<TState>(string base64) where TState : new()
-        {
-            var json = Base64UrlEncoder.Decode(base64);
-            var state = JsonSerializer.Deserialize<TState>(json);
-            return state ?? new TState();
         }
 
         public async ValueTask<TokenSet?> GetTokenSetSilentAsync(string scope = "openid profile offline_access")
@@ -186,7 +181,7 @@ namespace Blazorade.Id.Core.Services
                 .WithRedirectUri(redirUri)
                 .WithCodeChallenge(codeVerifier)
                 .WithNonce(Guid.NewGuid().ToString())
-                .WithState(this.SerializeState(new LoginState { ApplicationState = state, Uri = currentUri.ToString(), AuthorityKey = authorityKey }))
+                .WithState(this.SerializationService.SerializeToBase64String(new LoginState { ApplicationState = state, Uri = currentUri.ToString(), AuthorityKey = authorityKey }))
                 .Build();
 
             await this.Navigator.NavigateToAsync(authUri);
@@ -235,14 +230,6 @@ namespace Blazorade.Id.Core.Services
             await this.Navigator.NavigateToAsync(logoutUri);
 
         }
-
-        public string SerializeState(object state)
-        {
-            var json = JsonSerializer.Serialize(state);
-            var base64 = Base64UrlEncoder.Encode(json);
-            return base64;
-        }
-
 
 
 
