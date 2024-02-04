@@ -100,7 +100,8 @@ namespace Blazorade.Id.Core.Services
                 }
                 else
                 {
-                    throw new Exception($"Could not resolve username from identity token received from token endpoint at '{tokenEndpointUri}'.");
+                    completedState.IsSuccess = false;
+                    completedState.Error = new TokenError { ErrorDescription = $"Could not resolve username from identity token received from token endpoint at '{tokenEndpointUri}'." };
                 }
             }
 

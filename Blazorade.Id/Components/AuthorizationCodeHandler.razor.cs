@@ -22,6 +22,9 @@ namespace Blazorade.Id.Components
         public BlazoradeIdService BidService { get; set; } = null!;
 
         [Inject]
+        public SerializationService SerializationService { get; set; } = null!;
+
+        [Inject]
         public NavigationManager NavMan { get; set; } = null!;
 
         [Inject]
@@ -36,13 +39,13 @@ namespace Blazorade.Id.Components
                 var uri = new Uri(this.NavMan.Uri);
                 var parameters = QueryHelpers.ParseQuery(uri.Fragment.Substring(1));
                 var code = parameters.GetValueOrDefault("code").ToString();
-                var state = this.BidService.DeserializeState<LoginState>(parameters.GetValueOrDefault("state").ToString());
+                var state = this.SerializationService.DeserializeBase64String<LoginState>(parameters.GetValueOrDefault("state").ToString()) ?? new LoginState();
 
                 parameters.Remove("code");
                 parameters.Remove("state");
 
                 LoginCompletedState loginState = await this.BidService.CompleteLoginAsync(code, state);
-                var encoded = this.BidService.SerializeState(loginState);
+                var encoded = this.SerializationService.SerializeToBase64String(loginState);
                 parameters.Add("state", encoded);
 
                 var redirUri = state?.Uri ?? this.NavMan.BaseUri ?? "/";
