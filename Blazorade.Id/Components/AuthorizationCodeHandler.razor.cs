@@ -34,19 +34,47 @@ namespace Blazorade.Id.Components
         {
             await base.OnAfterRenderAsync(firstRender);
 
-            if (this.NavMan.Uri.Contains("#code=") && this.NavMan.Uri.Contains("&state="))
-            {
-                var uri = new Uri(this.NavMan.Uri);
-                var parameters = QueryHelpers.ParseQuery(uri.Fragment.Substring(1));
-                var code = parameters.GetValueOrDefault("code").ToString();
-                var state = this.SerializationService.DeserializeBase64String<LoginState>(parameters.GetValueOrDefault("state").ToString()) ?? new LoginState();
+            var uri = new Uri(this.NavMan.Uri);
 
-                parameters.Remove("code");
+            var parameters = new Dictionary<string, StringValues>();
+            var queryParameters = new Dictionary<string, StringValues>();
+            if(uri.Fragment?.Length > 1)
+            {
+                parameters = QueryHelpers.ParseQuery(uri.Fragment.Substring(1));
+            }
+            else if(uri.Query?.Length > 1)
+            {
+                queryParameters = QueryHelpers.ParseQuery(uri.Query.Substring(1));
+            }
+
+            foreach(var key in queryParameters.Keys)
+            {
+                if(!parameters.ContainsKey(key))
+                {
+                    parameters[key] = queryParameters[key];
+                }
+            }
+
+            if(parameters.ContainsKey("code") || parameters.ContainsKey("token") || parameters.ContainsKey("id_token"))
+            {
+                var state = this.SerializationService.DeserializeBase64String<LoginState>(parameters.GetValueOrDefault("state").ToString()) ?? new LoginState();
                 parameters.Remove("state");
 
-                LoginCompletedState loginState = await this.BidService.CompleteLoginAsync(code, state);
-                var encoded = this.SerializationService.SerializeToBase64String(loginState);
-                parameters.Add("state", encoded);
+
+                string? code = parameters.GetValueOrDefault("code"),
+                    accessToken = parameters.GetValueOrDefault("token"),
+                    idToken = parameters.GetValueOrDefault("id_token");
+
+                LoginCompletedState? loginState = null;
+
+                if (code?.Length > 0) loginState = await this.BidService.CompleteLoginAsync(code, state);
+
+
+                if(null != loginState)
+                {
+                    var encoded = this.SerializationService.SerializeToBase64String(loginState);
+                    parameters.Add("state", encoded);
+                }
 
                 var redirUri = state?.Uri ?? this.NavMan.BaseUri ?? "/";
                 if (redirUri.Contains('#')) redirUri = redirUri.Substring(0, redirUri.IndexOf('#'));

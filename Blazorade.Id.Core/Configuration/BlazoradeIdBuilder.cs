@@ -44,6 +44,7 @@ namespace Blazorade.Id.Core.Configuration
         public BlazoradeIdBuilder AddStorage<TSessionStorage, TPersistentStorage>() where TSessionStorage : class, ISessionStorage where TPersistentStorage : class, IPersistentStorage
         {
             this.Services
+                .AddScoped<StorageFactory>()
                 .AddScoped<ISessionStorage, TSessionStorage>()
                 .AddScoped<IPersistentStorage, TPersistentStorage>();
 

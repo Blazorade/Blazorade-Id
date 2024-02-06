@@ -22,13 +22,12 @@ namespace Blazorade.Id.Core.Services
     /// </summary>
     public class BlazoradeIdService
     {
-        public BlazoradeIdService(IOptionsFactory<AuthorityOptions> optionsFactory, IHttpClientFactory clientFactory, EndpointService epService, ISessionStorage sessionStorage, IPersistentStorage persistentStorage, INavigator navigator, SerializationService serialization)
+        public BlazoradeIdService(IOptionsFactory<AuthorityOptions> optionsFactory, IHttpClientFactory clientFactory, EndpointService epService, INavigator navigator, SerializationService serialization, StorageFactory storageFactory)
         {
             this.OptionsFactory = optionsFactory ?? throw new ArgumentNullException(nameof(optionsFactory));
             this.ClientFactory = clientFactory ?? throw new ArgumentNullException(nameof(clientFactory));
             this.EPService = epService ?? throw new ArgumentNullException(nameof(epService));
-            this.SessionStorage = sessionStorage ?? throw new ArgumentNullException(nameof(sessionStorage));
-            this.PersistentStorage = persistentStorage ?? throw new ArgumentNullException(nameof(persistentStorage));
+            this.StorageFactory = storageFactory ?? throw new ArgumentNullException(nameof(storageFactory));
             this.Navigator = navigator ?? throw new ArgumentNullException(nameof(navigator));
             this.SerializationService = serialization ?? throw new ArgumentNullException(nameof(serialization));
         }
@@ -36,21 +35,20 @@ namespace Blazorade.Id.Core.Services
         private readonly IOptionsFactory<AuthorityOptions> OptionsFactory;
         private readonly IHttpClientFactory ClientFactory;
         private readonly EndpointService EPService;
-        private readonly ISessionStorage SessionStorage;
-        private readonly IPersistentStorage PersistentStorage;
+        private readonly StorageFactory StorageFactory;
         private readonly INavigator Navigator;
         private readonly SerializationService SerializationService;
 
         public async ValueTask<LoginCompletedState> CompleteLoginAsync(string authorizationCode, LoginState state)
         {
             var codeVerifierKey = this.CreateCodeVerifierStorageKey();
-            var codeVerifier = await this.SessionStorage.GetItemAsync<string>(codeVerifierKey);
+            var codeVerifier = await this.StorageFactory.SessionStorage.GetItemAsync<string>(codeVerifierKey);
 
             var scopeKey = this.CreateScopeStorageKey();
-            var scope = await this.SessionStorage.GetItemAsync<string>(scopeKey);
+            var scope = await this.StorageFactory.SessionStorage.GetItemAsync<string>(scopeKey);
 
-            await this.SessionStorage.RemoveItemAsync(codeVerifierKey);
-            await this.SessionStorage.RemoveItemAsync(scopeKey);
+            await this.StorageFactory.SessionStorage.RemoveItemAsync(codeVerifierKey);
+            await this.StorageFactory.SessionStorage.RemoveItemAsync(scopeKey);
 
             var authOptions = this.GetAuthOptions(state.AuthorityKey);
             var redirUri = this.CreateRedirectUri(authOptions);
@@ -91,7 +89,7 @@ namespace Blazorade.Id.Core.Services
 
                 if(completedState.Username?.Length > 0)
                 {
-                    var storage = this.GetConfiguredStorage(authOptions);
+                    var storage = this.StorageFactory.GetConfiguredStorage(authOptions);
                     var tokenStorageKey = this.CreateTokenSetKey(state.AuthorityKey, completedState.Username);
                     var usernameStorageKey = this.CreateCurrentUsernameStorageKey();
 
@@ -121,7 +119,7 @@ namespace Blazorade.Id.Core.Services
         {
             var authorityKey = await this.GetCurrentAuthorityKeyAsync();
             var key = this.CreateCurrentUsernameStorageKey();
-            var storage = this.GetConfiguredStorage(authorityKey);
+            var storage = this.StorageFactory.GetConfiguredStorage(authorityKey);
             var loginHint = await storage.GetItemAsync<string>(key);
 
             return loginHint?.Length > 0 ? loginHint : null;
@@ -166,10 +164,10 @@ namespace Blazorade.Id.Core.Services
 
             var codeVerifier = this.CreateCodeVerifier();
             var codeVerifierKey = this.CreateCodeVerifierStorageKey();
-            await this.SessionStorage.SetItemAsync(codeVerifierKey, codeVerifier);
+            await this.StorageFactory.SessionStorage.SetItemAsync(codeVerifierKey, codeVerifier);
 
             var scopeKey = this.CreateScopeStorageKey();
-            await this.SessionStorage.SetItemAsync(scopeKey, scope);
+            await this.StorageFactory.SessionStorage.SetItemAsync(scopeKey, scope);
 
             var builder = await this.EPService.CreateAuthorizationUriBuilderAsync(authOptions);
             var authUri = builder
@@ -205,14 +203,14 @@ namespace Blazorade.Id.Core.Services
         public async ValueTask LogoutAsync(string? postLogoutRedirectUri = null, bool redirectToCurrentUri = true)
         {
             var authKeyKey = this.CreateCurrentAuthorityKeyStorageKey();
-            var authorityKey = await this.PersistentStorage.GetItemAsync<string>(authKeyKey);
+            var authorityKey = await this.StorageFactory.PersistentStorage.GetItemAsync<string>(authKeyKey);
 
             var authOptions = this.GetAuthOptions(authorityKey);
             var usernameKey = this.CreateCurrentUsernameStorageKey();
             var username = await this.GetCurrentUsernameAsync();
             var tokenSetKey = this.CreateTokenSetKey(authorityKey, username ?? string.Empty);
 
-            var store = this.GetConfiguredStorage(authOptions);
+            var store = this.StorageFactory.GetConfiguredStorage(authOptions);
             await store.RemoveItemAsync(usernameKey);
             await store.RemoveItemAsync(tokenSetKey);
 
@@ -311,20 +309,7 @@ namespace Blazorade.Id.Core.Services
             return authOptions;
         }
 
-        private IStorage GetConfiguredStorage(AuthorityOptions authOptions)
-        {
-            return authOptions.CacheMode == TokenCacheMode.Session
-                ? (IStorage)this.SessionStorage 
-                : (IStorage)this.PersistentStorage;
 
-
-        }
-
-        private IStorage GetConfiguredStorage(string? key)
-        {
-            var options = this.GetAuthOptions(key);
-            return this.GetConfiguredStorage(options);
-        }
 
         /// <summary>
         /// Returns the authority key that the currently logged on user was logged in with.
@@ -333,7 +318,7 @@ namespace Blazorade.Id.Core.Services
         private async ValueTask<string?> GetCurrentAuthorityKeyAsync()
         {
             var storageKey = this.CreateCurrentAuthorityKeyStorageKey();
-            return await this.PersistentStorage.GetItemAsync<string>(storageKey);
+            return await this.StorageFactory.PersistentStorage.GetItemAsync<string>(storageKey);
         }
 
         private async ValueTask<TokenSet?> GetCurrentTokenSetAsync(bool includeExpired = false)
@@ -349,7 +334,7 @@ namespace Blazorade.Id.Core.Services
             if(username?.Length > 0)
             {
                 var key = this.CreateTokenSetKey(authKey, username);
-                var set = await this.GetConfiguredStorage(authKey).GetItemAsync<TokenSet?>(key);
+                var set = await this.StorageFactory.GetConfiguredStorage(authKey).GetItemAsync<TokenSet?>(key);
                 if(null != set && (set.ExpiresAtUtc > DateTime.UtcNow || includeExpired))
                 {
                     tokens = set;
