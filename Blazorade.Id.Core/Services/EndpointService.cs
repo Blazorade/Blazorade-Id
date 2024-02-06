@@ -20,12 +20,14 @@ namespace Blazorade.Id.Core.Services
         /// Creates an instance of the class.
         /// </summary>
         /// <param name="clientFactory">The HTTP client factory that is a dependency to this service instance.</param>
-        public EndpointService(IHttpClientFactory? clientFactory)
+        public EndpointService(IHttpClientFactory? clientFactory, CodeChallengeService codeChallengeService)
         {
             this.Client = clientFactory?.CreateClient() ?? new HttpClient();
+            this.CodeChallenge = codeChallengeService;
         }
 
         private readonly HttpClient Client;
+        private readonly CodeChallengeService CodeChallenge;
 
         /// <summary>
         /// Creates an endpoint builder that is used to build the authorization endpoint URI with.
@@ -38,13 +40,13 @@ namespace Blazorade.Id.Core.Services
         public async ValueTask<EndpointUriBuilder> CreateAuthorizationUriBuilderAsync(AuthorityOptions options)
         {
             var uri = await this.GetAuthorizationEndpointAsync(options) ?? throw new Exception("Could not resolve URI for authorization endpoint.");
-            return new EndpointUriBuilder(uri).WithClientId(options.ClientId);
+            return new EndpointUriBuilder(uri, this.CodeChallenge).WithClientId(options.ClientId);
         }
 
         public async ValueTask<EndpointUriBuilder> CreateEndSessionUriBuilderAsync(AuthorityOptions options)
         {
             var uri = await this.GetEndSessionEndpointAsync(options) ?? throw new Exception("Could not resolve URI for end session endpoint.");
-            return new EndpointUriBuilder(uri);
+            return new EndpointUriBuilder(uri, this.CodeChallenge);
         }
 
         public async ValueTask<TokenRequestBuilder> CreateTokenRequestBuilderAsync(AuthorityOptions options)

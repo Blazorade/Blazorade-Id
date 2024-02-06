@@ -37,7 +37,6 @@ namespace Blazorade.Id.Core.Services
         protected const string PromptName = "prompt";
         protected const string GrantTypeName = "grant_type";
 
-        protected const string CodeChallengeMethodValueS256 = "S256";
         protected const string GrantTypeValueCode = "authorization_code";
         protected const string GrantTypeValueRefreshToken = "refresh_token";
 

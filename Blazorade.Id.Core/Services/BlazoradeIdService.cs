@@ -22,7 +22,7 @@ namespace Blazorade.Id.Core.Services
     /// </summary>
     public class BlazoradeIdService
     {
-        public BlazoradeIdService(IOptionsFactory<AuthorityOptions> optionsFactory, IHttpClientFactory clientFactory, EndpointService epService, INavigator navigator, SerializationService serialization, StorageFactory storageFactory)
+        public BlazoradeIdService(IOptionsFactory<AuthorityOptions> optionsFactory, IHttpClientFactory clientFactory, EndpointService epService, INavigator navigator, SerializationService serialization, StorageFactory storageFactory, CodeChallengeService codeChallengeService)
         {
             this.OptionsFactory = optionsFactory ?? throw new ArgumentNullException(nameof(optionsFactory));
             this.ClientFactory = clientFactory ?? throw new ArgumentNullException(nameof(clientFactory));
@@ -30,6 +30,7 @@ namespace Blazorade.Id.Core.Services
             this.StorageFactory = storageFactory ?? throw new ArgumentNullException(nameof(storageFactory));
             this.Navigator = navigator ?? throw new ArgumentNullException(nameof(navigator));
             this.SerializationService = serialization ?? throw new ArgumentNullException(nameof(serialization));
+            this.CodeChallenge = codeChallengeService ?? throw new ArgumentNullException(nameof(codeChallengeService));
         }
 
         private readonly IOptionsFactory<AuthorityOptions> OptionsFactory;
@@ -38,18 +39,19 @@ namespace Blazorade.Id.Core.Services
         private readonly StorageFactory StorageFactory;
         private readonly INavigator Navigator;
         private readonly SerializationService SerializationService;
+        private readonly CodeChallengeService CodeChallenge;
 
         public async ValueTask<LoginCompletedState> CompleteLoginAsync(string authorizationCode, LoginState state)
         {
-            var codeVerifierKey = this.CreateCodeVerifierStorageKey();
-            var codeVerifier = await this.StorageFactory.SessionStorage.GetItemAsync<string>(codeVerifierKey);
+            var codeVerifier = await this.StorageFactory.SessionStorage.GetCurrentCodeVerifierAsync();
+            var scope = await this.StorageFactory.SessionStorage.GetCurrentScopeAsync();
+            var nonce = await this.StorageFactory.SessionStorage.GetCurrentNonceAsync();
 
-            var scopeKey = this.CreateScopeStorageKey();
-            var scope = await this.StorageFactory.SessionStorage.GetItemAsync<string>(scopeKey);
+            await this.StorageFactory.SessionStorage.RemoveCurrentCodeVerifierAsync();
+            await this.StorageFactory.SessionStorage.RemoveCurrentScopeAsync();
+            await this.StorageFactory.SessionStorage.RemoveCurrentNonceAsync();
 
-            await this.StorageFactory.SessionStorage.RemoveItemAsync(codeVerifierKey);
-            await this.StorageFactory.SessionStorage.RemoveItemAsync(scopeKey);
-
+            await this.StorageFactory.PersistentStorage.SetCurrentAuthorityKeyAsync(state.AuthorityKey);
             var authOptions = this.GetAuthOptions(state.AuthorityKey);
             var redirUri = this.CreateRedirectUri(authOptions);
 
@@ -62,7 +64,7 @@ namespace Blazorade.Id.Core.Services
                 .WithRedirectUri(redirUri)
                 .Build();
 
-            RefreshableTokenSet tokens = null!;
+            TokenSet tokens = null!;
             var completedState = new LoginCompletedState { ApplicationState = state.ApplicationState, AuthorityKey = state.AuthorityKey };
             var client = this.ClientFactory.CreateClient();
             using (var response = await client.SendAsync(tokenRequest))
@@ -71,7 +73,7 @@ namespace Blazorade.Id.Core.Services
                 var json = await response.Content.ReadAsStringAsync();
                 if(response.IsSuccessStatusCode)
                 {
-                    tokens = JsonSerializer.Deserialize<RefreshableTokenSet>(json) ?? throw new Exception($"Unable to deserialize response from token endpoint at '{tokenEndpointUri}'.");
+                    tokens = JsonSerializer.Deserialize<TokenSet>(json) ?? throw new Exception($"Unable to deserialize response from token endpoint at '{tokenEndpointUri}'.");
                     tokens.ExpiresAtUtc = now.AddSeconds(tokens.ExpiresIn);
                     completedState.IsSuccess = true;
                 }
@@ -90,11 +92,8 @@ namespace Blazorade.Id.Core.Services
                 if(completedState.Username?.Length > 0)
                 {
                     var storage = this.StorageFactory.GetConfiguredStorage(authOptions);
-                    var tokenStorageKey = this.CreateTokenSetKey(state.AuthorityKey, completedState.Username);
-                    var usernameStorageKey = this.CreateCurrentUsernameStorageKey();
-
-                    await storage.SetItemAsync(tokenStorageKey, tokens);
-                    await storage.SetItemAsync(usernameStorageKey, completedState.Username);
+                    await storage.SetCurrentUsernameAsync(completedState.Username);
+                    await storage.SetCurrentTokenSetAsync(tokens);
                 }
                 else
                 {
@@ -106,21 +105,15 @@ namespace Blazorade.Id.Core.Services
             return completedState;
         }
 
-        public async ValueTask<TokenSet?> GetTokenSetSilentAsync(string scope = "openid profile offline_access")
-        {
-            TokenSet? tokens = await this.GetCurrentTokenSetAsync(includeExpired: false);
-            return tokens;
-        }
-
         /// <summary>
         /// Returns the username of the currently logged in user.
         /// </summary>
         public async ValueTask<string?> GetCurrentUsernameAsync()
         {
-            var authorityKey = await this.GetCurrentAuthorityKeyAsync();
-            var key = this.CreateCurrentUsernameStorageKey();
-            var storage = this.StorageFactory.GetConfiguredStorage(authorityKey);
-            var loginHint = await storage.GetItemAsync<string>(key);
+            var authorityKey = await this.StorageFactory.PersistentStorage.GetCurrentAuthorityKeyAsync();
+            var loginHint = await this.StorageFactory
+                .GetConfiguredStorage(authorityKey)
+                .GetCurrentUsernameAsync();
 
             return loginHint?.Length > 0 ? loginHint : null;
         }
@@ -128,7 +121,8 @@ namespace Blazorade.Id.Core.Services
         public async ValueTask<ClaimsPrincipal?> GetCurrentUserPrincipalAsync()
         {
             ClaimsPrincipal? principal = null;
-            var tokens = await this.GetCurrentTokenSetAsync(includeExpired: false);
+            var store = await this.GetCurrentConfiguredStorageAsync();
+            var tokens = await store.GetCurrentTokenSetAsync(includeExpired: false);
             if(tokens?.IdentityToken?.Length > 0)
             {
                 var idToken = new JwtSecurityToken(tokens.IdentityToken);
@@ -155,19 +149,19 @@ namespace Blazorade.Id.Core.Services
         /// This is the same key as you configure your authorities during application startup using the method
         /// <see cref="BlazoradeIdBuilder.AddAuthority"/>.
         /// </param>
-        public async ValueTask LoginAsync(string? scope = "openid profile offline_access", string? loginHint = null, string? domainHint = null, Prompt? prompt = null, string? responseType = null, object? state = null, string? authorityKey = null)
+        public async ValueTask LoginAsync(string? scope = "openid profile email", string? loginHint = null, string? domainHint = null, Prompt? prompt = null, string? responseType = null, string? nonce = null, object? state = null, string? authorityKey = null)
         {
             var authOptions = this.GetAuthOptions(authorityKey);
             var homeUri = new Uri(this.Navigator.HomeUri);
             var redirUri = this.CreateRedirectUri(authOptions);
             var currentUri = homeUri.MakeRelativeUri(new Uri(this.Navigator.CurrentUri));
 
-            var codeVerifier = this.CreateCodeVerifier();
-            var codeVerifierKey = this.CreateCodeVerifierStorageKey();
-            await this.StorageFactory.SessionStorage.SetItemAsync(codeVerifierKey, codeVerifier);
+            nonce = nonce ?? Guid.NewGuid().ToString();
+            var codeVerifier = this.CodeChallenge.CreateCodeVerifier();
 
-            var scopeKey = this.CreateScopeStorageKey();
-            await this.StorageFactory.SessionStorage.SetItemAsync(scopeKey, scope);
+            await this.StorageFactory.SessionStorage.SetCurrentNonceAsync(nonce);
+            await this.StorageFactory.SessionStorage.SetCurrentCodeVerifierAsync(codeVerifier);
+            await this.StorageFactory.SessionStorage.SetCurrentScopeAsync(scope);
 
             var builder = await this.EPService.CreateAuthorizationUriBuilderAsync(authOptions);
             var authUri = builder
@@ -179,40 +173,21 @@ namespace Blazorade.Id.Core.Services
                 .WithResponseMode(ResponseMode.Fragment)
                 .WithRedirectUri(redirUri)
                 .WithCodeChallenge(codeVerifier)
-                .WithNonce(Guid.NewGuid().ToString())
+                .WithNonce(nonce)
                 .WithState(this.SerializationService.SerializeToBase64String(new LoginState { ApplicationState = state, Uri = currentUri.ToString(), AuthorityKey = authorityKey }))
                 .Build();
 
             await this.Navigator.NavigateToAsync(authUri);
         }
 
-        /// <summary>
-        /// Returns the timestamp in UTC when the tokens for the currently logged in user will expire.
-        /// </summary>
-        /// <returns>Returns the expiration timestamp in UTC or <c>null</c> if no user is currently logged in.</returns>
-        /// <remarks>
-        /// If a user has successfully logged in, this method will always return a timestamp, but that timestamp can
-        /// be in the past.
-        /// </remarks>
-        public async ValueTask<DateTime?> TokensExpireUtcAsync()
-        {
-            var tokens = await this.GetCurrentTokenSetAsync();
-            return tokens?.ExpiresAtUtc;
-        }
-
         public async ValueTask LogoutAsync(string? postLogoutRedirectUri = null, bool redirectToCurrentUri = true)
         {
-            var authKeyKey = this.CreateCurrentAuthorityKeyStorageKey();
-            var authorityKey = await this.StorageFactory.PersistentStorage.GetItemAsync<string>(authKeyKey);
-
-            var authOptions = this.GetAuthOptions(authorityKey);
-            var usernameKey = this.CreateCurrentUsernameStorageKey();
-            var username = await this.GetCurrentUsernameAsync();
-            var tokenSetKey = this.CreateTokenSetKey(authorityKey, username ?? string.Empty);
+            var authOptions = await this.GetCurrentAuthOptionsAsync();
+            var username = await this.StorageFactory.GetConfiguredStorage(authOptions).GetCurrentUsernameAsync();
 
             var store = this.StorageFactory.GetConfiguredStorage(authOptions);
-            await store.RemoveItemAsync(usernameKey);
-            await store.RemoveItemAsync(tokenSetKey);
+            await store.RemoveCurrentTokenSetAsync();
+            await store.RemoveCurrentUsernameAsync();
 
             var builder = await this.EPService.CreateEndSessionUriBuilderAsync(authOptions);
             var logoutUri = builder
@@ -227,42 +202,9 @@ namespace Blazorade.Id.Core.Services
                 .Build();
 
             await this.Navigator.NavigateToAsync(logoutUri);
-
         }
 
 
-
-        private const string CodeVerifierChars = "abcdefghijklmnopqrstuvwxyz0123456789";
-
-        private Random Rnd = new Random();
-        private string CreateCodeVerifier()
-        {
-            var length = this.Rnd.Next(43, 60);
-            var arr = new char[length];
-
-            for(int i = 0; i < length; i++)
-            {
-                var ix = this.Rnd.Next(0, CodeVerifierChars.Length - 1);
-                arr[i] = CodeVerifierChars[ix];
-            }
-
-            return string.Join("", arr);
-        }
-
-        private string CreateCodeVerifierStorageKey()
-        {
-            return this.PrefixStorageKey(null, "codeVerifier");
-        }
-
-        private string CreateCurrentUsernameStorageKey()
-        {
-            return this.PrefixStorageKey(null, "currentUsername");
-        }
-
-        private string CreateCurrentAuthorityKeyStorageKey()
-        {
-            return this.PrefixStorageKey(null, "currentAuthKey");
-        }
 
         private Uri CreateRedirectUri(AuthorityOptions authOptions)
         {
@@ -289,16 +231,6 @@ namespace Blazorade.Id.Core.Services
             return redirUri;
         }
 
-        private string CreateScopeStorageKey()
-        {
-            return this.PrefixStorageKey(null, "scope");
-        }
-
-        private string CreateTokenSetKey(string? authKey, string username)
-        {
-            return PrefixStorageKey(authKey, $"{username}.tokenSet");
-        }
-
         private AuthorityOptions GetAuthOptions(string? key)
         {
             var authOptions = this.OptionsFactory.Create(key ?? string.Empty);
@@ -309,46 +241,18 @@ namespace Blazorade.Id.Core.Services
             return authOptions;
         }
 
-
-
-        /// <summary>
-        /// Returns the authority key that the currently logged on user was logged in with.
-        /// </summary>
-        /// <returns></returns>
-        private async ValueTask<string?> GetCurrentAuthorityKeyAsync()
+        private async ValueTask<AuthorityOptions> GetCurrentAuthOptionsAsync()
         {
-            var storageKey = this.CreateCurrentAuthorityKeyStorageKey();
-            return await this.StorageFactory.PersistentStorage.GetItemAsync<string>(storageKey);
+            var authKey = await this.StorageFactory.PersistentStorage.GetCurrentAuthorityKeyAsync();
+            return this.GetAuthOptions(authKey);
         }
 
-        private async ValueTask<TokenSet?> GetCurrentTokenSetAsync(bool includeExpired = false)
+        private async ValueTask<IStorage> GetCurrentConfiguredStorageAsync()
         {
-            var authKey = await this.GetCurrentAuthorityKeyAsync();
-            var username = await this.GetCurrentUsernameAsync();
-            return await this.GetCurrentTokenSetAsync(authKey, username, includeExpired: includeExpired);
+            var authKey = await this.StorageFactory.PersistentStorage.GetCurrentAuthorityKeyAsync();
+            var options = this.GetAuthOptions(authKey);
+            return this.StorageFactory.GetConfiguredStorage(options);
         }
-
-        private async ValueTask<TokenSet?> GetCurrentTokenSetAsync(string? authKey, string? username, bool includeExpired = false)
-        {
-            TokenSet? tokens = null;
-            if(username?.Length > 0)
-            {
-                var key = this.CreateTokenSetKey(authKey, username);
-                var set = await this.StorageFactory.GetConfiguredStorage(authKey).GetItemAsync<TokenSet?>(key);
-                if(null != set && (set.ExpiresAtUtc > DateTime.UtcNow || includeExpired))
-                {
-                    tokens = set;
-                }
-            }
-
-            return tokens;
-        }
-
-        private string PrefixStorageKey(string? authKey, string key)
-        {
-            return authKey?.Length > 0 ? $"blazorade.{authKey}.{key}" : $"blazorade.{key}";
-        }
-
     }
 
 }

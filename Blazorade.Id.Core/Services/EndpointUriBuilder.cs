@@ -24,13 +24,15 @@ namespace Blazorade.Id.Core.Services
         /// Creates an instance of the class and specifies the base URI to start building on.
         /// </summary>
         /// <param name="endpointUri">The endpoint URI to start building on. This must be an absolute URI.</param>
-        public EndpointUriBuilder(string endpointUri)
+        public EndpointUriBuilder(string endpointUri, CodeChallengeService codeChallenge)
         {
             var uri = new Uri(endpointUri, UriKind.Absolute);
             this.EndpointUri = uri.ToString();
+            this.CodeChallenge = codeChallenge;
         }
 
         private string EndpointUri;
+        private CodeChallengeService CodeChallenge;
 
 
 
@@ -67,21 +69,12 @@ namespace Blazorade.Id.Core.Services
         /// </remarks>
         public EndpointUriBuilder WithCodeChallenge(string? codeVerifier)
         {
+
             if(codeVerifier?.Length > 0)
             {
-                if (codeVerifier.Length < 43)
-                {
-                    throw new ArgumentException("The code verifier must be at least 43 characters long.");
-                }
-
-                var sha = SHA256.Create();
-                var hash = sha.ComputeHash(Encoding.UTF8.GetBytes(codeVerifier));
-                var codeChallenge = Convert.ToBase64String(hash);
-                codeChallenge = Regex.Replace(codeChallenge, "\\+", "-");
-                codeChallenge = Regex.Replace(codeChallenge, "\\/", "_");
-                codeChallenge = Regex.Replace(codeChallenge, "=+$", "");
-                this.Parameters[CodeChallengeName] = codeChallenge;
-                this.Parameters[CodeChallengeMethodName] = CodeChallengeMethodValueS256;
+                var challenge = this.CodeChallenge.CreateCodeChallenge(codeVerifier ?? "");
+                this.Parameters[CodeChallengeName] = challenge.ChallengeValue;
+                this.Parameters[CodeChallengeMethodName] = challenge.ChallengeMethod;
             }
 
             return this;

@@ -20,6 +20,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 .AddScoped<EndpointService>()
                 .AddScoped<BlazoradeIdService>()
                 .AddScoped<SerializationService>()
+                .AddScoped<CodeChallengeService>()
                 .AddHttpClient()
 
                 .AddOptions<JsonSerializerOptions>()
