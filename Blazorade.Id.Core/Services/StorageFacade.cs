@@ -92,34 +92,42 @@ namespace Blazorade.Id.Core.Services
         public async ValueTask<string?> GetUsernameAsync()
         {
             var key = this.PrefixKey(UsernameKey);
-            return await this.GetValueFromConfiguredStorageAsync<string?>(key);
+            return await this.GetItemFromConfiguredStorageAsync<string?>(key);
         }
 
         /// <summary>
-        /// Returns the current access token if it still is valid. If the token has expired, it will not be returned.
+        /// Returns the current access token from storage.
         /// </summary>
-        public async ValueTask<JwtSecurityToken?> GetAccessTokenAsync()
+        /// <remarks>
+        /// This method does not examine the expiration for the token. If you want to
+        /// make sure you have a valid token, use the <see cref="TokenService.GetAccessTokenAsync"/> method.
+        /// </remarks>
+        public async ValueTask<TokenContainer?> GetAccessTokenAsync()
         {
             var key = this.PrefixKey(AccessTokenKey);
-            return await this.GetSecurityTokenFromConfiguredStorageAsync(key);
+            return await this.GetItemFromConfiguredStorageAsync<TokenContainer?>(key);
         }
 
         /// <summary>
-        /// Returns the current identity token if it still is valid. If the token has expired, it will not be returned.
+        /// Returns the current identity token from storage.
         /// </summary>
-        public async ValueTask<JwtSecurityToken?> GetIdentityTokenAsync()
+        /// <remarks>
+        /// This method does not examine the expiration for the token. If you want to
+        /// make sure you have a valid token, use the <see cref="TokenService.GetIdentityTokenAsync"/> method.
+        /// </remarks>
+        public async ValueTask<TokenContainer?> GetIdentityTokenAsync()
         {
             var key = this.PrefixKey(IdTokenKey);
-            return await this.GetSecurityTokenFromConfiguredStorageAsync(key);
+            return await this.GetItemFromConfiguredStorageAsync<TokenContainer?>(key);
         }
 
         /// <summary>
         /// Returns the current refresh token.
         /// </summary>
-        public async ValueTask<string?> GetRefreshTokenAsync()
+        public async ValueTask<TokenContainer?> GetRefreshTokenAsync()
         {
             var key = this.PrefixKey(RefreshTokenKey);
-            return await this.GetValueFromConfiguredStorageAsync<string?>(key);
+            return await this.GetItemFromConfiguredStorageAsync<TokenContainer?>(key);
         }
 
 
@@ -156,7 +164,7 @@ namespace Blazorade.Id.Core.Services
         public async ValueTask SetAccessTokenAsync(TokenContainer token)
         {
             var key = this.PrefixKey(AccessTokenKey);
-            await this.SetValueInConfiguredStorageAsync(key, token);
+            await this.SetItemInConfiguredStorageAsync(key, token);
         }
 
         /// <summary>
@@ -165,7 +173,7 @@ namespace Blazorade.Id.Core.Services
         public async ValueTask SetIdentityTokenAsync(TokenContainer token)
         {
             var key = this.PrefixKey(IdTokenKey);
-            await this.SetValueInConfiguredStorageAsync(key, token);
+            await this.SetItemInConfiguredStorageAsync(key, token);
         }
 
         /// <summary>
@@ -174,7 +182,7 @@ namespace Blazorade.Id.Core.Services
         public async ValueTask SetRefreshTokenAsync(TokenContainer token)
         {
             var key = this.PrefixKey(RefreshTokenKey);
-            await this.SetValueInConfiguredStorageAsync(key, token);
+            await this.SetItemInConfiguredStorageAsync(key, token);
         }
 
         /// <summary>
@@ -192,7 +200,7 @@ namespace Blazorade.Id.Core.Services
         public async ValueTask SetUsernameAsync(string? username)
         {
             var key = this.PrefixKey(UsernameKey);
-            await this.SetValueInConfiguredStorageAsync(key, username);
+            await this.SetItemInConfiguredStorageAsync(key, username);
         }
 
 
@@ -244,6 +252,23 @@ namespace Blazorade.Id.Core.Services
             await this.RemoveItemFromConfiguredStorageAsync(key);
         }
 
+        public async ValueTask RemoveAccessTokenAsync()
+        {
+            var key = this.PrefixKey(AccessTokenKey);
+            await this.RemoveItemFromConfiguredStorageAsync(key);
+        }
+
+        public async ValueTask RemoveIdentityTokenAsync()
+        {
+            var key = this.PrefixKey(IdTokenKey);
+            await this.RemoveItemFromConfiguredStorageAsync(key);
+        }
+
+        public async ValueTask RemoveRefreshTokenAsync()
+        {
+            var key = this.PrefixKey(RefreshTokenKey);
+            await this.RemoveItemFromConfiguredStorageAsync(key);
+        }
 
         /// <summary>
         /// Removes all items from all stores for the current user.
@@ -292,17 +317,8 @@ namespace Blazorade.Id.Core.Services
         }
 
 
-        private async ValueTask<JwtSecurityToken?> GetSecurityTokenFromConfiguredStorageAsync(string key)
-        {
-            var container = await this.GetValueFromConfiguredStorageAsync<TokenContainer?>(key);
-            if(null != container && (null == container.Expires || container.Expires > DateTime.UtcNow) && container.Token?.Length > 0)
-            {
-                return new JwtSecurityToken(container.Token);
-            }
-            return null;
-        }
 
-        private async ValueTask<T> GetValueFromConfiguredStorageAsync<T>(string key)
+        private async ValueTask<T> GetItemFromConfiguredStorageAsync<T>(string key)
         {
             var storage = await this.GetConfiguredStorageAsync();
             return await storage.GetItemAsync<T>(key);
@@ -319,7 +335,7 @@ namespace Blazorade.Id.Core.Services
             await storage.RemoveItemAsync(key);
         }
 
-        private async ValueTask SetValueInConfiguredStorageAsync<T>(string key, T value)
+        private async ValueTask SetItemInConfiguredStorageAsync<T>(string key, T value)
         {
             var storage = await this.GetConfiguredStorageAsync();
             await storage.SetItemAsync(key, value);

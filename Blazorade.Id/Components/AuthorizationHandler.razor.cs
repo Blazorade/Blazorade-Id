@@ -36,13 +36,12 @@ namespace Blazorade.Id.Components
         SerializationService SerializationService { get; set; } = null!;
 
         [Inject]
-        StorageFacade StorageFacade { get; set; } = null!;
-
-        [Inject]
         NavigationManager NavMan { get; set; } = null!;
 
         [Inject]
         IHostEnvironmentAuthenticationStateProvider AuthStateSetter { get; set; } = null!;
+
+
 
         protected async override Task OnAfterRenderAsync(bool firstRender)
         {
@@ -74,6 +73,7 @@ namespace Blazorade.Id.Components
                 var msg = ex.Message;
             }
         }
+
 
 
         private async ValueTask ProcessUriAsync(string url)
@@ -123,7 +123,7 @@ namespace Blazorade.Id.Components
             JwtSecurityToken? idToken = null;
             try
             {
-                idToken = await this.StorageFacade.GetIdentityTokenAsync();
+                idToken = await this.TokenService.GetIdentityTokenAsync();
             }
             catch { }
 
@@ -158,7 +158,8 @@ namespace Blazorade.Id.Components
 
             string? code = parameters.GetValueOrDefault("code"),
                 accessToken = parameters.GetValueOrDefault("token"),
-                idToken = parameters.GetValueOrDefault("id_token");
+                idToken = parameters.GetValueOrDefault("id_token"),
+                nonce = parameters.GetValueOrDefault("nonce");
 
             parameters.Remove("code");
             parameters.Remove("id_token");
@@ -167,22 +168,16 @@ namespace Blazorade.Id.Components
             OperationResult<TokenSet>? codeResult = null!;
             if (code?.Length > 0)
             {
-                // Clear out the username, since we are processing a new user.
-                await this.StorageFacade.RemoveUsernameAsync();
-
                 // If an authorization code is specified, then we use that to get both an
                 // identity token and an access token, and ignore any tokens that
                 // were sent in the URL.
-                codeResult = await this.TokenService.ProcessAuthorizationCodeAsync(code, this.NavMan.BaseUri, authorityKey: state.AuthorityKey);
+                codeResult = await this.TokenService.ProcessAuthorizationCodeAsync(code, this.NavMan.BaseUri, nonce, state.AuthorityKey);
                 this.NotifyAuthenticationStateChanged(codeResult?.Value?.GetIdentityToken());
             }
 
             if (!(codeResult?.Value?.IdentityToken?.Length > 0) && idToken?.Length > 0)
             {
-                // Clear out the username, since we are processing a new user.
-                await this.StorageFacade.RemoveUsernameAsync();
-
-                var token = await this.TokenService.ProcessIdentityTokenAsync(idToken, state.AuthorityKey);
+                var token = await this.TokenService.ProcessIdentityTokenAsync(idToken, nonce, state.AuthorityKey);
                 this.NotifyAuthenticationStateChanged(token?.Value?.ParseToken());
             }
 
