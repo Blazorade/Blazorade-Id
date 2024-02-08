@@ -170,5 +170,6 @@ namespace Blazorade.Id.Components
                 this.AuthStateSetter.SetAuthenticationState(Task.FromResult(new AuthenticationState(new ClaimsPrincipal())));
             }
         }
+
     }
 }

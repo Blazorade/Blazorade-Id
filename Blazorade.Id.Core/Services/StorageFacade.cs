@@ -3,6 +3,7 @@ using Blazorade.Id.Core.Model;
 using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -94,6 +95,32 @@ namespace Blazorade.Id.Core.Services
             return await this.GetValueFromConfiguredStorageAsync<string?>(key);
         }
 
+        /// <summary>
+        /// Returns the current access token if it still is valid. If the token has expired, it will not be returned.
+        /// </summary>
+        public async ValueTask<JwtSecurityToken?> GetAccessTokenAsync()
+        {
+            var key = this.PrefixKey(AccessTokenKey);
+            return await this.GetSecurityTokenFromConfiguredStorageAsync(key);
+        }
+
+        /// <summary>
+        /// Returns the current identity token if it still is valid. If the token has expired, it will not be returned.
+        /// </summary>
+        public async ValueTask<JwtSecurityToken?> GetIdentityTokenAsync()
+        {
+            var key = this.PrefixKey(IdTokenKey);
+            return await this.GetSecurityTokenFromConfiguredStorageAsync(key);
+        }
+
+        /// <summary>
+        /// Returns the current refresh token.
+        /// </summary>
+        public async ValueTask<string?> GetRefreshTokenAsync()
+        {
+            var key = this.PrefixKey(RefreshTokenKey);
+            return await this.GetValueFromConfiguredStorageAsync<string?>(key);
+        }
 
 
         /// <summary>
@@ -264,6 +291,16 @@ namespace Blazorade.Id.Core.Services
                 : (IStorage)this.PersistentStorage;
         }
 
+
+        private async ValueTask<JwtSecurityToken?> GetSecurityTokenFromConfiguredStorageAsync(string key)
+        {
+            var container = await this.GetValueFromConfiguredStorageAsync<TokenContainer?>(key);
+            if(null != container && (null == container.Expires || container.Expires > DateTime.UtcNow) && container.Token?.Length > 0)
+            {
+                return new JwtSecurityToken(container.Token);
+            }
+            return null;
+        }
 
         private async ValueTask<T> GetValueFromConfiguredStorageAsync<T>(string key)
         {
