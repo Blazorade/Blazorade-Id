@@ -11,8 +11,6 @@ namespace Blazorade.Id.Core.Model
 
         public TokenError? Error { get; set; }
 
-        public object? ApplicationState {  get; set; }
-
         public string? AuthorityKey { get; set; }
 
         public string? Username {  get; set; }

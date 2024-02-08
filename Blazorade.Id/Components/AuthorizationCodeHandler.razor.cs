@@ -19,75 +19,102 @@ namespace Blazorade.Id.Components
     {
 
         [Inject]
-        public BlazoradeIdService BidService { get; set; } = null!;
+        TokenService TokenService { get; set; } = null!;
 
         [Inject]
-        public SerializationService SerializationService { get; set; } = null!;
+        SerializationService SerializationService { get; set; } = null!;
 
         [Inject]
-        public NavigationManager NavMan { get; set; } = null!;
+        NavigationManager NavMan { get; set; } = null!;
 
         [Inject]
-        public IHostEnvironmentAuthenticationStateProvider AuthStateSetter { get; set; } = null!;
+        IHostEnvironmentAuthenticationStateProvider AuthStateSetter { get; set; } = null!;
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
             await base.OnAfterRenderAsync(firstRender);
 
+            if(this.NavMan.Uri.Contains('#') || this.NavMan.Uri.Contains('?'))
+            {
+                await this.ProcessUriAsync(this.NavMan.Uri);
+            }
+
+        }
+
+
+        private async ValueTask ProcessUriAsync(string url)
+        {
             var uri = new Uri(this.NavMan.Uri);
 
             var parameters = new Dictionary<string, StringValues>();
             var queryParameters = new Dictionary<string, StringValues>();
-            if(uri.Fragment?.Length > 1)
+            if (uri.Fragment?.Length > 1)
             {
                 parameters = QueryHelpers.ParseQuery(uri.Fragment.Substring(1));
             }
-            else if(uri.Query?.Length > 1)
+            else if (uri.Query?.Length > 1)
             {
                 queryParameters = QueryHelpers.ParseQuery(uri.Query.Substring(1));
             }
 
-            foreach(var key in queryParameters.Keys)
+            foreach (var key in queryParameters.Keys)
             {
-                if(!parameters.ContainsKey(key))
+                if (!parameters.ContainsKey(key))
                 {
                     parameters[key] = queryParameters[key];
                 }
             }
 
-            if(parameters.ContainsKey("code") || parameters.ContainsKey("token") || parameters.ContainsKey("id_token"))
+            if (parameters.ContainsKey("code") || parameters.ContainsKey("token") || parameters.ContainsKey("id_token"))
             {
-                var state = this.SerializationService.DeserializeBase64String<LoginState>(parameters.GetValueOrDefault("state").ToString()) ?? new LoginState();
-                parameters.Remove("state");
+                LoginState state = null!;
 
+                try
+                {
+                    state = parameters.ContainsKey("state")
+                        ? this.SerializationService.DeserializeBase64String<LoginState>(parameters.GetValueOrDefault("state").ToString()) ?? new LoginState()
+                        : new LoginState();
+                }
+                catch
+                {
+                    // In case of an exception, set the state to an empty state.
+                    state = new LoginState();
+                }
+
+                parameters.Remove("state");
+                parameters.Remove("session_state");
 
                 string? code = parameters.GetValueOrDefault("code"),
                     accessToken = parameters.GetValueOrDefault("token"),
                     idToken = parameters.GetValueOrDefault("id_token");
 
-                LoginCompletedState? loginState = null;
+                parameters.Remove("code");
+                parameters.Remove("id_token");
+                parameters.Remove("token");
 
-                if (code?.Length > 0) loginState = await this.BidService.CompleteLoginAsync(code, state);
-
-
-                if(null != loginState)
+                OperationResult<TokenSet>? codeResult = null!;
+                if (code?.Length > 0)
                 {
-                    var encoded = this.SerializationService.SerializeToBase64String(loginState);
-                    parameters.Add("state", encoded);
+                    // If an authorization code is specified, then we use that to get both an
+                    // identity token and an access token, and ignore any tokens that
+                    // were sent in the URL.
+                    codeResult = await this.TokenService.ProcessAuthorizationCodeAsync(code, this.NavMan.BaseUri, authorityKey: state.AuthorityKey);
+                }
+
+                if(!(codeResult?.Value?.IdentityToken?.Length > 0) && idToken?.Length > 0)
+                {
+                    await this.TokenService.ProcessIdentityTokenAsync(idToken, state.AuthorityKey);
+                }
+
+                if(!(codeResult?.Value?.AccessToken?.Length > 0) && accessToken?.Length > 0)
+                {
+                    await this.TokenService.ProcessAccessTokenAsync(accessToken, state.AuthorityKey);
                 }
 
                 var redirUri = state?.Uri ?? this.NavMan.BaseUri ?? "/";
-                if (redirUri.Contains('#')) redirUri = redirUri.Substring(0, redirUri.IndexOf('#'));
-                redirUri = QueryHelpers.AddQueryString(redirUri, parameters).Replace('?', '#');
                 this.NavMan.NavigateTo(redirUri);
             }
 
-            var username = await this.BidService.GetCurrentUsernameAsync();
-            if (username?.Length > 0)
-            {
-                var user = await this.BidService.GetCurrentUserPrincipalAsync() ?? new ClaimsPrincipal();
-                this.AuthStateSetter.SetAuthenticationState(Task.FromResult(new AuthenticationState(user)));
-            }
         }
 
     }
