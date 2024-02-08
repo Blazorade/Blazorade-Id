@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
+using System.Reflection.Metadata;
 using System.Runtime.CompilerServices;
 using System.Security.Claims;
 using System.Text;
@@ -43,6 +44,16 @@ namespace Blazorade.Id.Components
         [Inject]
         IHostEnvironmentAuthenticationStateProvider AuthStateSetter { get; set; } = null!;
 
+        protected async override Task OnAfterRenderAsync(bool firstRender)
+        {
+            await base.OnAfterRenderAsync(firstRender);
+
+            if(firstRender)
+            {
+                await this.HandleCurrentAuthenticationAsync();
+            }
+        }
+
         protected override async Task OnParametersSetAsync()
         {
             await base.OnParametersSetAsync();
@@ -52,6 +63,10 @@ namespace Blazorade.Id.Components
                 if (this.NavMan.Uri.Contains('#') || this.NavMan.Uri.Contains('?'))
                 {
                     await this.ProcessUriAsync(this.NavMan.Uri);
+                }
+                else
+                {
+                    await this.HandleCurrentAuthenticationAsync();
                 }
             }
             catch (Exception ex)
@@ -96,9 +111,31 @@ namespace Blazorade.Id.Components
                     this.Processing = false;
                 }
             }
+            else
+            {
+                await this.HandleCurrentAuthenticationAsync();
+            }
 
         }
 
+        private async ValueTask HandleCurrentAuthenticationAsync()
+        {
+            JwtSecurityToken? idToken = null;
+            try
+            {
+                idToken = await this.StorageFacade.GetIdentityTokenAsync();
+            }
+            catch { }
+
+            if(null != idToken)
+            {
+                var principal = this.CreatePrincipal(idToken);
+                if(null != principal)
+                {
+                    this.AuthStateSetter.SetAuthenticationState(Task.FromResult(new AuthenticationState(principal)));
+                }
+            }
+        }
 
         private async ValueTask ProcessParametersAsync(Dictionary<string, StringValues> parameters)
         {
@@ -162,7 +199,7 @@ namespace Blazorade.Id.Components
         {
             if(null != idToken)
             {
-                var principal = new ClaimsPrincipal(new ClaimsIdentity(idToken.Claims, "oidc", "name", "roles"));
+                var principal = this.CreatePrincipal(idToken);
                 this.AuthStateSetter.SetAuthenticationState(Task.FromResult(new AuthenticationState(principal)));
             }
             else
@@ -171,5 +208,14 @@ namespace Blazorade.Id.Components
             }
         }
 
+        private ClaimsPrincipal? CreatePrincipal(JwtSecurityToken? idToken)
+        {
+            if(null != idToken)
+            {
+                return new ClaimsPrincipal(new ClaimsIdentity(idToken.Claims, "oidc", "name", "roles"));
+            }
+
+            return null;
+        }
     }
 }
