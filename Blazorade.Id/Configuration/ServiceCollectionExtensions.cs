@@ -21,6 +21,7 @@ namespace Microsoft.Extensions.DependencyInjection
             return services
                 .AddAuthorizationCore()
                 .AddCascadingAuthenticationState()
+                .AddScoped<AuthenticationStateProvider, BlazoradeIdAuthenticationStateProvider>()
                 .AddScoped<IHostEnvironmentAuthenticationStateProvider>(sp =>
                 {
                     var stateProvider = sp.GetRequiredService<AuthenticationStateProvider>();
@@ -37,23 +38,9 @@ namespace Microsoft.Extensions.DependencyInjection
         public static BlazoradeIdBuilder AddBlazoradeIdWasmApplication(this IServiceCollection services)
         {
             return services
-                .AddScoped<AuthenticationStateProvider, BlazoradeIdAuthenticationStateProvider>()
+                //.AddScoped<AuthenticationStateProvider, BlazoradeIdAuthenticationStateProvider>()
                 .AddBlazoradeIdServerApplication()
                 ;
-            //return services
-            //    .AddScoped<AuthenticationStateProvider, BlazoradeIdAuthenticationStateProvider>()
-            //    .AddCascadingAuthenticationState()
-            //    .AddScoped<IHostEnvironmentAuthenticationStateProvider>(sp =>
-            //    {
-            //        var stateProvider = sp.GetRequiredService<AuthenticationStateProvider>();
-            //        return (IHostEnvironmentAuthenticationStateProvider)stateProvider;
-            //    })
-            //    .AddBlazoredSessionStorage()
-            //    .AddBlazoredLocalStorage()
-            //    .AddBlazoradeId()
-            //    .AddStorage<BlazorSessionStorage, BlazorPersistentStorage>()
-            //    .AddNavigator<BlazorNavigator>()
-            //    ;
         }
     }
 }

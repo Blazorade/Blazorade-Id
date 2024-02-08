@@ -2,6 +2,7 @@
 using Blazorade.Id.Core.Model;
 using Microsoft.Extensions.Options;
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IdentityModel.Tokens.Jwt;
@@ -10,6 +11,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using System.Xml.Serialization;
 
 namespace Blazorade.Id.Core.Services
 {
@@ -76,6 +78,9 @@ namespace Blazorade.Id.Core.Services
                         error = new OperationError { Code = response.StatusCode.ToString(), Description = content };
                     };
                 }
+
+                await this.StorageFacade.RemoveScopeAsync();
+                await this.StorageFacade.RemoveCodeVerifierAsync();
             }
             catch (Exception ex)
             {
@@ -84,7 +89,9 @@ namespace Blazorade.Id.Core.Services
 
             if(tokenSet?.RefreshToken?.Length > 0)
             {
-                await this.StorageFacade.SetRefreshTokenAsync(new TokenContainer(tokenSet.RefreshToken, tokenSet.ExpiresAtUtc));
+                // We don't set the expiration for the refresh token, because it does not expire at the same time with 
+                // the other tokens.
+                await this.StorageFacade.SetRefreshTokenAsync(new TokenContainer(tokenSet.RefreshToken, null));
             }
 
             if(tokenSet?.IdentityToken?.Length > 0)
@@ -103,17 +110,96 @@ namespace Blazorade.Id.Core.Services
         public async ValueTask<OperationResult<TokenContainer>> ProcessIdentityTokenAsync(string idToken, string? authorityKey = null)
         {
             JwtSecurityToken? token = null;
-            var options = this.AuthOptions.Create(authorityKey ?? "");
+            TokenContainer? container = null;
+            OperationError? error = null;
 
-            return new OperationResult<TokenContainer>(new TokenContainer { Token = null });
+            // aud = clientId
+
+            try
+            {
+                token = new JwtSecurityToken(idToken);
+                var expires = this.GetExpirationTimeUtc(token);
+                if(expires < DateTime.UtcNow)
+                {
+                    throw new Exception("Token is expired.");
+                }
+
+                var nonce = await this.StorageFacade.GetNonceAsync();
+                var tokenNonce = this.GetNonce(token);
+                await this.StorageFacade.RemoveNonceAsync();
+
+                if(tokenNonce?.Length > 0 && tokenNonce != nonce)
+                {
+                    // If the token has a nonce specified, but it does not match
+                    // the one that was stored for the session, then we cannot
+                    // accept the token.
+                    throw new Exception("The token nonce does not match the requested nonce.");
+                }
+
+                var username = this.GetClaimValue(token, "preferred_username");
+                await this.StorageFacade.SetUsernameAsync(username);
+
+                container = new TokenContainer(idToken, expires);
+                await this.StorageFacade.SetIdentityTokenAsync(container);
+            }
+            catch (Exception ex)
+            {
+                error = new OperationError { Description = ex.Message };
+            }
+
+            container = new TokenContainer(token: idToken, expires: null);
+            return new OperationResult<TokenContainer>(value: container, error: error);
         }
 
-        public async ValueTask<OperationResult<JwtSecurityToken>> ProcessAccessTokenAsync(string accessToken, string? authorityKey = null)
+        public async ValueTask<OperationResult<TokenContainer>> ProcessAccessTokenAsync(string accessToken, string? authorityKey = null)
         {
             JwtSecurityToken? token = null;
-            var options = this.AuthOptions.Create(authorityKey ?? "");
+            TokenContainer? container = null;
+            OperationError? error = null;
 
-            return new OperationResult<JwtSecurityToken>(token);
+            // appid = clientId
+
+            try
+            {
+                token = new JwtSecurityToken(accessToken);
+                var expires = this.GetExpirationTimeUtc(token);
+                if (expires < DateTime.UtcNow)
+                {
+                    throw new Exception("Token is expired.");
+                }
+
+                container = new TokenContainer(accessToken, expires);
+                await this.StorageFacade.SetAccessTokenAsync(container);
+            }
+            catch (Exception ex)
+            {
+                error = new OperationError { Description = ex.Message };
+            }
+
+            container = new TokenContainer(token: accessToken, expires: null);
+            return new OperationResult<TokenContainer>(value: container, error: error);
+        }
+
+        private DateTime? GetExpirationTimeUtc(JwtSecurityToken token)
+        {
+            var exp = this.GetClaimValue(token, "exp");
+            if(long.TryParse(exp, out long l))
+            {
+                var expires = DateTimeOffset.FromUnixTimeSeconds(l).UtcDateTime;
+                return expires;
+            }
+
+            return null;
+        }
+
+        private string? GetNonce(JwtSecurityToken token)
+        {
+            return this.GetClaimValue(token, "nonce");
+        }
+
+        private string? GetClaimValue(JwtSecurityToken token, string claimType)
+        {
+            return token.Claims?.FirstOrDefault(x => x.Type == claimType)?.Value;
         }
     }
 }

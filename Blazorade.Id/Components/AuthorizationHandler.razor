@@ -1,5 +1,5 @@
 ﻿@inherits BlazoradeComponentBase
-@if(null != this.ChildContent)
+@if(this.Processing && null != this.ChildContent)
 {
     @this.ChildContent
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
 using System.Text;
 
 namespace Blazorade.Id.Core.Model
@@ -18,5 +19,14 @@ namespace Blazorade.Id.Core.Model
 
         public DateTime? Expires { get; set; }
 
+        public JwtSecurityToken? ParseToken()
+        {
+            if(this.Token?.Length > 0)
+            {
+                return new JwtSecurityToken(this.Token);
+            }
+
+            return null;
+        }
     }
 }
