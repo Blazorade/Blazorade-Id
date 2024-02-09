@@ -7,6 +7,9 @@ using System.Threading.Tasks;
 
 namespace Blazorade.Id.Core.Services
 {
+    /// <summary>
+    /// A base class for storage implementations.
+    /// </summary>
     public abstract class StorageBase : IStorage
     {
 

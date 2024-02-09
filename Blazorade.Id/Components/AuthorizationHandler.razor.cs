@@ -171,19 +171,19 @@ namespace Blazorade.Id.Components
                 // If an authorization code is specified, then we use that to get both an
                 // identity token and an access token, and ignore any tokens that
                 // were sent in the URL.
-                codeResult = await this.TokenService.ProcessAuthorizationCodeAsync(code, this.NavMan.BaseUri, nonce, state.AuthorityKey);
+                codeResult = await this.TokenService.ProcessAuthorizationCodeAsync(code, this.NavMan.BaseUri, nonce);
                 this.NotifyAuthenticationStateChanged(codeResult?.Value?.GetIdentityToken());
             }
 
             if (!(codeResult?.Value?.IdentityToken?.Length > 0) && idToken?.Length > 0)
             {
-                var token = await this.TokenService.ProcessIdentityTokenAsync(idToken, nonce, state.AuthorityKey);
+                var token = await this.TokenService.ProcessIdentityTokenAsync(idToken, nonce);
                 this.NotifyAuthenticationStateChanged(token?.Value?.ParseToken());
             }
 
             if (!(codeResult?.Value?.AccessToken?.Length > 0) && accessToken?.Length > 0)
             {
-                await this.TokenService.ProcessAccessTokenAsync(accessToken, state.AuthorityKey);
+                await this.TokenService.ProcessAccessTokenAsync(accessToken);
             }
 
             var redirUri = state?.Uri ?? this.NavMan.BaseUri ?? "/";

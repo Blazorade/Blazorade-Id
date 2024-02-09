@@ -18,6 +18,12 @@ namespace Blazorade.Id.Core.Services
     /// </remarks>
     public class StorageFacade
     {
+        /// <summary>
+        /// Creates a new instance of the class.
+        /// </summary>
+        /// <exception cref="ArgumentNullException">
+        /// The exception that is thrown if one of the parameters is <c>null</c>.
+        /// </exception>
         public StorageFacade(IOptionsFactory<AuthorityOptions> optionsFactory, ISessionStorage sessionStorage, IPersistentStorage persistentStorage)
         {
             this.OptionsFactory = optionsFactory ?? throw new ArgumentNullException(nameof(optionsFactory));
@@ -252,18 +258,27 @@ namespace Blazorade.Id.Core.Services
             await this.RemoveItemFromConfiguredStorageAsync(key);
         }
 
+        /// <summary>
+        /// Removes the access token for the current user.
+        /// </summary>
         public async ValueTask RemoveAccessTokenAsync()
         {
             var key = this.PrefixKey(AccessTokenKey);
             await this.RemoveItemFromConfiguredStorageAsync(key);
         }
 
+        /// <summary>
+        /// Removes the identity token stored for the current user.
+        /// </summary>
         public async ValueTask RemoveIdentityTokenAsync()
         {
             var key = this.PrefixKey(IdTokenKey);
             await this.RemoveItemFromConfiguredStorageAsync(key);
         }
 
+        /// <summary>
+        /// Removes the refresh token stored for the current user.
+        /// </summary>
         public async ValueTask RemoveRefreshTokenAsync()
         {
             var key = this.PrefixKey(RefreshTokenKey);

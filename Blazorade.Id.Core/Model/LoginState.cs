@@ -16,11 +16,6 @@ namespace Blazorade.Id.Core.Model
         /// This is usually the URL where the login process was started.
         /// </remarks>
         public string? Uri {  get; set; }
-
-        /// <summary>
-        /// The authority key representing the authority with whom the login process was started.
-        /// </summary>
-        public string? AuthorityKey { get; set; }
     }
 
 }
