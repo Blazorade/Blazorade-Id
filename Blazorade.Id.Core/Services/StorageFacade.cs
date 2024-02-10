@@ -24,19 +24,18 @@ namespace Blazorade.Id.Core.Services
         /// <exception cref="ArgumentNullException">
         /// The exception that is thrown if one of the parameters is <c>null</c>.
         /// </exception>
-        public StorageFacade(IOptionsFactory<AuthorityOptions> optionsFactory, ISessionStorage sessionStorage, IPersistentStorage persistentStorage)
+        public StorageFacade(IOptions<AuthorityOptions> options, ISessionStorage sessionStorage, IPersistentStorage persistentStorage)
         {
-            this.OptionsFactory = optionsFactory ?? throw new ArgumentNullException(nameof(optionsFactory));
+            this.Options = options.Value ?? throw new ArgumentNullException(nameof(options));
             this.SessionStorage = sessionStorage ?? throw new ArgumentNullException(nameof (sessionStorage));
             this.PersistentStorage = persistentStorage ?? throw new ArgumentNullException(nameof(persistentStorage));
         }
 
-        private readonly IOptionsFactory<AuthorityOptions> OptionsFactory;
+        private readonly AuthorityOptions Options;
 
         private const string CodeVerifierKey = "codeVerifier";
         private const string ScopeKey = "scope";
         private const string UsernameKey = "username";
-        private const string AuthorityKey = "authKey";
         private const string NonceKey = "nonce";
         private const string RefreshTokenKey = "refreshToken";
         private const string AccessTokenKey = "accessToken";
@@ -55,15 +54,6 @@ namespace Blazorade.Id.Core.Services
         public IPersistentStorage PersistentStorage { get; private set; }
 
 
-
-        /// <summary>
-        /// Returns the authority key for the current signed in user.
-        /// </summary>
-        public async ValueTask<string?> GetAuthorityKeyAsync()
-        {
-            var key = this.PrefixKey(AuthorityKey);
-            return await this.PersistentStorage.GetItemAsync<string?>(key);
-        }
 
         /// <summary>
         /// Returns the code verifier that was used when starting the current login process.
@@ -138,15 +128,6 @@ namespace Blazorade.Id.Core.Services
 
 
         /// <summary>
-        /// Sets the authority key for the authority used to sign in the current user.
-        /// </summary>
-        public async ValueTask SetAuthorityKeyAsync(string? authorityKey)
-        {
-            var key = this.PrefixKey(AuthorityKey);
-            await this.PersistentStorage.SetItemAsync(key, authorityKey);
-        }
-
-        /// <summary>
         /// Sets the code verifier that was used when starting the current login process.
         /// </summary>
         public async ValueTask SetCodeVerifierAsync(string? codeVerifier)
@@ -210,15 +191,6 @@ namespace Blazorade.Id.Core.Services
         }
 
 
-
-        /// <summary>
-        /// Removes the authority key that was used to sign the current user in.
-        /// </summary>
-        public async ValueTask RemoveAuthoritykeyAsync()
-        {
-            var key = this.PrefixKey(AuthorityKey);
-            await this.PersistentStorage.RemoveItemAsync(key);
-        }
 
         /// <summary>
         /// Removes the code verifier that was used when starting the current login process.
@@ -295,38 +267,19 @@ namespace Blazorade.Id.Core.Services
             await this.RemoveScopeAsync();
             await this.RemoveCodeVerifierAsync();
 
-
+            await this.RemoveIdentityTokenAsync();
+            await this.RemoveAccessTokenAsync();
+            await this.RemoveRefreshTokenAsync();
 
             await this.RemoveUsernameAsync();
-            await this.RemoveAuthoritykeyAsync();
-        }
-
-
-        /// <summary>
-        /// Returns the storage configured for the authority key currently in use, i.e. the
-        /// authority key returned by the <see cref="GetCurrentAuthorityKeyAsync"/>.
-        /// </summary>
-        public async ValueTask<IStorage> GetConfiguredStorageAsync()
-        {
-            var authKey = await this.GetAuthorityKeyAsync();
-            return this.GetConfiguredStorage(authKey);
-        }
-
-        /// <summary>
-        /// Returns the storage configured for the authority represented by the given key.
-        /// </summary>
-        public IStorage GetConfiguredStorage(string? authorityKey)
-        {
-            var options = this.OptionsFactory.Create(authorityKey ?? "");
-            return this.GetConfiguredStorage(options);
         }
 
         /// <summary>
         /// Returns the storage configured in the given options.
         /// </summary>
-        public IStorage GetConfiguredStorage(AuthorityOptions options)
+        public IStorage GetConfiguredStorage()
         {
-            return options.CacheMode == TokenCacheMode.Session
+            return this.Options.CacheMode == TokenCacheMode.Session
                 ? (IStorage)this.SessionStorage
                 : (IStorage)this.PersistentStorage;
         }
@@ -335,7 +288,7 @@ namespace Blazorade.Id.Core.Services
 
         private async ValueTask<T> GetItemFromConfiguredStorageAsync<T>(string key)
         {
-            var storage = await this.GetConfiguredStorageAsync();
+            var storage = this.GetConfiguredStorage();
             return await storage.GetItemAsync<T>(key);
         }
 
@@ -346,13 +299,13 @@ namespace Blazorade.Id.Core.Services
 
         private async ValueTask RemoveItemFromConfiguredStorageAsync(string key)
         {
-            var storage = await this.GetConfiguredStorageAsync();
+            var storage = this.GetConfiguredStorage();
             await storage.RemoveItemAsync(key);
         }
 
         private async ValueTask SetItemInConfiguredStorageAsync<T>(string key, T value)
         {
-            var storage = await this.GetConfiguredStorageAsync();
+            var storage = this.GetConfiguredStorage();
             await storage.SetItemAsync(key, value);
         }
 
