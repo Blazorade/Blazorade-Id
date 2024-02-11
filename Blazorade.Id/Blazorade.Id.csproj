@@ -4,7 +4,27 @@
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <Title>Blazorade ID</Title>
+    <Authors>Mika Berglund</Authors>
+    <Company>Blazorade</Company>
+    <Version>1.0.0-alfa.1</Version>
+    <Product>Blazorade ID</Product>
+    <Description>Blazorade ID offers authentication and user identification services to all types of Blazor applications. Blazorade ID aims to unify the programming model for authentication across all Blazor application types, as far as possible.</Description>
+    <Copyright>Copyright (c) Mika Berglund 2024</Copyright>
+    <PackageProjectUrl>https://github.com/Blazorade/Blazorade-Id</PackageProjectUrl>
+    <PackageIcon>Blazorade-Id-Logo-128.png</PackageIcon>
+    <PackageReadmeFile>readme.md</PackageReadmeFile>
+    <RepositoryUrl>https://github.com/Blazorade/Blazorade-Id</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>Blazor;Authentication;OIDC</PackageTags>
+    <PackageReleaseNotes>For details about this release, check out the release notes on Nuget at https://www.nuget.org/packages/Blazorade.Id.</PackageReleaseNotes>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Content Remove="C:\Users\mika.berglund\.nuget\packages\blazorade.core\3.0.1\contentFiles\any\net6.0\Blazorade-Icon-128.png" />
+  </ItemGroup>
 
 
   <ItemGroup>
@@ -23,11 +43,18 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="wwwroot\" />
+	  <ProjectReference Include="..\Blazorade.Id.Core\Blazorade.Id.Core.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Blazorade.Id.Core\Blazorade.Id.Core.csproj" />
+    <None Update="Blazorade-Id-Logo-128.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+    <None Update="readme.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
   </ItemGroup>
 
 </Project>

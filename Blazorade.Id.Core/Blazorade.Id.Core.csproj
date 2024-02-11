@@ -3,6 +3,22 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.1</TargetFramework>
     <Nullable>enable</Nullable>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <Title>Blazorade ID Core</Title>
+    <Version>1.0.0-alpha.1</Version>
+    <Authors>Mika Berglund</Authors>
+    <Company>Blazorade</Company>
+    <Product>Blazorade ID Core</Product>
+    <Description>Blazorade ID Core contains the core functionality for Blazorade ID, and is shared across different application types.</Description>
+    <Copyright>Copyright (c) Mika Berglund 2024</Copyright>
+    <PackageProjectUrl>https://github.com/Blazorade/Blazorade-Id</PackageProjectUrl>
+    <PackageIcon>Blazorade-Id-Logo-128.png</PackageIcon>
+    <PackageReadmeFile>readme.md</PackageReadmeFile>
+    <RepositoryUrl>https://github.com/Blazorade/Blazorade-Id</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>Blazor;Authentication:OIDC</PackageTags>
+    <PackageReleaseNotes>For details about this release, check out the release notes on Nuget at https://www.nuget.org/packages/Blazorade.Id.Core.</PackageReleaseNotes>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
   </PropertyGroup>
 
   <ItemGroup>
@@ -11,6 +27,17 @@
     <PackageReference Include="Microsoft.Extensions.Options" Version="8.0.1" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="7.2.0" />
     <PackageReference Include="System.Text.Json" Version="8.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Blazorade-Id-Logo-128.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+    <None Update="readme.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
   </ItemGroup>
 
 </Project>
