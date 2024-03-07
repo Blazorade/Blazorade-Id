@@ -38,7 +38,6 @@ namespace Microsoft.Extensions.DependencyInjection
         public static BlazoradeIdBuilder AddBlazoradeIdWasmApplication(this IServiceCollection services)
         {
             return services
-                //.AddScoped<AuthenticationStateProvider, BlazoradeIdAuthenticationStateProvider>()
                 .AddBlazoradeIdServerApplication()
                 ;
         }
