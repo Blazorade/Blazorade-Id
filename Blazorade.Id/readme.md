@@ -8,6 +8,10 @@ Blazorade ID is currently in alpha development phases, and we are working on sam
 
 ## Version Highlights
 
+### v1.0.0-alpha.2
+
+- Updated reference to [`Blazorade.Id.Core`](https://www.nuget.org/packages/Blazorade.Id.Core).
+
 ### v1.0.0-alpha.1
 
 Authentication and token acquisition works in both Blazor WebAssembly and Blazor Server applications.

@@ -9,3 +9,11 @@ Blazorade ID is currently in alpha development phases, and we are working on sam
 ## Version Highlights
 
 The versions of Blazorade ID Core always match the version numbers of the other Blazorade ID libraries. For details, see the *Used By* tab above.
+
+### v1.0.0-alpha.2
+
+- Updated reference to [`System.Text.Json`](https://learn.microsoft.com/dotnet/api/system.text.json) to a non-vulnerable version.
+
+### v1.0.0-alpha.1
+
+- Initial version.
