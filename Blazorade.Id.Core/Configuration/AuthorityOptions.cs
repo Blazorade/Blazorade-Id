@@ -106,5 +106,12 @@ namespace Blazorade.Id.Core.Configuration
         /// </remarks>
         public string? RedirectUri { get; set; }
 
+        /// <summary>
+        /// The scope to use by default when acquiring tokens from this authority. Multiple scopes are separated by a space.
+        /// </summary>
+        /// <remarks>
+        /// The default is <c>openid profile email</c>.
+        /// </remarks>
+        public string? Scope { get; set; } = "openid profile email";
     }
 }

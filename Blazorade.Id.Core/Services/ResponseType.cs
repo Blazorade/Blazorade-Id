@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace Blazorade.Id.Core.Services
 {
+    /// <summary>
+    /// Defines different types of information returned from an authorization endpoint.
+    /// </summary>
     public enum ResponseType
     {
         /// <summary>

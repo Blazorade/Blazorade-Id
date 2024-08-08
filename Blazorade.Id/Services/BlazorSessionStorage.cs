@@ -20,12 +20,6 @@ namespace Blazorade.Id.Services
         private readonly ISessionStorageService Service;
 
         /// <inheritdoc/>
-        public override ValueTask ClearAsync()
-        {
-            return this.Service.ClearAsync();
-        }
-
-        /// <inheritdoc/>
         public override ValueTask<bool> ContainsKeyAsync(string key)
         {
             return this.Service.ContainKeyAsync(key);
@@ -35,18 +29,6 @@ namespace Blazorade.Id.Services
         public override ValueTask<T> GetItemAsync<T>(string key)
         {
             return this.Service.GetItemAsync<T>(key);
-        }
-
-        /// <inheritdoc/>
-        public override ValueTask<int> GetItemCountAsync()
-        {
-            return this.Service.LengthAsync();
-        }
-
-        /// <inheritdoc/>
-        public override ValueTask<IEnumerable<string>> GetKeysAsync()
-        {
-            return this.Service.KeysAsync();
         }
 
         /// <inheritdoc/>

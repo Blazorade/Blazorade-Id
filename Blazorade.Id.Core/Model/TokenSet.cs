@@ -10,10 +10,13 @@ namespace Blazorade.Id.Core.Model
     public class TokenSet
     {
         [JsonPropertyName("access_token")]
-        public string AccessToken { get; set; } = string.Empty;
+        public string? AccessToken { get; set; }
 
         [JsonPropertyName("id_token")]
-        public string IdentityToken { get; set; } = string.Empty;
+        public string? IdentityToken { get; set; }
+
+        [JsonPropertyName("refresh_token")]
+        public string? RefreshToken { get; set; }
 
         [JsonPropertyName("token_type")]
         public string TokenType { get; set; } = string.Empty;
@@ -47,14 +50,14 @@ namespace Blazorade.Id.Core.Model
             return tokenScopes?.All(x => scopes.Contains(x)) ?? false;
         }
 
-        public JwtSecurityToken GetAccessToken()
+        public JwtSecurityToken? GetAccessToken()
         {
-            return new JwtSecurityToken(this.AccessToken);
+            return null != this.AccessToken ? new JwtSecurityToken(this.AccessToken) : null;
         }
 
-        public JwtSecurityToken GetIdentityToken()
+        public JwtSecurityToken? GetIdentityToken()
         {
-            return new JwtSecurityToken(this.IdentityToken);
+            return null != this.IdentityToken ? new JwtSecurityToken(this.IdentityToken) : null;
         }
     }
 }

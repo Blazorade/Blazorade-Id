@@ -28,7 +28,5 @@ namespace Blazorade.Id.Core.Services
         /// </summary>
         /// <param name="uri">The URI to navigate to.</param>
         ValueTask NavigateToAsync(string uri);
-
-
     }
 }

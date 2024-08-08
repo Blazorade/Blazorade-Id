@@ -1,5 +1,7 @@
-﻿using System;
+﻿using Blazorade.Id.Core.Model;
+using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -12,12 +14,6 @@ namespace Blazorade.Id.Core.Services
     public interface IStorage
     {
         /// <summary>
-        /// Clears all items from the storage.
-        /// </summary>
-        /// <returns></returns>
-        ValueTask ClearAsync();
-
-        /// <summary>
         /// Determines whether an item with the given key exists in the storage.
         /// </summary>
         /// <param name="key">The key to check.</param>
@@ -29,18 +25,6 @@ namespace Blazorade.Id.Core.Services
         /// <typeparam name="T">The type to return the item as.</typeparam>
         /// <param name="key">The key of the item to return.</param>
         ValueTask<T> GetItemAsync<T>(string key);
-
-        /// <summary>
-        /// Returns a collection of keys representing the items stored in the storage.
-        /// </summary>
-        /// <returns></returns>
-        ValueTask<IEnumerable<string>> GetKeysAsync();
-
-        /// <summary>
-        /// Returns the number of items stored in the storage.
-        /// </summary>
-        /// <returns></returns>
-        ValueTask<int> GetItemCountAsync();
 
         /// <summary>
         /// Removes the item with the given key from the storage.
