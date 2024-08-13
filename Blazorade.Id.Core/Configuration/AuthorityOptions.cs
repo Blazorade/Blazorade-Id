@@ -8,6 +8,14 @@ namespace Blazorade.Id.Core.Configuration
     {
 
         /// <summary>
+        /// The default scopes to use if no other is specified.
+        /// </summary>
+        /// <remarks>
+        /// Default scopes are <c>openid profile email</c>.
+        /// </remarks>
+        public const string DefaultScope = "openid profile email";
+
+        /// <summary>
         /// The Client ID (Application ID) of the application that uses these options.
         /// </summary>
         public string ClientId { get; set; } = string.Empty;
@@ -112,6 +120,6 @@ namespace Blazorade.Id.Core.Configuration
         /// <remarks>
         /// The default is <c>openid profile email</c>.
         /// </remarks>
-        public string? Scope { get; set; } = "openid profile email";
+        public string? Scope { get; set; } = DefaultScope;
     }
 }

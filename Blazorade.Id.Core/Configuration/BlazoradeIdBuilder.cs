@@ -25,26 +25,24 @@ namespace Blazorade.Id.Core.Configuration
         /// <summary>
         /// Adds authority configuration to the application.
         /// </summary>
-        public BlazoradeIdBuilder AddAuthority(Action<IServiceProvider, AuthorityOptions> config)
+        public BlazoradeIdBuilder AddAuthority(Action<AuthorityOptions, IConfiguration> config)
         {
-            this.Services.AddOptions<AuthorityOptions>()
-                .Configure<IServiceProvider>((o, sp) =>
-                {
-                    config.Invoke(sp, o);
-                });
+            this.Services
+                .AddOptions<AuthorityOptions>()
+                .Configure<IConfiguration>(config);
+
             return this;
         }
 
         /// <summary>
         /// Adds authority configuration to the application.
         /// </summary>
-        public BlazoradeIdBuilder AddAuthority(Action<IConfiguration, AuthorityOptions> config)
+        public BlazoradeIdBuilder AddAuthority<TDependency>(Action<AuthorityOptions, TDependency> config) where TDependency : class
         {
-            this.Services.AddOptions<AuthorityOptions>()
-                .Configure<IConfiguration>((o, sp) =>
-                {
-                    config.Invoke(sp, o);
-                });
+            this.Services
+                .AddOptions<AuthorityOptions>()
+                .Configure<TDependency>(config);
+
             return this;
         }
 
