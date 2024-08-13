@@ -1,0 +1,19 @@
+﻿@inherits BlazoradeComponentBase
+
+<AuthorizeView>
+    <NotAuthorized>
+        <p>You are not logged in. Click the button below to log in.</p>
+        <button @onclick="this.LogInAsync">Log in</button>
+    </NotAuthorized>
+    <Authorized>
+
+    </Authorized>
+</AuthorizeView>
+
+<h3>Configured Endpoints</h3>
+
+<ul>
+    <li>Authorization Endpoint: <a href="@this.AuthEndpoint" target="_blank">@this.AuthEndpoint</a></li>
+    <li>Token Endpoint: <a href="@this.TokenEndpoint" target="_blank">@this.TokenEndpoint</a></li>
+    <li>End Session Endpoint: <a href="@this.EndSessionEndpoint" target="_blank">@this.EndSessionEndpoint</a></li>
+</ul>

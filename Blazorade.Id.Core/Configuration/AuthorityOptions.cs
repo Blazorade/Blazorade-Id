@@ -8,6 +8,14 @@ namespace Blazorade.Id.Core.Configuration
     {
 
         /// <summary>
+        /// The default scopes to use if no other is specified.
+        /// </summary>
+        /// <remarks>
+        /// Default scopes are <c>openid profile email</c>.
+        /// </remarks>
+        public const string DefaultScope = "openid profile email";
+
+        /// <summary>
         /// The Client ID (Application ID) of the application that uses these options.
         /// </summary>
         public string ClientId { get; set; } = string.Empty;
@@ -37,6 +45,10 @@ namespace Blazorade.Id.Core.Configuration
         /// </summary>
         /// <remarks>
         /// <para>
+        /// If you set the <see cref="MetadataUri"/> property, then the authorization endpoint is automatically
+        /// resolved from that metadata.
+        /// </para>
+        /// <para>
         /// The authorization endpoint for Microsoft Entra ID (formerly Azure AD) tenants
         /// typically looks something like this.
         /// </para>
@@ -64,6 +76,10 @@ namespace Blazorade.Id.Core.Configuration
         /// </summary>
         /// <remarks>
         /// <para>
+        /// If you set the <see cref="MetadataUri"/> property, then the token endpoint is automatically resolved from
+        /// that metadata.
+        /// </para>
+        /// <para>
         /// The token endpoint for Microsoft Entra ID tenants typically looks like this.
         /// </para>
         /// <para>
@@ -87,6 +103,12 @@ namespace Blazorade.Id.Core.Configuration
         /// <summary>
         /// The endpoint that should be called when the user wants to log out.
         /// </summary>
+        /// <remarks>
+        /// <para>
+        /// If you set the <see cref="MetadataUri"/> property, then the end session endpoint is automatically
+        /// resolved from that metadata.
+        /// </para>
+        /// </remarks>
         public string? EndSessionEndpoint { get; set; }
 
         /// <summary>
@@ -112,6 +134,6 @@ namespace Blazorade.Id.Core.Configuration
         /// <remarks>
         /// The default is <c>openid profile email</c>.
         /// </remarks>
-        public string? Scope { get; set; } = "openid profile email";
+        public string? Scope { get; set; } = DefaultScope;
     }
 }

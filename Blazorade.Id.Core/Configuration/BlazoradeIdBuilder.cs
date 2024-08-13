@@ -32,19 +32,7 @@ namespace Blazorade.Id.Core.Configuration
                 {
                     config.Invoke(sp, o);
                 });
-            return this;
-        }
 
-        /// <summary>
-        /// Adds authority configuration to the application.
-        /// </summary>
-        public BlazoradeIdBuilder AddAuthority(Action<IConfiguration, AuthorityOptions> config)
-        {
-            this.Services.AddOptions<AuthorityOptions>()
-                .Configure<IConfiguration>((o, sp) =>
-                {
-                    config.Invoke(sp, o);
-                });
             return this;
         }
 

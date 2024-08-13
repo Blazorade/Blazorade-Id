@@ -21,7 +21,7 @@ namespace Blazorade.Id.Core.Services
         /// </summary>
         /// <remarks>
         /// <para>
-        /// A code verifier is a clear text, random string that sent to the token endpoint when
+        /// A code verifier is a clear text, random string that is sent to the token endpoint when
         /// acquiring tokens using an issued authorization code.
         /// </para>
         /// <para>

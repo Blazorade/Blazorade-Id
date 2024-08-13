@@ -43,7 +43,7 @@
   </ItemGroup>
 
   <ItemGroup>
-	  <ProjectReference Include="..\Blazorade.Id.Core\Blazorade.Id.Core.csproj" />
+    <ProjectReference Include="..\Blazorade.Id.Core\Blazorade.Id.Core.csproj" />
   </ItemGroup>
 
   <ItemGroup>
