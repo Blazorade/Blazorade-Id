@@ -8,9 +8,10 @@ builder.Services
     .AddServerSideBlazor().Services
 
     .AddBlazoradeIdServerApplication()
-    .AddAuthority((options, config) =>
+    .AddAuthority((o, sp) =>
     {
-
+        var config = sp.GetRequiredService<IConfiguration>();
+        config.GetSection("blazorade:authority").Bind(o);
     })
     ;
 

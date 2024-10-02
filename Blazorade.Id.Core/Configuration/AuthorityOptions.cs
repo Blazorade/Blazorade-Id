@@ -126,7 +126,7 @@ namespace Blazorade.Id.Core.Configuration
         /// This must be configured in the application registration and is typically
         /// stored as a URI relative to the home / root URI of the application.
         /// </remarks>
-        public string? RedirectUri { get; set; }
+        public string? RedirectUri { get; set; } = "/blazorade/authcallback";
 
         /// <summary>
         /// The scope to use by default when acquiring tokens from this authority. Multiple scopes are separated by a space.

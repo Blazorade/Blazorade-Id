@@ -76,5 +76,6 @@ namespace Blazorade.Id.Core.Services
                 ChallengeMethod = CodeChallengeMethodValueS256
             };
         }
+
     }
 }

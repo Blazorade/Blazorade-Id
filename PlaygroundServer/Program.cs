@@ -12,7 +12,7 @@ builder.Services
     .Services
 
     .AddBlazoradeIdServerApplication()
-        .AddAuthority((sp, o) =>
+        .AddAuthority((o, sp) =>
         {
             var config = sp.GetRequiredService<IConfiguration>();
             config.GetSection("blazorade:id").Bind(o);

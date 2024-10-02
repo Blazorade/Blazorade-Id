@@ -49,7 +49,7 @@ namespace Blazorade.Id.Core.Services
         /// This service will attempt to refresh the access token in case the previously stored token
         /// has expired, but a refresh token is available.
         /// </remarks>
-        public async ValueTask<JwtSecurityToken?> GetAccessTokenAsync()
+        public async ValueTask<JwtSecurityToken?> GetAccessTokenAsync(TokenAcquisitionMode mode = TokenAcquisitionMode.AllowInteraction)
         {
             return await this.GetValidTokenAsync(this.StorageFacade.GetAccessTokenAsync);
         }
@@ -61,7 +61,7 @@ namespace Blazorade.Id.Core.Services
         /// This service will attempt to refresh the identity token in case the previously stored token
         /// has expired, but a refresh token is available.
         /// </remarks>
-        public async ValueTask<JwtSecurityToken?> GetIdentityTokenAsync()
+        public async ValueTask<JwtSecurityToken?> GetIdentityTokenAsync(TokenAcquisitionMode mode = TokenAcquisitionMode.AllowInteraction)
         {
             return await this.GetValidTokenAsync(this.StorageFacade.GetIdentityTokenAsync);
         }
@@ -269,7 +269,7 @@ namespace Blazorade.Id.Core.Services
             return token.Claims?.FirstOrDefault(x => x.Type == claimType)?.Value;
         }
 
-        private async ValueTask<JwtSecurityToken?> GetValidTokenAsync(Func<ValueTask<TokenContainer?>> tokenGetter)
+        private async ValueTask<JwtSecurityToken?> GetValidTokenAsync(Func<ValueTask<TokenContainer?>> tokenGetter, TokenAcquisitionMode mode = TokenAcquisitionMode.AllowInteraction)
         {
             JwtSecurityToken? token = null!;
             Func<ValueTask<JwtSecurityToken?>> storageAccessor = async () =>
@@ -289,7 +289,17 @@ namespace Blazorade.Id.Core.Services
                 token = await storageAccessor();
             }
 
+            if(null == token && mode == TokenAcquisitionMode.AllowInteraction)
+            {
+                await this.InitCodeFlowAsync();
+            }
+
             return token;
+        }
+
+        private async ValueTask InitCodeFlowAsync()
+        {
+
         }
 
         private async ValueTask<bool> RefreshTokensAsync()

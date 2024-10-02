@@ -25,12 +25,12 @@ namespace Blazorade.Id.Core.Configuration
         /// <summary>
         /// Adds authority configuration to the application.
         /// </summary>
-        public BlazoradeIdBuilder AddAuthority(Action<AuthorityOptions, IConfiguration> config)
+        public BlazoradeIdBuilder AddAuthority(Action<AuthorityOptions, IServiceProvider> config)
         {
             this.Services.AddOptions<AuthorityOptions>()
                 .Configure<IServiceProvider>((o, sp) =>
                 {
-                    config.Invoke(sp, o);
+                    config.Invoke(o, sp);
                 });
 
             return this;
