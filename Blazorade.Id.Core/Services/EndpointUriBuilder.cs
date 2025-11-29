@@ -24,15 +24,23 @@ namespace Blazorade.Id.Core.Services
         /// Creates an instance of the class and specifies the base URI to start building on.
         /// </summary>
         /// <param name="endpointUri">The endpoint URI to start building on. This must be an absolute URI.</param>
-        public EndpointUriBuilder(string endpointUri, CodeChallengeService codeChallenge)
+        public EndpointUriBuilder(string endpointUri, ICodeChallengeService codeChallengeService)
         {
             var uri = new Uri(endpointUri, UriKind.Absolute);
             this.EndpointUri = uri.ToString();
-            this.CodeChallenge = codeChallenge;
+            this.CodeChallengeService = codeChallengeService;
+            CodeChallengeService1 = codeChallengeService;
         }
 
         private string EndpointUri;
-        private CodeChallengeService CodeChallenge;
+        private ICodeChallengeService CodeChallengeService;
+
+        public ICodeChallengeService CodeChallengeService1 { get; }
+
+        public EndpointUriBuilder(ICodeChallengeService codeChallengeService)
+        {
+            CodeChallengeService = codeChallengeService;
+        }
 
 
 
@@ -72,7 +80,7 @@ namespace Blazorade.Id.Core.Services
 
             if(codeVerifier?.Length > 0)
             {
-                var challenge = this.CodeChallenge.CreateCodeChallenge(codeVerifier ?? "");
+                var challenge = this.CodeChallengeService.CreateCodeChallenge(codeVerifier ?? "");
                 this.Parameters[CodeChallengeName] = challenge.ChallengeValue;
                 this.Parameters[CodeChallengeMethodName] = challenge.ChallengeMethod;
             }

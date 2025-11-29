@@ -56,5 +56,26 @@ namespace Blazorade.Id.Core.Configuration
             return this;
         }
 
+        /// <summary>
+        /// Adds the token store to use in the application.
+        /// </summary>
+        /// <typeparam name="TTokenStore">The token store implementation to add.</typeparam>
+        public BlazoradeIdBuilder AddTokenStore<TTokenStore>() where TTokenStore : class, ITokenStore
+        {
+            this.Services.AddScoped<ITokenStore, TTokenStore>();
+            return this;
+        }
+
+        /// <summary>
+        /// Adds the token store to use in the application.
+        /// </summary>
+        /// <param name="config">The delegate that configures the token store.</param>
+        /// <returns></returns>
+        public BlazoradeIdBuilder AddTokenStore(Func<IServiceProvider, ITokenStore> config)
+        {
+            this.Services.AddScoped<ITokenStore>(sp => config.Invoke(sp));
+            return this;
+        }
+
     }
 }

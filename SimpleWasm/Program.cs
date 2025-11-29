@@ -1,3 +1,4 @@
+using Blazorade.Id.Core.Services;
 using Blazorade.Id.Services;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
@@ -11,12 +12,13 @@ builder.Services
     .AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) })
     .AddBlazoradeCore()
     .AddBlazoradeIdWasmApplication()
-        .AddPropertyStorage<BlazorSessionPropertyStore>()
         .AddAuthority((sp, options) =>
         {
             var config = sp.GetRequiredService<IConfiguration>();
             config.GetRequiredSection("blazorade:id").Bind(options);
         })
+        .AddPropertyStorage<BlazorSessionPropertyStore>()
+        .AddTokenStore<InMemoryTokenStore>()
     ;
 
 await builder.Build().RunAsync();

@@ -59,10 +59,9 @@ namespace Microsoft.Extensions.DependencyInjection
             return services
                 .AddScoped<EndpointService>()
                 .AddScoped<SerializationService>()
-                .AddScoped<CodeChallengeService>()
+                .AddScoped<ICodeChallengeService, CodeChallengeService>()
                 .AddScoped<TokenService>()
-                .AddScoped<AuthCodeProcessor>()
-                .AddScoped<TokenStore>()
+                .AddScoped<IAuthCodeProcessor, AuthCodeProcessor>()
                 .AddHttpClient()
 
                 .AddOptions<JsonSerializerOptions>()

@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Blazorade.Id.Core.Services
 {
-    public class TokenStore : ITokenStore
+    public class InMemoryTokenStore : ITokenStore
     {
         private TokenContainer? AccessToken;
         private TokenContainer? IdentityToken;

@@ -20,7 +20,7 @@ namespace Blazorade.Id.Core.Services
         /// Creates an instance of the class.
         /// </summary>
         /// <param name="clientFactory">The HTTP client factory that is a dependency to this service instance.</param>
-        public EndpointService(IHttpClientFactory? clientFactory, CodeChallengeService codeChallengeService, IOptions<AuthorityOptions> authOptions)
+        public EndpointService(IHttpClientFactory? clientFactory, ICodeChallengeService codeChallengeService, IOptions<AuthorityOptions> authOptions)
         {
             this.Client = clientFactory?.CreateClient() ?? new HttpClient();
             this.CodeChallenge = codeChallengeService;
@@ -28,7 +28,7 @@ namespace Blazorade.Id.Core.Services
         }
 
         private readonly HttpClient Client;
-        private readonly CodeChallengeService CodeChallenge;
+        private readonly ICodeChallengeService CodeChallenge;
         private readonly AuthorityOptions Options;
 
         /// <summary>

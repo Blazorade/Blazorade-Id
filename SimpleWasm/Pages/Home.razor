@@ -10,10 +10,21 @@
 </p>
 
 <button class="btn btn-primary" @onclick="GetToken">Get Token</button>
+@if(this.token?.Length > 0)
+{
+    <p>
+        @this.token
+    </p>
+}
+
 
 @code {
+    string? token;
     private async Task GetToken()
     {
-        var token = await this.TokenService.GetAccessTokenAsync();
+        var accessToken = await this.TokenService.GetAccessTokenAsync();
+        this.token = accessToken?.RawData;
+
+        this.StateHasChanged();
     }
 }

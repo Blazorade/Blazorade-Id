@@ -10,26 +10,13 @@ namespace Blazorade.Id.Core.Services
     /// A service class that is used for creating code challenges for use with
     /// an authorization code flow with PKCE (Proof Key Code Exchange).
     /// </summary>
-    public class CodeChallengeService
+    public class CodeChallengeService : ICodeChallengeService
     {
 
         private Random Rnd = new Random();
         private const string CodeVerifierChars = "abcdefghijklmnopqrstuvwxyz0123456789";
 
-        /// <summary>
-        /// Creates a code verifier.
-        /// </summary>
-        /// <remarks>
-        /// <para>
-        /// A code verifier is a clear text, random string that sent to the token endpoint when
-        /// acquiring tokens using an issued authorization code.
-        /// </para>
-        /// <para>
-        /// A code verifier is always paired with a code challenge, which is a hashed version of
-        /// the code verifier. Use the the <see cref="CreateCodeChallenge(string)"/> method to
-        /// create a code challenge using the code verifier created by this method.
-        /// </para>
-        /// </remarks>
+        /// <inheritdoc/>
         public string CreateCodeVerifier()
         {
             var length = this.Rnd.Next(43, 60);
