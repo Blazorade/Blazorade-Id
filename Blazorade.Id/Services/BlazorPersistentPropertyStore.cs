@@ -9,10 +9,10 @@ using System.Threading.Tasks;
 namespace Blazorade.Id.Services
 {
     /// <inheritdoc/>
-    public class BlazorPersistentStorage : StorageBase, IPersistentStorage
+    public class BlazorPersistentPropertyStore : PropertyStoreBase
     {
         /// <inheritdoc/>
-        public BlazorPersistentStorage(ILocalStorageService service)
+        public BlazorPersistentPropertyStore(ILocalStorageService service)
         {
             this.Service = service ?? throw new ArgumentNullException(nameof(service));
         }
@@ -26,19 +26,19 @@ namespace Blazorade.Id.Services
         }
 
         /// <inheritdoc/>
-        public override ValueTask<T> GetItemAsync<T>(string key)
+        public async override ValueTask<T> GetPropertyAsync<T>(string key)
         {
-            return this.Service.GetItemAsync<T>(key);
+            return await this.Service.GetItemAsync<T>(key) ?? default!;
         }
 
         /// <inheritdoc/>
-        public override ValueTask RemoveItemAsync(string key)
+        public override ValueTask RemovePropertyAsync(string key)
         {
             return this.Service.RemoveItemAsync(key);
         }
 
         /// <inheritdoc/>
-        public override ValueTask SetItemAsync<T>(string key, T value)
+        public override ValueTask SetPropertyAsync<T>(string key, T value)
         {
             return this.Service.SetItemAsync(key, value);
         }

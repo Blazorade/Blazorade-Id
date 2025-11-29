@@ -16,10 +16,17 @@ namespace Blazorade.Id.Core.Model
         /// </summary>
         /// <param name="token">The raw encoded representation of the token.</param>
         /// <param name="expires">The expiration timestamp, in UTC.</param>
-        public TokenContainer(string? token, DateTime? expires)
+        public TokenContainer(string? token, DateTime? expires = null)
         {
             this.Token = token;
             this.Expires = expires;
+        }
+
+        /// <summary>
+        /// Creates a container from the given <see cref="JwtSecurityToken"/> instance.
+        /// </summary>
+        public TokenContainer(JwtSecurityToken? token) : this(token?.RawData, token?.GetExpirationTimeUtc())
+        {
         }
 
         /// <summary>

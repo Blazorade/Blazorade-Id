@@ -90,14 +90,6 @@ namespace Blazorade.Id.Core.Configuration
         public string? EndSessionEndpoint { get; set; }
 
         /// <summary>
-        /// Defines what type of storage is used when caching tokens.
-        /// </summary>
-        /// <remarks>
-        /// The default cache mode is <see cref="TokenCacheMode.Session"/>.
-        /// </remarks>
-        public TokenCacheMode CacheMode { get; set; } = TokenCacheMode.Session;
-
-        /// <summary>
         /// The redirect URI where to redirect the users back after logging in.
         /// </summary>
         /// <remarks>

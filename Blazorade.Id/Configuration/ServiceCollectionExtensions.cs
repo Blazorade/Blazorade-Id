@@ -1,15 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
-using Blazorade.Id.Components;
+﻿using Blazorade.Id.Components;
 using Blazorade.Id.Core.Configuration;
+using Blazorade.Id.Core.Services;
 using Blazorade.Id.Services;
 using Blazored.LocalStorage;
 using Blazored.SessionStorage;
 using Microsoft.AspNetCore.Components.Authorization;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.CompilerServices;
+using System.Text;
+using System.Text.Json;
+using System.Threading.Tasks;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -17,6 +19,24 @@ namespace Microsoft.Extensions.DependencyInjection
     {
 
         public static BlazoradeIdBuilder AddBlazoradeIdServerApplication(this IServiceCollection services)
+        {
+            return new BlazoradeIdBuilder(
+                services
+                    .AddSharedBlazoradeWebServices()
+            );
+        }
+
+        public static BlazoradeIdBuilder AddBlazoradeIdWasmApplication(this IServiceCollection services)
+        {
+            return new BlazoradeIdBuilder(
+                services
+                    .AddSharedBlazoradeWebServices()
+            );
+        }
+
+
+
+        private static IServiceCollection AddSharedBlazoradeWebServices(this IServiceCollection services)
         {
             return services
                 .AddAuthorizationCore()
@@ -29,17 +49,30 @@ namespace Microsoft.Extensions.DependencyInjection
                 })
                 .AddBlazoredSessionStorage()
                 .AddBlazoredLocalStorage()
-                .AddBlazoradeId()
-                .AddStorage<BlazorSessionStorage, BlazorPersistentStorage>()
-                .AddNavigator<BlazorNavigator>()
+                .AddSharedBlazoradeIdServices()
+                .AddScoped<IAuthCodeProvider, BlazorAuthCodeProvider>()
                 ;
         }
 
-        public static BlazoradeIdBuilder AddBlazoradeIdWasmApplication(this IServiceCollection services)
+        private static IServiceCollection AddSharedBlazoradeIdServices(this IServiceCollection services)
         {
             return services
-                .AddBlazoradeIdServerApplication()
+                .AddScoped<EndpointService>()
+                .AddScoped<SerializationService>()
+                .AddScoped<CodeChallengeService>()
+                .AddScoped<TokenService>()
+                .AddScoped<AuthCodeProcessor>()
+                .AddScoped<TokenStore>()
+                .AddHttpClient()
+
+                .AddOptions<JsonSerializerOptions>()
+                .Configure(opt =>
+                {
+                    opt.PropertyNameCaseInsensitive = true;
+                    opt.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+                }).Services
                 ;
+            ;
         }
     }
 }

@@ -8,11 +8,13 @@ using System.Threading.Tasks;
 
 namespace Blazorade.Id.Services
 {
-    /// <inheritdoc/>
-    public class BlazorSessionStorage : StorageBase, ISessionStorage
+    /// <summary>
+    /// A property storage implementation that uses Blazored.SessionStorage as the underlying storage mechanism.
+    /// </summary>
+    public class BlazorSessionPropertyStore : PropertyStoreBase
     {
         /// <inheritdoc/>
-        public BlazorSessionStorage(ISessionStorageService service)
+        public BlazorSessionPropertyStore(ISessionStorageService service)
         {
             this.Service = service ?? throw new ArgumentNullException(nameof(service));
         }
@@ -26,19 +28,19 @@ namespace Blazorade.Id.Services
         }
 
         /// <inheritdoc/>
-        public override ValueTask<T> GetItemAsync<T>(string key)
+        public override ValueTask<T> GetPropertyAsync<T>(string key)
         {
             return this.Service.GetItemAsync<T>(key);
         }
 
         /// <inheritdoc/>
-        public override ValueTask RemoveItemAsync(string key)
+        public override ValueTask RemovePropertyAsync(string key)
         {
             return this.Service.RemoveItemAsync(key);
         }
 
         /// <inheritdoc/>
-        public override ValueTask SetItemAsync<T>(string key, T value)
+        public override ValueTask SetPropertyAsync<T>(string key, T value)
         {
             return this.Service.SetItemAsync(key, value);
         }

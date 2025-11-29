@@ -25,33 +25,61 @@ namespace Blazorade.Id.Core.Services
         /// Creates a new instance of the token service.
         /// </summary>
         /// <exception cref="ArgumentNullException">The exception that is thrown if an argument is <c>null</c>.</exception>
-        public TokenService(IHttpClientFactory httpFactory, StorageFacade storage, IOptions<AuthorityOptions> authOptions, EndpointService epService, IOptions<JsonSerializerOptions> jsonOptions, INavigator navigator)
-        {
+        public TokenService(
+            IHttpClientFactory httpFactory, 
+            ITokenStore tokenStore,
+            IPropertyStore propertyStore,
+            IOptions<AuthorityOptions> authOptions, 
+            EndpointService epService, 
+            IOptions<JsonSerializerOptions> jsonOptions,
+            IAuthCodeProvider authCodeProvider,
+            IAuthCodeProcessor authCodeProcessor
+        ) {
             this.HttpClientFactory = httpFactory ?? throw new ArgumentNullException(nameof(httpFactory));
-            this.StorageFacade = storage ?? throw new ArgumentNullException(nameof(storage));
+            this.TokenStore = tokenStore ?? throw new ArgumentNullException(nameof(tokenStore));
+            this.PropertyStore = propertyStore ?? throw new ArgumentNullException(nameof(propertyStore));
             this.AuthOptions = authOptions.Value ?? throw new ArgumentNullException(nameof(authOptions));
             this.EndpointService = epService ?? throw new ArgumentNullException(nameof(epService));
             this.JsonOptions = jsonOptions.Value ?? throw new ArgumentNullException(nameof(jsonOptions));
-            this.Navigator = navigator ?? throw new ArgumentNullException(nameof(navigator));
+            this.AuthCodeProvider = authCodeProvider ?? throw new ArgumentNullException(nameof(authCodeProvider));
+            this.AuthCodeProcessor = authCodeProcessor ?? throw new ArgumentNullException(nameof(authCodeProcessor));
         }
 
         private readonly IHttpClientFactory HttpClientFactory;
-        private readonly StorageFacade StorageFacade;
+        private readonly IPropertyStore PropertyStore;
+        private readonly ITokenStore TokenStore;
         private readonly AuthorityOptions AuthOptions;
         private readonly EndpointService EndpointService;
         private readonly JsonSerializerOptions JsonOptions;
-        private readonly INavigator Navigator;
+        private readonly IAuthCodeProvider AuthCodeProvider;
+        private readonly IAuthCodeProcessor AuthCodeProcessor;
 
         /// <summary>
         /// Returns the access token for the current signed in user.
         /// </summary>
+        /// <param name="scopes">The scopes that are required to be present in the access token.</param>
         /// <remarks>
         /// This service will attempt to refresh the access token in case the previously stored token
         /// has expired, but a refresh token is available.
         /// </remarks>
-        public async ValueTask<JwtSecurityToken?> GetAccessTokenAsync()
+        public async ValueTask<JwtSecurityToken?> GetAccessTokenAsync(params string[] scopes)
         {
-            return await this.GetValidTokenAsync(this.StorageFacade.GetAccessTokenAsync);
+            scopes = scopes.Count() > 0 ? scopes : $"{this.AuthOptions.Scope}".Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+
+            var tokenGetter = () => this.GetValidTokenAsync(this.TokenStore.GetAccessTokenAsync, scopes);
+
+            var token = await tokenGetter();
+            if(null == token)
+            {
+                // If the token was not found, either directly or by refreshing, then we try
+                // to acquire new tokens interactively.
+                if (await this.AcquireTokensInteractiveAsync(scopes))
+                {
+                    token = await tokenGetter();
+                }
+            }
+
+            return token;
         }
 
         /// <summary>
@@ -63,7 +91,18 @@ namespace Blazorade.Id.Core.Services
         /// </remarks>
         public async ValueTask<JwtSecurityToken?> GetIdentityTokenAsync()
         {
-            return await this.GetValidTokenAsync(this.StorageFacade.GetIdentityTokenAsync);
+            var tokenGetter = () => this.GetValidTokenAsync(this.TokenStore.GetIdentityTokenAsync);
+            var token = await tokenGetter();
+            if(null == token)
+            {
+                // If the token was not found, either directly or by refreshing, then we try
+                // to acquire new tokens interactively.
+                if (await this.AcquireTokensInteractiveAsync([]))
+                {
+                    token = await tokenGetter();
+                }
+            }
+            return await this.GetValidTokenAsync(this.TokenStore.GetIdentityTokenAsync);
         }
 
         /// <summary>
@@ -91,8 +130,8 @@ namespace Blazorade.Id.Core.Services
                 throw new ArgumentException("The given redirect URI must be an absolute URI, and it must match the redirect URI that was specified in the login request sent to the authorization endpoint.", nameof(redirectUri));
             }
 
-            var codeVerifier = await this.StorageFacade.GetCodeVerifierAsync();
-            var scope = await this.StorageFacade.GetScopeAsync();
+            var codeVerifier = await this.PropertyStore.GetCodeVerifierAsync();
+            var scope = await this.PropertyStore.GetScopeAsync();
 
             var tokenRequestBuilder = await this.EndpointService.CreateTokenRequestBuilderAsync();
             var tokenRequest = tokenRequestBuilder
@@ -103,8 +142,8 @@ namespace Blazorade.Id.Core.Services
                 .WithRedirectUri(uri)
                 .Build();
 
-            await this.StorageFacade.RemoveScopeAsync();
-            await this.StorageFacade.RemoveCodeVerifierAsync();
+            await this.PropertyStore.RemoveScopeAsync();
+            await this.PropertyStore.RemoveCodeVerifierAsync();
 
             return await this.ExecuteTokenEndpointRequestAsync(tokenRequest, expectedNonce);
         }
@@ -127,15 +166,15 @@ namespace Blazorade.Id.Core.Services
             try
             {
                 token = new JwtSecurityToken(idToken);
-                var expires = this.GetExpirationTimeUtc(token);
+                var expires = token.GetExpirationTimeUtc();
                 if(expires < DateTime.UtcNow)
                 {
                     throw new Exception("Token is expired.");
                 }
 
-                expectedNonce = expectedNonce ?? await this.StorageFacade.GetNonceAsync();
-                await this.StorageFacade.RemoveNonceAsync();
-                var tokenNonce = this.GetNonce(token);
+                expectedNonce = expectedNonce ?? await this.PropertyStore.GetNonceAsync();
+                await this.PropertyStore.RemoveNonceAsync();
+                var tokenNonce = token.GetNonce();
 
                 if(tokenNonce?.Length > 0 && expectedNonce?.Length > 0 && tokenNonce != expectedNonce)
                 {
@@ -145,11 +184,11 @@ namespace Blazorade.Id.Core.Services
                     throw new Exception("The token nonce does not match the requested nonce.");
                 }
 
-                var username = this.GetClaimValue(token, "preferred_username");
-                await this.StorageFacade.SetUsernameAsync(username);
+                var username = token.GetClaimValue("preferred_username");
+                await this.PropertyStore.SetUsernameAsync(username);
 
                 container = new TokenContainer(idToken, expires);
-                await this.StorageFacade.SetIdentityTokenAsync(container);
+                await this.TokenStore.SetIdentityTokenAsync(container);
             }
             catch (Exception ex)
             {
@@ -176,14 +215,14 @@ namespace Blazorade.Id.Core.Services
             try
             {
                 token = new JwtSecurityToken(accessToken);
-                var expires = this.GetExpirationTimeUtc(token);
+                var expires = token.GetExpirationTimeUtc();
                 if (expires < DateTime.UtcNow)
                 {
                     throw new Exception("Token is expired.");
                 }
 
                 container = new TokenContainer(accessToken, expires);
-                await this.StorageFacade.SetAccessTokenAsync(container);
+                await this.TokenStore.SetAccessTokenAsync(container);
             }
             catch (Exception ex)
             {
@@ -195,6 +234,12 @@ namespace Blazorade.Id.Core.Services
         }
 
 
+
+        private async ValueTask<bool> AcquireTokensInteractiveAsync(IEnumerable<string> scopes)
+        {
+            var code = await this.AuthCodeProvider.GetAuthorizationCodeAsync();
+            return false;
+        }
 
         private async ValueTask<OperationResult<TokenSet>> ExecuteTokenEndpointRequestAsync(HttpRequestMessage request, string? expectedNonce)
         {
@@ -231,7 +276,7 @@ namespace Blazorade.Id.Core.Services
             {
                 // We don't set the expiration for the refresh token, because it does not expire at the same time with 
                 // the other tokens.
-                await this.StorageFacade.SetRefreshTokenAsync(new TokenContainer(tokenSet.RefreshToken, null));
+                await this.TokenStore.SetRefreshTokenAsync(new TokenContainer(tokenSet.RefreshToken, null));
             }
 
             if (tokenSet?.IdentityToken?.Length > 0)
@@ -247,40 +292,20 @@ namespace Blazorade.Id.Core.Services
             return new OperationResult<TokenSet>(tokenSet, error);
         }
 
-        private DateTime? GetExpirationTimeUtc(JwtSecurityToken token)
-        {
-            var exp = this.GetClaimValue(token, "exp");
-            if(long.TryParse(exp, out long l))
-            {
-                var expires = DateTimeOffset.FromUnixTimeSeconds(l).UtcDateTime;
-                return expires;
-            }
-
-            return null;
-        }
-
-        private string? GetNonce(JwtSecurityToken token)
-        {
-            return this.GetClaimValue(token, "nonce");
-        }
-
-        private string? GetClaimValue(JwtSecurityToken token, string claimType)
-        {
-            return token.Claims?.FirstOrDefault(x => x.Type == claimType)?.Value;
-        }
-
-        private async ValueTask<JwtSecurityToken?> GetValidTokenAsync(Func<ValueTask<TokenContainer?>> tokenGetter)
+        /// <summary>
+        /// Uses the given <paramref name="tokenGetter"/> to get a valid token. If a valid token is not found,
+        /// then the service will attempt to refresh the tokens using a refresh token, if available. If refresh
+        /// is successful, the valid token is returned using the same <paramref name="tokenGetter"/>.
+        /// </summary>
+        /// <param name="tokenGetter">A delegate that is used to get a token from storage.</param>
+        /// <param name="scopes">The scopes that the returned token must contain. An empty array will ignore the scopes.</param>
+        private async ValueTask<JwtSecurityToken?> GetValidTokenAsync(Func<ValueTask<TokenContainer?>> tokenGetter, params string[] scopes)
         {
             JwtSecurityToken? token = null!;
             Func<ValueTask<JwtSecurityToken?>> storageAccessor = async () =>
             {
                 var container = await tokenGetter();
-                if (container?.Expires > DateTime.UtcNow && container?.Token?.Length > 0)
-                {
-                    return new JwtSecurityToken(container.Token);
-                }
-
-                return null;
+                return container.GetToken(scopes);
             };
 
             token = await storageAccessor();
@@ -294,14 +319,14 @@ namespace Blazorade.Id.Core.Services
 
         private async ValueTask<bool> RefreshTokensAsync()
         {
-            var refreshToken = await this.StorageFacade.GetRefreshTokenAsync();
+            var refreshToken = await this.TokenStore.GetRefreshTokenAsync();
             if(refreshToken?.Token?.Length > 0)
             {
                 var requestBuilder = await this.EndpointService.CreateTokenRequestBuilderAsync();
                 var request = requestBuilder
                     .WithClientId(this.AuthOptions.ClientId)
                     .WithRefreshToken(refreshToken.Token)
-                    .WithRedirectUri(this.Navigator.CurrentUri)
+                    .WithRedirectUri(this.AuthOptions.RedirectUri)
                     .Build();
 
                 var result = await this.ExecuteTokenEndpointRequestAsync(request, null);

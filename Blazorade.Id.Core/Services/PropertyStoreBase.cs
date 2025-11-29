@@ -10,29 +10,30 @@ namespace Blazorade.Id.Core.Services
     /// <summary>
     /// A base class for storage implementations.
     /// </summary>
-    public abstract class StorageBase : IStorage
+    public abstract class PropertyStoreBase : IPropertyStore
     {
 
         /// <inheritdoc/>
         public abstract ValueTask<bool> ContainsKeyAsync(string key);
 
         /// <inheritdoc/>
-        public abstract ValueTask<T> GetItemAsync<T>(string key);
+        public abstract ValueTask<T> GetPropertyAsync<T>(string key);
+
 
         /// <inheritdoc/>
-        public abstract ValueTask RemoveItemAsync(string key);
+        public abstract ValueTask RemovePropertyAsync(string key);
 
         /// <inheritdoc/>
-        public virtual async ValueTask RemoveItemsAsync(IEnumerable<string> keys)
+        public virtual async ValueTask RemovePropertiesAsync(IEnumerable<string> keys)
         {
             foreach(var key in keys ?? Enumerable.Empty<string>())
             {
-                await this.RemoveItemAsync(key);
+                await this.RemovePropertyAsync(key);
             }
         }
 
         /// <inheritdoc/>
-        public abstract ValueTask SetItemAsync<T>(string key, T value);
+        public abstract ValueTask SetPropertyAsync<T>(string key, T value);
 
     }
 }

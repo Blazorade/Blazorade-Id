@@ -12,7 +12,7 @@ namespace Blazorade.Id.Core.Configuration
     /// </summary>
     public class BlazoradeIdBuilder
     {
-        internal BlazoradeIdBuilder(IServiceCollection services)
+        public BlazoradeIdBuilder(IServiceCollection services)
         {
             this.Services = services;
         }
@@ -36,38 +36,25 @@ namespace Blazorade.Id.Core.Configuration
         }
 
         /// <summary>
-        /// Adds authority configuration to the application.
+        /// Adds the property storage used in the application.
         /// </summary>
-        public BlazoradeIdBuilder AddAuthority(Action<IConfiguration, AuthorityOptions> config)
+        /// <typeparam name="TPropertyStorage">The type of property storage to add.</typeparam>
+        public BlazoradeIdBuilder AddPropertyStorage<TPropertyStorage>() where TPropertyStorage : class, IPropertyStore
         {
-            this.Services.AddOptions<AuthorityOptions>()
-                .Configure<IConfiguration>((o, sp) =>
-                {
-                    config.Invoke(sp, o);
-                });
+            this.Services.AddScoped<IPropertyStore, TPropertyStorage>();
             return this;
         }
 
         /// <summary>
-        /// Adds the navigator service implementation to use in your application.
+        /// Adds the property storage to use in the application.
         /// </summary>
-        public BlazoradeIdBuilder AddNavigator<TNavigator>() where TNavigator : class, INavigator
+        /// <param name="config"></param>
+        /// <returns></returns>
+        public BlazoradeIdBuilder AddPropertyStorage(Func<IServiceProvider, IPropertyStore> config)
         {
-            this.Services.AddScoped<INavigator, TNavigator>();
+            this.Services.AddScoped<IPropertyStore>(sp => config.Invoke(sp));
             return this;
         }
 
-        /// <summary>
-        /// Adds the storge implementations to the application's service collection.
-        /// </summary>
-        public BlazoradeIdBuilder AddStorage<TSessionStorage, TPersistentStorage>() where TSessionStorage : class, ISessionStorage where TPersistentStorage : class, IPersistentStorage
-        {
-            this.Services
-                .AddScoped<StorageFacade>()
-                .AddScoped<ISessionStorage, TSessionStorage>()
-                .AddScoped<IPersistentStorage, TPersistentStorage>();
-
-            return this;
-        }
     }
 }
