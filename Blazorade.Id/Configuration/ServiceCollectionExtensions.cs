@@ -61,7 +61,6 @@ namespace Microsoft.Extensions.DependencyInjection
         {
             return services
                 .AddScoped<EndpointService>()
-                .AddScoped<SerializationService>()
                 .AddScoped<ICodeChallengeService, CodeChallengeService>()
                 .AddScoped<ITokenService, TokenService>()
                 .AddScoped<IAuthCodeProcessor, AuthCodeProcessor>()

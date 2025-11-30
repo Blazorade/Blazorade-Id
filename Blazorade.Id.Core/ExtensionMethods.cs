@@ -81,6 +81,14 @@ namespace Blazorade.Id.Core
         }
 
         /// <summary>
+        /// Returns the preferred username from the given <paramref name="token"/>.
+        /// </summary>
+        public static string? GetPreferredUsername(this JwtSecurityToken? token)
+        {
+            return token?.GetClaimValue("preferred_username");
+        }
+
+        /// <summary>
         /// Returns the token from the given <paramref name="container"/>.
         /// </summary>
         /// <param name="container">The container to get the token from.</param>

@@ -219,6 +219,11 @@ namespace Blazorade.Id.Core.Services
 
         private async Task<bool> AcquireTokensInteractiveAsync(GetTokenOptions options)
         {
+            if(options.Prompt == Prompt.Login)
+            {
+                options.LoginHint = await this.PropertyStore.GetUsernameAsync();
+            }
+
             var code = await this.AuthCodeProvider.GetAuthorizationCodeAsync(options);
             if(code?.Length > 0)
             {
