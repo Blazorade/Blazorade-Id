@@ -19,21 +19,31 @@
     </NotAuthorized>
 </AuthorizeView>
 
-@if(this.token?.Length > 0)
+@if(this.accessToken?.Length > 0)
 {
     <h3>Access Token</h3>
-    <p>@this.token</p>
+    <p><a href="https://jwt.ms/#access_token=@this.accessToken" target="_blank">@this.accessToken</a></p>
+}
+
+@if(this.idToken?.Length > 0)
+{
+    <h3>Identity Token</h3>
+    <p><a href="https://jwt.ms/#id_token=@this.idToken" target="_blank">@this.idToken</a></p>
 }
 
 @code {
-    string? token;
+    string? accessToken, idToken;
     private async Task LogIn(Prompt? prompt = null)
     {
-        this.token = null;
+        this.accessToken = null;
+        this.idToken = null;
         this.StateHasChanged();
 
-        var accessToken = await this.TokenService.GetAccessTokenAsync(options: new GetTokenOptions { Prompt = prompt });
-        this.token = accessToken?.RawData;
+        var accessTokenJwt = await this.TokenService.GetAccessTokenAsync(options: new GetTokenOptions { Prompt = prompt });
+        this.accessToken = accessTokenJwt?.RawData;
+
+        var idTokenJwt = await this.TokenService.GetIdentityTokenAsync(options: new GetTokenOptions { Prompt = Prompt.None });
+        this.idToken = idTokenJwt?.RawData;
 
         this.StateHasChanged();
     }

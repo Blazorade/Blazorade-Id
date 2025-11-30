@@ -11,8 +11,6 @@ namespace Blazorade.Id.Core
 {
     public static class ExtensionMethods
     {
-        
-
         /// <summary>
         /// Checks whether the given token contains all of the specified scopes.
         /// </summary>
@@ -51,11 +49,17 @@ namespace Blazorade.Id.Core
             return true;
         }
 
+        /// <summary>
+        /// Returns the value of the claim with the specified <paramref name="claimType"/>.
+        /// </summary>
         public static string? GetClaimValue(this JwtSecurityToken token, string claimType)
         {
             return token.Claims?.FirstOrDefault(x => x.Type == claimType)?.Value;
         }
 
+        /// <summary>
+        /// Returns the expiration time of the token in UTC.
+        /// </summary>
         public static DateTime? GetExpirationTimeUtc(this JwtSecurityToken token)
         {
             var exp = token.GetClaimValue("exp");
@@ -68,6 +72,9 @@ namespace Blazorade.Id.Core
             return null;
         }
 
+        /// <summary>
+        /// Returns the nonce value from the given <paramref name="token"/>.
+        /// </summary>
         public static string? GetNonce(this JwtSecurityToken token)
         {
             return token.GetClaimValue("nonce");
@@ -79,12 +86,12 @@ namespace Blazorade.Id.Core
         /// <param name="container">The container to get the token from.</param>
         /// <param name="scopes">The scopes that the token must contain.</param>
         /// <returns>The token if it is valid and contains the required scopes; otherwise, <c>null</c>.</returns>
-        public static JwtSecurityToken? GetToken(this TokenContainer? container, IEnumerable<string> scopes)
+        public static JwtSecurityToken? GetToken(this TokenContainer? container, IEnumerable<string>? scopes)
         {
             if(container?.Expires > DateTime.UtcNow)
             {
                 var token = container.ParseToken();
-                if(token is not null && token.ContainsScopes(scopes))
+                if(token is not null && token.ContainsScopes(scopes ?? []))
                 {
                     return token;
                 }

@@ -64,7 +64,11 @@ namespace Blazorade.Id.Core.Services
         /// </remarks>
         public async Task<JwtSecurityToken?> GetAccessTokenAsync(GetTokenOptions? options = null)
         {
-            return await this.GetValidTokenAsync(this.TokenStore.GetAccessTokenAsync, options);
+            options = options ?? new GetTokenOptions();
+            options.Scopes = options.Scopes ?? $"{this.AuthOptions.Scope}".Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+
+            var token = await this.GetValidTokenAsync(this.TokenStore.GetAccessTokenAsync, options);
+            return token;
         }
 
         /// <summary>
@@ -74,9 +78,13 @@ namespace Blazorade.Id.Core.Services
         /// This service will attempt to refresh the identity token in case the previously stored token
         /// has expired, but a refresh token is available.
         /// </remarks>
-        public async Task<JwtSecurityToken?> GetIdentityTokenAsync( GetTokenOptions? options = null)
+        public async Task<JwtSecurityToken?> GetIdentityTokenAsync(GetTokenOptions? options = null)
         {
-            return await this.GetValidTokenAsync(this.TokenStore.GetIdentityTokenAsync, options);
+            options = options ?? new GetTokenOptions();
+            options.Scopes = []; // Identity tokens do not have scopes.
+
+            var token = await this.GetValidTokenAsync(this.TokenStore.GetIdentityTokenAsync, options);
+            return token;
         }
 
         /// <summary>
@@ -278,11 +286,8 @@ namespace Blazorade.Id.Core.Services
         /// </summary>
         /// <param name="tokenGetter">A delegate that is used to get a token from storage.</param>
         /// <param name="scopes">The scopes that the returned token must contain. An empty array will ignore the scopes.</param>
-        private async ValueTask<JwtSecurityToken?> GetValidTokenAsync(Func<ValueTask<TokenContainer?>> tokenGetter, GetTokenOptions? options = null)
+        private async ValueTask<JwtSecurityToken?> GetValidTokenAsync(Func<ValueTask<TokenContainer?>> tokenGetter, GetTokenOptions options)
         {
-            options = options ?? new GetTokenOptions();
-            options.Scopes = options.Scopes ?? $"{this.AuthOptions.Scope}".Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
-
             JwtSecurityToken? token = null!;
             TokenContainer? tokenContainer = null;
 
