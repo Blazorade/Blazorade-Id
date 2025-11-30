@@ -9,6 +9,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Blazorade.Id.Components.Pages;
+using Blazorade.Core.Components;
+using Blazorade.Core.Interop;
+using System.Reflection.Metadata;
 
 namespace Blazorade.Id.Services
 {
@@ -20,6 +23,7 @@ namespace Blazorade.Id.Services
             ICodeChallengeService codeChallengeService,
             IPropertyStore propertyStore,
             NavigationManager navMan,
+            BlazoradeIdScriptService scriptService,
             IOptions<AuthorityOptions> authOptions
         ) {
             this.JsRuntime = jsRuntime ?? throw new ArgumentNullException(nameof(jsRuntime));
@@ -28,6 +32,7 @@ namespace Blazorade.Id.Services
             this.CodeChallengeService = codeChallengeService ?? throw new ArgumentNullException(nameof(codeChallengeService));
             this.PropertyStore = propertyStore ?? throw new ArgumentNullException(nameof(propertyStore));
             this.NavMan = navMan ?? throw new ArgumentNullException(nameof(navMan));
+            this.ScriptService = scriptService ?? throw new ArgumentNullException(nameof(scriptService));
         }
 
         private readonly IJSRuntime JsRuntime;
@@ -36,20 +41,24 @@ namespace Blazorade.Id.Services
         private readonly IPropertyStore PropertyStore;
         private readonly NavigationManager NavMan;
         private readonly AuthorityOptions AuthOptions;
+        private readonly BlazoradeIdScriptService ScriptService;
+
+        private const int AuthorizeTimeout = 60000;
 
         public async Task<string?> GetAuthorizationCodeAsync(IEnumerable<string> scopes)
         {
-            var redirUrl = this.AuthOptions.RedirectUri?.Length > 0 
-                ? this.AuthOptions.RedirectUri 
+            var redirUrl = this.AuthOptions.RedirectUri?.Length > 0
+                ? this.AuthOptions.RedirectUri
                 : new Uri(new Uri(this.NavMan.BaseUri), OAuthCallback.RoutePath).ToString();
 
             var codeVerifier = this.CodeChallengeService.CreateCodeVerifier();
             await this.PropertyStore.SetCodeVerifierAsync(codeVerifier);
-            
+
             var uriBuilder = await this.EndpointService.CreateAuthorizationUriBuilderAsync();
             var uri = uriBuilder
                 .WithClientId(this.AuthOptions.ClientId)
                 .WithResponseType(ResponseType.Code)
+                .WithResponseMode(ResponseMode.Query)
                 .WithRedirectUri(redirUrl)
                 .WithScope(string.Join(' ', scopes))
                 .WithCodeChallenge(codeVerifier)
@@ -57,8 +66,45 @@ namespace Blazorade.Id.Services
 
                 .Build();
 
-            await this.JsRuntime.InvokeVoidAsync("open", uri, "blazoradeauth", "scrollbars=no,resizable=no,status=no,location=no,toolbar=no,menubar=no,width=480,height=640,left=200,top=200");
-            return null;
+            string responseUrl = string.Empty;
+            string? code = null;
+            var input = new Dictionary<string, object>
+            {
+                { "authorizeUrl", uri }
+            };
+            try
+            {
+                using (var handler = await this.ScriptService.CreateCallbackHandlerAsync<string>("openAuthorizationPopup", input))
+                {
+                    responseUrl = await handler.GetResultAsync(timeout: AuthorizeTimeout);
+                }
+            }
+            catch (FailureCallbackException ex)
+            {
+                var msg = ex.Message;
+                var result = ex.Result;
+            }
+            catch(InteropTimeoutException ex)
+            {
+                var msg = ex.Message;
+            }
+            catch(Exception ex)
+            {
+                var msg = ex.Message;
+            }
+
+            if(responseUrl?.Length > 0 && responseUrl.Contains('?'))
+            {
+                var query = responseUrl.Substring(responseUrl.IndexOf('?') + 1);
+                var queryParameters = System.Web.HttpUtility.ParseQueryString(query);
+                if (queryParameters.AllKeys.Contains("code"))
+                {
+                    code = queryParameters["code"];
+                }
+            }
+
+            return code;
         }
+
     }
 }

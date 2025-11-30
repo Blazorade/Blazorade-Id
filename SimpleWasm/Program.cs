@@ -11,6 +11,7 @@ builder.RootComponents.Add<HeadOutlet>("head::after");
 builder.Services
     .AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) })
     .AddBlazoradeCore()
+    .AddScoped<BlazoradeIdScriptService>()
     .AddBlazoradeIdWasmApplication()
         .AddAuthority((sp, options) =>
         {
