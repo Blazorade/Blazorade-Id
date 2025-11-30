@@ -12,13 +12,13 @@ using Blazorade.Id.Components.Pages;
 using Blazorade.Core.Components;
 using Blazorade.Core.Interop;
 using System.Reflection.Metadata;
+using System.Security.Cryptography;
 
 namespace Blazorade.Id.Services
 {
     public class BlazorAuthCodeProvider : IAuthCodeProvider
     {
         public BlazorAuthCodeProvider(
-            IJSRuntime jsRuntime, 
             EndpointService endpointService, 
             ICodeChallengeService codeChallengeService,
             IPropertyStore propertyStore,
@@ -26,7 +26,6 @@ namespace Blazorade.Id.Services
             BlazoradeIdScriptService scriptService,
             IOptions<AuthorityOptions> authOptions
         ) {
-            this.JsRuntime = jsRuntime ?? throw new ArgumentNullException(nameof(jsRuntime));
             this.EndpointService = endpointService ?? throw new ArgumentNullException(nameof(endpointService));
             this.AuthOptions = authOptions?.Value ?? throw new ArgumentNullException(nameof(authOptions));
             this.CodeChallengeService = codeChallengeService ?? throw new ArgumentNullException(nameof(codeChallengeService));
@@ -35,7 +34,6 @@ namespace Blazorade.Id.Services
             this.ScriptService = scriptService ?? throw new ArgumentNullException(nameof(scriptService));
         }
 
-        private readonly IJSRuntime JsRuntime;
         private readonly EndpointService EndpointService;
         private readonly ICodeChallengeService CodeChallengeService;
         private readonly IPropertyStore PropertyStore;
@@ -45,7 +43,7 @@ namespace Blazorade.Id.Services
 
         private const int AuthorizeTimeout = 60000;
 
-        public async Task<string?> GetAuthorizationCodeAsync(IEnumerable<string> scopes)
+        public async Task<string?> GetAuthorizationCodeAsync(GetTokenOptions options)
         {
             var redirUrl = this.AuthOptions.RedirectUri?.Length > 0
                 ? this.AuthOptions.RedirectUri
@@ -54,18 +52,25 @@ namespace Blazorade.Id.Services
             var codeVerifier = this.CodeChallengeService.CreateCodeVerifier();
             await this.PropertyStore.SetCodeVerifierAsync(codeVerifier);
 
+            var nonce = this.CreateNonce();
+            await this.PropertyStore.SetNonceAsync(nonce);
+
+            var scopes = string.Join(' ', options.Scopes ?? []);
+            await this.PropertyStore.SetScopeAsync(scopes);
+
             var uriBuilder = await this.EndpointService.CreateAuthorizationUriBuilderAsync();
-            var uri = uriBuilder
+            uriBuilder
                 .WithClientId(this.AuthOptions.ClientId)
                 .WithResponseType(ResponseType.Code)
                 .WithResponseMode(ResponseMode.Query)
                 .WithRedirectUri(redirUrl)
-                .WithScope(string.Join(' ', scopes))
-                .WithCodeChallenge(codeVerifier)
-                .WithPrompt(Prompt.Select_Account)
+                .WithScope(scopes)
+                .WithNonce(nonce)
+                .WithCodeChallenge(codeVerifier);
 
-                .Build();
+            if(options.Prompt.HasValue) uriBuilder.WithPrompt(options.Prompt.Value);
 
+            var uri = uriBuilder.Build();
             string responseUrl = string.Empty;
             string? code = null;
             var input = new Dictionary<string, object>
@@ -104,6 +109,20 @@ namespace Blazorade.Id.Services
             }
 
             return code;
+        }
+
+
+
+        private string CreateNonce()
+        {
+            var data = new byte[32];
+            RandomNumberGenerator.Fill(data);
+
+            var base64 = Convert.ToBase64String(data);
+            return base64
+                .Replace('+', '-')
+                .Replace('/', '_')
+                .Replace("=", "");
         }
 
     }

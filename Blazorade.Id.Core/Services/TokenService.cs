@@ -19,7 +19,7 @@ namespace Blazorade.Id.Core.Services
     /// <summary>
     /// A service implementation for working with tokens.
     /// </summary>
-    public class TokenService
+    public class TokenService : ITokenService
     {
         /// <summary>
         /// Creates a new instance of the token service.
@@ -62,24 +62,9 @@ namespace Blazorade.Id.Core.Services
         /// This service will attempt to refresh the access token in case the previously stored token
         /// has expired, but a refresh token is available.
         /// </remarks>
-        public async ValueTask<JwtSecurityToken?> GetAccessTokenAsync(params string[] scopes)
+        public async Task<JwtSecurityToken?> GetAccessTokenAsync(GetTokenOptions? options = null)
         {
-            scopes = scopes.Count() > 0 ? scopes : $"{this.AuthOptions.Scope}".Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
-
-            var tokenGetter = () => this.GetValidTokenAsync(this.TokenStore.GetAccessTokenAsync, scopes);
-
-            var token = await tokenGetter();
-            if(null == token)
-            {
-                // If the token was not found, either directly or by refreshing, then we try
-                // to acquire new tokens interactively.
-                if (await this.AcquireTokensInteractiveAsync(scopes))
-                {
-                    token = await tokenGetter();
-                }
-            }
-
-            return token;
+            return await this.GetValidTokenAsync(this.TokenStore.GetAccessTokenAsync, options);
         }
 
         /// <summary>
@@ -89,20 +74,9 @@ namespace Blazorade.Id.Core.Services
         /// This service will attempt to refresh the identity token in case the previously stored token
         /// has expired, but a refresh token is available.
         /// </remarks>
-        public async ValueTask<JwtSecurityToken?> GetIdentityTokenAsync()
+        public async Task<JwtSecurityToken?> GetIdentityTokenAsync( GetTokenOptions? options = null)
         {
-            var tokenGetter = () => this.GetValidTokenAsync(this.TokenStore.GetIdentityTokenAsync);
-            var token = await tokenGetter();
-            if(null == token)
-            {
-                // If the token was not found, either directly or by refreshing, then we try
-                // to acquire new tokens interactively.
-                if (await this.AcquireTokensInteractiveAsync([]))
-                {
-                    token = await tokenGetter();
-                }
-            }
-            return await this.GetValidTokenAsync(this.TokenStore.GetIdentityTokenAsync);
+            return await this.GetValidTokenAsync(this.TokenStore.GetIdentityTokenAsync, options);
         }
 
         /// <summary>
@@ -235,9 +209,9 @@ namespace Blazorade.Id.Core.Services
 
 
 
-        private async Task<bool> AcquireTokensInteractiveAsync(IEnumerable<string> scopes)
+        private async Task<bool> AcquireTokensInteractiveAsync(GetTokenOptions options)
         {
-            var code = await this.AuthCodeProvider.GetAuthorizationCodeAsync(scopes);
+            var code = await this.AuthCodeProvider.GetAuthorizationCodeAsync(options);
             if(code?.Length > 0)
             {
                 return await this.AuthCodeProcessor.ProcessAuthorizationCodeAsync(code);
@@ -304,19 +278,41 @@ namespace Blazorade.Id.Core.Services
         /// </summary>
         /// <param name="tokenGetter">A delegate that is used to get a token from storage.</param>
         /// <param name="scopes">The scopes that the returned token must contain. An empty array will ignore the scopes.</param>
-        private async ValueTask<JwtSecurityToken?> GetValidTokenAsync(Func<ValueTask<TokenContainer?>> tokenGetter, params string[] scopes)
+        private async ValueTask<JwtSecurityToken?> GetValidTokenAsync(Func<ValueTask<TokenContainer?>> tokenGetter, GetTokenOptions? options = null)
         {
-            JwtSecurityToken? token = null!;
-            Func<ValueTask<JwtSecurityToken?>> storageAccessor = async () =>
-            {
-                var container = await tokenGetter();
-                return container.GetToken(scopes);
-            };
+            options = options ?? new GetTokenOptions();
+            options.Scopes = options.Scopes ?? $"{this.AuthOptions.Scope}".Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
 
-            token = await storageAccessor();
-            if(null == token && await this.RefreshTokensAsync())
+            JwtSecurityToken? token = null!;
+            TokenContainer? tokenContainer = null;
+
+            if (!options.Prompt.RequiresInteraction())
             {
-                token = await storageAccessor();
+                tokenContainer = await tokenGetter();
+                token = tokenContainer?.GetToken(options.Scopes);
+            }
+
+            if (null == token)
+            {
+                if (!options.Prompt.RequiresInteraction())
+                {
+                    // Try to refresh tokens silently first.
+                    if (await this.RefreshTokensAsync())
+                    {
+                        tokenContainer = await tokenGetter();
+                        token = tokenContainer?.GetToken(options.Scopes);
+                    }
+                }
+
+                if (null == token)
+                {
+                    var result = await this.AcquireTokensInteractiveAsync(options);
+                    if (result)
+                    {
+                        tokenContainer = await tokenGetter();
+                        token = tokenContainer?.GetToken(options.Scopes);
+                    }
+                }
             }
 
             return token;

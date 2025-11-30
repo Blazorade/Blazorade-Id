@@ -1,4 +1,5 @@
 ﻿using Blazorade.Id.Core.Model;
+using Blazorade.Id.Core.Services;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
@@ -71,7 +72,6 @@ namespace Blazorade.Id.Core
             return token.GetClaimValue("nonce");
         }
 
-
         /// <summary>
         /// Returns the token from the given <paramref name="container"/>.
         /// </summary>
@@ -91,5 +91,9 @@ namespace Blazorade.Id.Core
             return null;
         }
 
+        public static bool RequiresInteraction(this Prompt? prompt)
+        {
+            return prompt.HasValue && (prompt == Prompt.Login || prompt == Prompt.Consent || prompt == Prompt.Select_Account);
+        }
     }
 }

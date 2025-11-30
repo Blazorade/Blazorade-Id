@@ -8,6 +8,6 @@ namespace Blazorade.Id.Core.Services
 {
     public interface IAuthCodeProvider
     {
-        Task<string?> GetAuthorizationCodeAsync(IEnumerable<string> scopes);
+        Task<string?> GetAuthorizationCodeAsync(GetTokenOptions options);
     }
 }

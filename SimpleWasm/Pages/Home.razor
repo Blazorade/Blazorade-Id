@@ -1,5 +1,5 @@
 ﻿@page "/"
-@inject TokenService TokenService
+@inject ITokenService TokenService
 
 <PageTitle>Home</PageTitle>
 
@@ -22,7 +22,10 @@
     string? token;
     private async Task GetToken()
     {
-        var accessToken = await this.TokenService.GetAccessTokenAsync();
+        this.token = null;
+        this.StateHasChanged();
+
+        var accessToken = await this.TokenService.GetAccessTokenAsync(options: new GetTokenOptions { Prompt = Prompt.Select_Account });
         this.token = accessToken?.RawData;
 
         this.StateHasChanged();

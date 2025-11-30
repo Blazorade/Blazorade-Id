@@ -1,5 +1,7 @@
+using Blazorade.Id.Components.Pages;
 using Blazorade.Id.Core.Services;
 using Blazorade.Id.Services;
+using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using SimpleWasm;
@@ -17,6 +19,12 @@ builder.Services
         {
             var config = sp.GetRequiredService<IConfiguration>();
             config.GetRequiredSection("blazorade:id").Bind(options);
+
+            if(string.IsNullOrEmpty(options.RedirectUri))
+            {
+                var navMan = sp.GetRequiredService<NavigationManager>();
+                options.RedirectUri = new Uri(new Uri(navMan.BaseUri), OAuthCallback.RoutePath).ToString();
+            }
         })
         .AddPropertyStorage<BlazorSessionPropertyStore>()
         .AddTokenStore<InMemoryTokenStore>()

@@ -60,7 +60,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 .AddScoped<EndpointService>()
                 .AddScoped<SerializationService>()
                 .AddScoped<ICodeChallengeService, CodeChallengeService>()
-                .AddScoped<TokenService>()
+                .AddScoped<ITokenService, TokenService>()
                 .AddScoped<IAuthCodeProcessor, AuthCodeProcessor>()
                 .AddHttpClient()
 
