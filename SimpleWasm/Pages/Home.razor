@@ -1,31 +1,38 @@
 ﻿@page "/"
 @inject ITokenService TokenService
 
-<PageTitle>Home</PageTitle>
+<PageTitle>Blazorade ID WASM Sample</PageTitle>
 
-<h1>Hello, world!</h1>
+<h1>Blazorade ID for Blazor WASM</h1>
 
 <p>
-    Welcome to your new app.
+    This simple application demonstrates how you can use Blazorade ID in your application.
 </p>
 
-<button class="btn btn-primary" @onclick="GetToken">Get Token</button>
+<AuthorizeView>
+    <Authorized Context="auth">
+        <h2>@auth.User.Identity?.Name</h2>
+        <button class="btn btn-primary" @onclick="async () => await this.LogIn(Prompt.Select_Account)">Switch Account</button>
+    </Authorized>
+    <NotAuthorized>
+        <button class="btn btn-primary" @onclick="async () => await this.LogIn()">Log In</button>
+    </NotAuthorized>
+</AuthorizeView>
+
 @if(this.token?.Length > 0)
 {
-    <p>
-        @this.token
-    </p>
+    <h3>Access Token</h3>
+    <p>@this.token</p>
 }
-
 
 @code {
     string? token;
-    private async Task GetToken()
+    private async Task LogIn(Prompt? prompt = null)
     {
         this.token = null;
         this.StateHasChanged();
 
-        var accessToken = await this.TokenService.GetAccessTokenAsync(options: new GetTokenOptions { Prompt = Prompt.Select_Account });
+        var accessToken = await this.TokenService.GetAccessTokenAsync(options: new GetTokenOptions { Prompt = prompt });
         this.token = accessToken?.RawData;
 
         this.StateHasChanged();

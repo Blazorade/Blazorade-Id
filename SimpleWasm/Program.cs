@@ -26,8 +26,6 @@ builder.Services
                 options.RedirectUri = new Uri(new Uri(navMan.BaseUri), OAuthCallback.RoutePath).ToString();
             }
         })
-        .AddPropertyStorage<BlazorSessionPropertyStore>()
-        .AddTokenStore<InMemoryTokenStore>()
     ;
 
 await builder.Build().RunAsync();

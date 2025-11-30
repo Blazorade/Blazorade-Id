@@ -11,6 +11,7 @@ namespace Blazorade.Id.Core
 {
     public static class ExtensionMethods
     {
+        
 
         /// <summary>
         /// Checks whether the given token contains all of the specified scopes.

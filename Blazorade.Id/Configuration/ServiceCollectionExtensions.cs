@@ -51,6 +51,9 @@ namespace Microsoft.Extensions.DependencyInjection
                 .AddBlazoredLocalStorage()
                 .AddSharedBlazoradeIdServices()
                 .AddScoped<IAuthCodeProvider, BlazorAuthCodeProvider>()
+                .AddScoped<IPropertyStore, BlazorSessionPropertyStore>()
+                .AddScoped<ITokenStore, InMemoryTokenStore>()
+                .AddScoped<IAuthenticationStateNotifier, BlazorAuthenticationStateNotifier>()
                 ;
         }
 

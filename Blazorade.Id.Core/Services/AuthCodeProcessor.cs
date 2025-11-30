@@ -19,6 +19,7 @@ namespace Blazorade.Id.Core.Services
             ITokenStore tokenStore, 
             EndpointService endpointService, 
             IHttpClientFactory httpClientFactory,
+            IAuthenticationStateNotifier authStateNotifier,
             IOptions<JsonSerializerOptions> jsonOptions,
             IOptions<AuthorityOptions> authOptions
         ) {
@@ -26,6 +27,7 @@ namespace Blazorade.Id.Core.Services
             this.TokenStore = tokenStore ?? throw new ArgumentNullException(nameof(tokenStore));
             this.EndpointService = endpointService ?? throw new ArgumentNullException(nameof(endpointService));
             this.HttpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
+            this.AuthStateNotifier = authStateNotifier ?? throw new ArgumentNullException(nameof(authStateNotifier));
             this.JsonOptions = jsonOptions?.Value ?? throw new ArgumentNullException(nameof(jsonOptions));
             this.AuthOptions = authOptions?.Value ?? throw new ArgumentNullException(nameof(authOptions));
         }
@@ -34,6 +36,7 @@ namespace Blazorade.Id.Core.Services
         private readonly ITokenStore TokenStore;
         private readonly EndpointService EndpointService;
         private readonly IHttpClientFactory HttpClientFactory;
+        private readonly IAuthenticationStateNotifier AuthStateNotifier;
         private readonly JsonSerializerOptions JsonOptions;
         private readonly AuthorityOptions AuthOptions;
 
@@ -106,6 +109,7 @@ namespace Blazorade.Id.Core.Services
                     await this.TokenStore.SetIdentityTokenAsync(tokenSet.IdentityToken);
                 }
 
+                await this.AuthStateNotifier.StateHasChangedAsync();
                 return true;
             }
             else

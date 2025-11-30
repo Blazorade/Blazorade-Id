@@ -36,6 +36,36 @@ namespace Blazorade.Id.Core.Configuration
         }
 
         /// <summary>
+        /// Adds the authentication state notifier used in the application.
+        /// </summary>
+        /// <typeparam name="TAuthenticationStateNotifier">The type of authentication state notifier to use.</typeparam>
+        /// <remarks>
+        /// An authentication state notifier is responsible for notifying the application when the authentication
+        /// state of the user has changed. This typically occurs when the user logs in, or changes the user account
+        /// that they are logged in to the application with.
+        /// </remarks>
+        public BlazoradeIdBuilder AddAuthenticationStateNotifier<TAuthenticationStateNotifier>() where TAuthenticationStateNotifier : class, IAuthenticationStateNotifier
+        {
+            this.Services.AddScoped<IAuthenticationStateNotifier, TAuthenticationStateNotifier>();
+            return this;
+        }
+
+        /// <summary>
+        /// Adds the authentication state notifier used in the application.
+        /// </summary>
+        /// <param name="config">The delegate that creates the authentication state notifier to use in the application.</param>
+        /// <remarks>
+        /// An authentication state notifier is responsible for notifying the application when the authentication
+        /// state of the user has changed. This typically occurs when the user logs in, or changes the user account
+        /// that they are logged in to the application with.
+        /// </remarks>
+        public BlazoradeIdBuilder AddAuthenticationStateNotifier(Func<IServiceProvider, IAuthenticationStateNotifier> config)
+        {
+            this.Services.AddScoped<IAuthenticationStateNotifier>(sp => config.Invoke(sp));
+            return this;
+        }
+
+        /// <summary>
         /// Adds the property storage used in the application.
         /// </summary>
         /// <typeparam name="TPropertyStorage">The type of property storage to add.</typeparam>
