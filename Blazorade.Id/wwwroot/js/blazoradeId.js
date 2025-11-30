@@ -34,19 +34,6 @@ export function openAuthorizationPopup(args) {
         return;
     }
 
-    let closedCheckInterval = null;
-
-    function cleanup() {
-
-    }
-
-    function closePopup() {
-        try {
-            popup.close();
-        }
-        catch { }
-    }
-
     function onMessage(event) {
         console.debug("onAuthorizationPopupResponse", event);
 
@@ -54,8 +41,12 @@ export function openAuthorizationPopup(args) {
             return;
         }
 
-        cleanup();
-        closePopup();
+        window.removeEventListener("message", onMessage);
+
+        try {
+            popup.close();
+        }
+        catch { }
 
         args.successCallback.target.invokeMethodAsync(args.successCallback.methodName, event.data.url);
     }
@@ -68,16 +59,15 @@ export function signalAuthorizationPopupResponseUrl(args) {
 
     try {
         if (window.opener && !window.opener.closed) {
-            window.opener.postMessage({ url: args.data.url });
+            window.opener.postMessage({ url: args.data.responseUrl });
         }
-    }
-    finally {
-        try {
-            window.close();
-        }
-        catch { }
-    }
 
-    args.successCallback.target.invokeMethodAsync(args.successCallback.methodName, true);
+        args.successCallback.target.invokeMethodAsync(args.successCallback.methodName, true);
+    }
+    catch (ex)
+    {
+        console.error(ex);
+        args.failureCallback.target.invokeMethodAsync(args.failureCallback.methodName, ex);
+    }
 }
  

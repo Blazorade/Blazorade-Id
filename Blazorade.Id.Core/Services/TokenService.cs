@@ -235,9 +235,14 @@ namespace Blazorade.Id.Core.Services
 
 
 
-        private async ValueTask<bool> AcquireTokensInteractiveAsync(IEnumerable<string> scopes)
+        private async Task<bool> AcquireTokensInteractiveAsync(IEnumerable<string> scopes)
         {
             var code = await this.AuthCodeProvider.GetAuthorizationCodeAsync(scopes);
+            if(code?.Length > 0)
+            {
+                return await this.AuthCodeProcessor.ProcessAuthorizationCodeAsync(code);
+            }
+
             return false;
         }
 

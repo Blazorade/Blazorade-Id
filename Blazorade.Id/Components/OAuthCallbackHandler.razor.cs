@@ -25,14 +25,14 @@ namespace Blazorade.Id.Components
 
             if(firstRender)
             {
-                var data = new Dictionary<string, object>
-                {
-                    { "url", this.NavMan.Uri }
-                };
-
                 try
                 {
-                    using (var handler = await this.ScriptService.CreateCallbackHandlerAsync<bool>("signalAuthorizationPopupResponseUrl", data))
+                    Dictionary<string, object> input = new Dictionary<string, object>
+                    {
+                        { "responseUrl", this.NavMan.Uri }
+                    };
+
+                    using(var handler = await this.ScriptService.CreateCallbackHandlerAsync<bool>("signalAuthorizationPopupResponseUrl", data: input))
                     {
                         var result = await handler.GetResultAsync();
                     }
@@ -43,6 +43,10 @@ namespace Blazorade.Id.Components
                     var result = ex.Result;
                 }
                 catch (InteropTimeoutException ex)
+                {
+                    var msg = ex.Message;
+                }
+                catch(Exception ex)
                 {
                     var msg = ex.Message;
                 }

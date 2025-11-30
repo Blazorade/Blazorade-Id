@@ -18,10 +18,16 @@ namespace Blazorade.Id.Services
         private readonly IJSRuntime JsRuntime;
 
 
-        public async Task<DotNetInstanceCallbackHandler<TResult>> CreateCallbackHandlerAsync<TResult>(string functionName, Dictionary<string, object>? data = null)
+        internal async Task<DotNetInstanceCallbackHandler<TResult>> CreateCallbackHandlerAsync<TResult>(string functionName, Dictionary<string, object>? data = null)
         {
             var module = await this.GetBlazoradeIdModuleAsync();
             return new DotNetInstanceCallbackHandler<TResult>(module, functionName, data);
+        }
+
+        internal async Task InvokeVoidAsync(string functionName, params object?[]? args)
+        {
+            var module = await this.GetBlazoradeIdModuleAsync();
+            await module.InvokeVoidAsync(functionName, args: args);
         }
 
         private async Task<DotNetInstanceCallbackHandler<string>> CreateAuthorizationPopupHandlerAsync()

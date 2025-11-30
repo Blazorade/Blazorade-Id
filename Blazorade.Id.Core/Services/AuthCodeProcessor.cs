@@ -8,9 +8,10 @@ namespace Blazorade.Id.Core.Services
 {
     public class AuthCodeProcessor : IAuthCodeProcessor
     {
-        public Task<bool> ProcessAuthorizationCodeAsync(string code)
+        public async Task<bool> ProcessAuthorizationCodeAsync(string code)
         {
-            throw new NotImplementedException();
+
+            return false;
         }
     }
 }

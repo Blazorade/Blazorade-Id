@@ -74,7 +74,7 @@ namespace Blazorade.Id.Services
             };
             try
             {
-                using (var handler = await this.ScriptService.CreateCallbackHandlerAsync<string>("openAuthorizationPopup", input))
+                using (var handler = await this.ScriptService.CreateCallbackHandlerAsync<string>("openAuthorizationPopup", data: input))
                 {
                     responseUrl = await handler.GetResultAsync(timeout: AuthorizeTimeout);
                 }
