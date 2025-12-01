@@ -30,12 +30,6 @@ namespace Blazorade.Id.Services
             await module.InvokeVoidAsync(functionName, args: args);
         }
 
-        private async Task<DotNetInstanceCallbackHandler<string>> CreateAuthorizationPopupHandlerAsync()
-        {
-            var module = await this.GetBlazoradeIdModuleAsync();
-            return new DotNetInstanceCallbackHandler<string>(module, "openAuthorizationPopup");
-        }
-
         private IJSObjectReference _BlazoradeIdModule = null!;
         /// <summary>
         /// Returns a reference to the Blazorade Id JavaScript file.
