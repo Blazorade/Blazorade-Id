@@ -8,6 +8,10 @@ Blazorade ID is currently in alpha development phases, and we are working on sam
 
 ## Version Highlights
 
+### v1.0.0-beta.2
+
+- Included `BlazoradeIdScriptService` in the set of services that get registered by default when registering Blazorade ID services.
+
 ### v1.0.0-beta.1
 
 - Simplified implementation of token acquisition services.
