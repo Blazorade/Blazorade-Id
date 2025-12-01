@@ -7,7 +7,7 @@
     <Title>Blazorade ID</Title>
     <Authors>Mika Berglund</Authors>
     <Company>Blazorade</Company>
-    <Version>1.0.0-alpha.3</Version>
+    <Version>1.0.0-beta.1</Version>
     <Product>Blazorade ID</Product>
     <Description>Blazorade ID offers authentication and user identification services to all types of Blazor applications. Blazorade ID aims to unify the programming model for authentication across all Blazor application types, as far as possible.</Description>
     <Copyright>Copyright (c) Mika Berglund 2024</Copyright>
