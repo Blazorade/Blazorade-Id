@@ -10,10 +10,9 @@ Blazorade ID is currently in alpha development phases, and we are working on sam
 
 The versions of Blazorade ID Core always match the version numbers of the other Blazorade ID libraries. For details, see the *Used By* tab above.
 
-### v1.0.0-beta.1
+### v1.0.0-beta.x
 
-- Defined more specialized service interfaces for different task, which allows for more granular control of implementation details.
-- Extracted interface definitions from various service implementations.
+Working towards the first stable version.
 
 ### v1.0.0-alpha.2
 

@@ -80,7 +80,7 @@ namespace Blazorade.Id.Core.Services
         /// </remarks>
         public async Task<JwtSecurityToken?> GetIdentityTokenAsync(GetTokenOptions? options = null)
         {
-            options = options ?? new GetTokenOptions();
+            options = options ?? new GetTokenOptions { Prompt = Prompt.None };
             options.Scopes = []; // Identity tokens do not have scopes.
 
             var token = await this.GetValidTokenAsync(this.TokenStore.GetIdentityTokenAsync, options);

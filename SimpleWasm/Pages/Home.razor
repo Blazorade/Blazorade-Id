@@ -42,7 +42,7 @@
         var accessTokenJwt = await this.TokenService.GetAccessTokenAsync(options: new GetTokenOptions { Prompt = prompt });
         this.accessToken = accessTokenJwt?.RawData;
 
-        var idTokenJwt = await this.TokenService.GetIdentityTokenAsync(options: new GetTokenOptions { Prompt = Prompt.None });
+        var idTokenJwt = await this.TokenService.GetIdentityTokenAsync();
         this.idToken = idTokenJwt?.RawData;
 
         this.StateHasChanged();
