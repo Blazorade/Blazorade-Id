@@ -12,6 +12,11 @@ namespace Blazorade.Id.Core.Model
     {
 
         /// <summary>
+        /// The default constructor for the <see cref="TokenContainer"/> class.
+        /// </summary>
+        public TokenContainer() { }
+
+        /// <summary>
         /// Creates the container specifying the raw contents of the container and its expiration date.
         /// </summary>
         /// <param name="token">The raw encoded representation of the token.</param>

@@ -9,13 +9,17 @@ using System.Threading.Tasks;
 
 namespace Blazorade.Id.Core.Services
 {
-    public class InMemoryTokenStore : ITokenStore
+    /// <summary>
+    ///  A token store implementation that keeps tokens in memory.
+    /// </summary>
+    public class InMemoryTokenStore : TokenStoreBase
     {
         private TokenContainer? AccessToken;
         private TokenContainer? IdentityToken;
         private TokenContainer? RefreshToken;
 
-        public ValueTask<TokenContainer?> GetAccessTokenAsync()
+        /// <inheritdoc/>
+        public override ValueTask<TokenContainer?> GetAccessTokenAsync()
         {
             if(this.AccessToken?.Expires > DateTime.UtcNow)
             {
@@ -25,7 +29,8 @@ namespace Blazorade.Id.Core.Services
             return ValueTask.FromResult<TokenContainer?>(null);
         }
 
-        public ValueTask<TokenContainer?> GetIdentityTokenAsync()
+        /// <inheritdoc/>
+        public override ValueTask<TokenContainer?> GetIdentityTokenAsync()
         {
             if(this.IdentityToken?.Expires > DateTime.UtcNow)
             {
@@ -35,7 +40,8 @@ namespace Blazorade.Id.Core.Services
             return ValueTask.FromResult<TokenContainer?>(null);
         }
 
-        public ValueTask<TokenContainer?> GetRefreshTokenAsync()
+        /// <inheritdoc/>
+        public override ValueTask<TokenContainer?> GetRefreshTokenAsync()
         {
             if(null == this.RefreshToken?.Expires || this.RefreshToken?.Expires > DateTime.UtcNow)
             {
@@ -45,52 +51,22 @@ namespace Blazorade.Id.Core.Services
             return ValueTask.FromResult<TokenContainer?>(null);
         }
 
-        public async ValueTask<TokenContainer?> SetAccessTokenAsync(string token)
-        {
-            var jwt = new JwtSecurityToken(token);
-            return await this.SetAccessTokenAsync(jwt);
-        }
-
-        public async ValueTask<TokenContainer?> SetAccessTokenAsync(JwtSecurityToken token)
-        {
-            var container = new TokenContainer(token);
-            await this.SetAccessTokenAsync(container);
-            return container;
-        }
-
-        public ValueTask SetAccessTokenAsync(TokenContainer token)
+        /// <inheritdoc/>
+        public override ValueTask SetAccessTokenAsync(TokenContainer token)
         {
             this.AccessToken = token;
             return ValueTask.CompletedTask;
         }
 
-        public async ValueTask<TokenContainer?> SetIdentityTokenAsync(string token)
-        {
-            var jwt = new JwtSecurityToken(token);
-            return await this.SetIdentityTokenAsync(jwt);
-        }
-
-        public async ValueTask<TokenContainer?> SetIdentityTokenAsync(JwtSecurityToken token)
-        {
-            var container = new TokenContainer(token);
-            await this.SetIdentityTokenAsync(container);
-            return container;
-        }
-
-        public ValueTask SetIdentityTokenAsync(TokenContainer token)
+        /// <inheritdoc/>
+        public override ValueTask SetIdentityTokenAsync(TokenContainer token)
         {
             this.IdentityToken = token;
             return ValueTask.CompletedTask;
         }
 
-        public async ValueTask<TokenContainer?> SetRefreshTokenAsync(string token)
-        {
-            var container = new TokenContainer(token);
-            await this.SetRefreshTokenAsync(container);
-            return container;
-        }
-
-        public ValueTask SetRefreshTokenAsync(TokenContainer token)
+        /// <inheritdoc/>
+        public override ValueTask SetRefreshTokenAsync(TokenContainer token)
         {
             this.RefreshToken = token;
             return ValueTask.CompletedTask;
