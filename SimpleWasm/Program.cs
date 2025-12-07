@@ -18,12 +18,6 @@ builder.Services
         {
             var config = sp.GetRequiredService<IConfiguration>();
             config.GetRequiredSection("blazorade:id").Bind(options);
-
-            if(string.IsNullOrEmpty(options.RedirectUri))
-            {
-                var navMan = sp.GetRequiredService<NavigationManager>();
-                options.RedirectUri = new Uri(new Uri(navMan.BaseUri), OAuthCallback.RoutePath).ToString();
-            }
         })
     ;
 
