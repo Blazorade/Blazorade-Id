@@ -4,6 +4,7 @@ using Blazorade.Id.Core.Services;
 using Blazorade.Id.Services;
 using Blazored.LocalStorage;
 using Blazored.SessionStorage;
+using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using System;
 using System.Collections.Generic;
@@ -15,9 +16,18 @@ using System.Threading.Tasks;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
+    /// <summary>
+    /// Provides extension methods for registering Blazorade.Id services in an <see cref="IServiceCollection"/>.
+    /// </summary>
     public static class ServiceCollectionExtensions
     {
 
+        /// <summary>
+        /// Adds all necessary services that are needed to use Blazorade Id in a Blazor Server application.
+        /// </summary>
+        /// <remarks>
+        /// Use the returned <see cref="BlazoradeIdBuilder"/> to further configure the Blazorade Id services.
+        /// </remarks>
         public static BlazoradeIdBuilder AddBlazoradeIdServerApplication(this IServiceCollection services)
         {
             return new BlazoradeIdBuilder(
@@ -26,6 +36,12 @@ namespace Microsoft.Extensions.DependencyInjection
             );
         }
 
+        /// <summary>
+        /// Adds all necessary services that are needed to use Blazorade Id in a Blazor WebAssembly application.
+        /// </summary>
+        /// <remarks>
+        /// Use the returned <see cref="BlazoradeIdBuilder"/> to further configure the Blazorade Id services.
+        /// </remarks>
         public static BlazoradeIdBuilder AddBlazoradeIdWasmApplication(this IServiceCollection services)
         {
             return new BlazoradeIdBuilder(
@@ -55,6 +71,10 @@ namespace Microsoft.Extensions.DependencyInjection
                 .AddScoped<ITokenStore, InMemoryTokenStore>()
                 .AddScoped<IAuthenticationStateNotifier, BlazorAuthenticationStateNotifier>()
                 .AddScoped<BlazoradeIdScriptService>()
+
+                // The following service is used when configuring options, so it has to be registered as singleton,
+                // since options are always singleton.
+                .AddSingleton<IRedirectUriProvider, BlazorRedirectUriProvider>()
                 ;
         }
 

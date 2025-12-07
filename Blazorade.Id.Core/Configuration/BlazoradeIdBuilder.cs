@@ -12,6 +12,10 @@ namespace Blazorade.Id.Core.Configuration
     /// </summary>
     public class BlazoradeIdBuilder
     {
+        /// <summary>
+        /// Creates a new instance of the <see cref="BlazoradeIdBuilder"/> class.
+        /// </summary>
+        /// <param name="services"></param>
         public BlazoradeIdBuilder(IServiceCollection services)
         {
             this.Services = services;
@@ -31,6 +35,11 @@ namespace Blazorade.Id.Core.Configuration
                 .Configure<IServiceProvider>((o, sp) =>
                 {
                     config.Invoke(sp, o);
+                    if (string.IsNullOrEmpty(o.RedirectUri))
+                    {
+                        var rup = sp.GetRequiredService<IRedirectUriProvider>();
+                        o.RedirectUri = rup.GetRedirectUri().ToString();
+                    }
                 });
             return this;
         }
