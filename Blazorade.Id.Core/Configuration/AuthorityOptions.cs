@@ -4,6 +4,9 @@ using System.Text;
 
 namespace Blazorade.Id.Core.Configuration
 {
+    /// <summary>
+    /// Defines options that define how to connect to a specific authority (identity provider).
+    /// </summary>
     public class AuthorityOptions
     {
 
@@ -99,11 +102,16 @@ namespace Blazorade.Id.Core.Configuration
         public string? RedirectUri { get; set; }
 
         /// <summary>
+        /// Defines the default scopes to use when acquiring tokens from this authority.
+        /// </summary>
+        public const string DefaultScope = "openid profile email";
+
+        /// <summary>
         /// The scope to use by default when acquiring tokens from this authority. Multiple scopes are separated by a space.
         /// </summary>
         /// <remarks>
         /// The default is <c>openid profile email</c>.
         /// </remarks>
-        public string? Scope { get; set; } = "openid profile email";
+        public string? Scope { get; set; } = DefaultScope;
     }
 }
