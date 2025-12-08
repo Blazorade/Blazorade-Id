@@ -11,8 +11,7 @@ To run this sample application, you need to create an `appsettings.json` file in
   "blazorade": {
 	"id": {
 	  "metadatauri": "{URI}",
-	  "clientid": "{string}",
-	  "scope": "{string}"
+	  "clientid": "{string}"
 	}
   }
 }
@@ -22,7 +21,4 @@ To run this sample application, you need to create an `appsettings.json` file in
 	- Entra ID: `https://{tenantname}.microsoftonline.com/{tenantid}/v2.0/.well-known/openid-configuration`.
 	- Entra External ID: `https://{tenantname}.ciamlogin.com/{tenantid}/v2.0/.well-known/openid-configuration`.
 - `clientid`: This is the client ID of your application registered with Microsoft Entra ID. Replace `{string}` with your actual client ID.
-- `scope`: The default scope(s) used when acquiring access tokens in the application. In order to be able to manage application roles, security groups and role assignments, you need to specify the following scopes:
-	- `Application.ReadWrite.All`
-	- `Directory.Read.All`
 

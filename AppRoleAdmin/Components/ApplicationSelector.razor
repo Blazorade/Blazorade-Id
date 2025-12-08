@@ -1,0 +1,20 @@
+﻿@inject GraphClientService GraphClient
+
+<MudText Typo="Typo.subtitle1">Select Application</MudText>
+
+<MudStack Row="true">
+    <MudTextField @bind-Value="this.query" Label="Search"></MudTextField>
+    <MudIconButton Icon="@Icons.Material.Filled.Search" Color="Color.Primary" OnClick="this.OnSearchClickAsync" />
+</MudStack>
+
+@code {
+    string? query;
+
+    private async Task OnSearchClickAsync(MouseEventArgs args)
+    {
+        await foreach(var app in this.GraphClient.GetApplicationsAsync(this.query))
+        {
+            Console.WriteLine(app.DisplayName);
+        }
+    }
+}
