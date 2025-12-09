@@ -1,0 +1,36 @@
+﻿@using Microsoft.Graph.Models;
+
+<MudDrawer @bind-Open="this.IsOpen" OverlayAutoClose="true" Anchor="Anchor.End" Variant="DrawerVariant.Temporary" MiniWidth="240px" Width="360px">
+    <MudDrawerHeader>
+        <MudText Typo="Typo.h4">Select Application</MudText>
+    </MudDrawerHeader>
+
+    <MudContainer Fixed="true">
+        <ApplicationSelector ApplicationSelected="this.OnApplicationSelected" />
+    </MudContainer>
+</MudDrawer>
+
+@code {
+    [Parameter]
+    public bool IsOpen { get; set; } = false;
+
+    [Parameter]
+    public EventCallback<Application> ApplicationSelected { get; set; }
+
+    [Parameter]
+    public EventCallback<bool> IsOpenChanged { get; set; }
+
+    private void OnOpenChanged(bool isOpen)
+    {
+        this.IsOpen = isOpen;
+        this.IsOpenChanged.InvokeAsync(isOpen);
+    }
+
+    private async Task OnApplicationSelected(Application app)
+    {
+        this.IsOpen = false;
+        await this.IsOpenChanged.InvokeAsync(this.IsOpen);
+
+        await this.ApplicationSelected.InvokeAsync(app);
+    }
+}

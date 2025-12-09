@@ -1,6 +1,21 @@
-﻿@page "/"
+﻿@using Microsoft.Graph.Models;
+@page "/"
 
 <PageTitle>App Role Admin</PageTitle>
 <MudText Typo="Typo.h1">App Role Admin</MudText>
 
-<ApplicationSelector />
+<MudFab Color="Color.Primary" EndIcon="@Icons.Material.Filled.Search" Label="Pick App" OnClick="() => this.IsAppSelectorOpen = true" />
+<ApplicationSelectorDrawer @bind-IsOpen="this.IsAppSelectorOpen" ApplicationSelected="this.OnApplicationSelected" />
+
+<ApplicationEditor Application="this.SelectedApplication" />
+
+@code {
+    private bool IsAppSelectorOpen = false;
+    private Application? SelectedApplication;
+
+    private async Task OnApplicationSelected(Application app)
+    {
+        this.SelectedApplication = app;
+        Console.WriteLine($"Selected application: {app.DisplayName}");
+    }
+}
