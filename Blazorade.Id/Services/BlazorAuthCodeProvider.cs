@@ -24,6 +24,7 @@ namespace Blazorade.Id.Services
             IPropertyStore propertyStore,
             NavigationManager navMan,
             BlazoradeIdScriptService scriptService,
+            IRedirectUriProvider redirUriProvider,
             IOptions<AuthorityOptions> authOptions
         ) {
             this.EndpointService = endpointService ?? throw new ArgumentNullException(nameof(endpointService));
@@ -32,6 +33,7 @@ namespace Blazorade.Id.Services
             this.PropertyStore = propertyStore ?? throw new ArgumentNullException(nameof(propertyStore));
             this.NavMan = navMan ?? throw new ArgumentNullException(nameof(navMan));
             this.ScriptService = scriptService ?? throw new ArgumentNullException(nameof(scriptService));
+            this.RedirUriProvider = redirUriProvider ?? throw new ArgumentNullException(nameof(redirUriProvider));
         }
 
         private readonly EndpointService EndpointService;
@@ -40,6 +42,7 @@ namespace Blazorade.Id.Services
         private readonly NavigationManager NavMan;
         private readonly AuthorityOptions AuthOptions;
         private readonly BlazoradeIdScriptService ScriptService;
+        private readonly IRedirectUriProvider RedirUriProvider;
 
         private const int AuthorizeTimeout = 60000;
 
@@ -47,7 +50,7 @@ namespace Blazorade.Id.Services
         {
             var redirUrl = this.AuthOptions.RedirectUri?.Length > 0
                 ? this.AuthOptions.RedirectUri
-                : new Uri(new Uri(this.NavMan.BaseUri), OAuthCallback.RoutePath).ToString();
+                : this.RedirUriProvider.GetRedirectUri().ToString();
 
             var codeVerifier = this.CodeChallengeService.CreateCodeVerifier();
             await this.PropertyStore.SetCodeVerifierAsync(codeVerifier);
