@@ -35,10 +35,7 @@ namespace Blazorade.Id.Core
                 if (null != scopesClaim && scopesClaim?.Value?.Length > 0)
                 {
                     var claimScopes = scopesClaim.Value.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
-                    if (claimScopes.Intersect(scopes).Count() == scopes.Count())
-                    {
-                        return true;
-                    }
+                    return claimScopes.Intersect(scopes).Count() == scopes.Count();
                 }
                 else
                 {

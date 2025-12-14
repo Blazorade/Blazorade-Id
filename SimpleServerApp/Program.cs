@@ -1,3 +1,4 @@
+using Blazorade.Id.Components.Pages;
 using Blazorade.Id.Services;
 using SimpleServerApp.Components;
 
@@ -5,7 +6,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
-    .AddInteractiveServerComponents();
+    .AddInteractiveServerComponents()
+    ;
 
 builder.Services
     .AddBlazoradeCore()
@@ -21,6 +23,7 @@ builder.Services
     // If you want to persist tokens across page refreshes, you can use one of the token stores below.
     //.AddTokenStore<BlazorSessionTokenStore>()
     .AddTokenStore<BlazorPersistentTokenStore>()
+    .AddPropertyStore<BlazorPersistentPropertyStore>()
     ;
 
 
@@ -40,6 +43,8 @@ app.UseStaticFiles();
 app.UseAntiforgery();
 
 app.MapRazorComponents<App>()
-    .AddInteractiveServerRenderMode();
+    .AddInteractiveServerRenderMode()
+    .AddAdditionalAssemblies(typeof(OAuthCallback).Assembly)
+    ;
 
 app.Run();

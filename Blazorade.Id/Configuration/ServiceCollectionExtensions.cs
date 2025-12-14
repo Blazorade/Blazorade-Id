@@ -52,6 +52,9 @@ namespace Microsoft.Extensions.DependencyInjection
 
 
 
+        /// <summary>
+        /// Adds default Blazorade Id services that are shared across all Blazor web application types.
+        /// </summary>
         private static IServiceCollection AddSharedBlazoradeWebServices(this IServiceCollection services)
         {
             return services
@@ -65,8 +68,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 })
                 .AddBlazoredSessionStorage()
                 .AddBlazoredLocalStorage()
-                .AddSharedBlazoradeIdServices()
-                    .AddScoped<IRedirectUriProvider, BlazorRedirectUriProvider>()
+                .AddScoped<IRedirectUriProvider, BlazorRedirectUriProvider>()
                 .AddScoped<IAuthCodeProvider, BlazorAuthCodeProvider>()
                 .AddScoped<IPropertyStore, BlazorSessionPropertyStore>()
                 .AddScoped<ITokenStore, InMemoryTokenStore>()
@@ -76,23 +78,5 @@ namespace Microsoft.Extensions.DependencyInjection
                 ;
         }
 
-        private static IServiceCollection AddSharedBlazoradeIdServices(this IServiceCollection services)
-        {
-            return services
-                .AddScoped<EndpointService>()
-                .AddScoped<ICodeChallengeService, CodeChallengeService>()
-                .AddScoped<ITokenService, TokenService>()
-                .AddScoped<IAuthCodeProcessor, AuthCodeProcessor>()
-                .AddHttpClient()
-
-                .AddOptions<JsonSerializerOptions>()
-                .Configure(opt =>
-                {
-                    opt.PropertyNameCaseInsensitive = true;
-                    opt.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
-                }).Services
-                ;
-            ;
-        }
     }
 }

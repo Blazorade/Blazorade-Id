@@ -1,6 +1,8 @@
-﻿<Router AppAssembly="typeof(Program).Assembly">
+﻿@using System.Reflection
+@using Blazorade.Id.Components.Pages
+
+<Router AppAssembly="typeof(Program).Assembly" AdditionalAssemblies="new Assembly[] { typeof(OAuthCallback).Assembly }">
     <Found Context="routeData">
         <RouteView RouteData="routeData" DefaultLayout="typeof(Layout.MainLayout)" />
-        <FocusOnNavigate RouteData="routeData" Selector="h1" />
     </Found>
 </Router>

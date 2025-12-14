@@ -17,7 +17,7 @@ builder.Services
     .AddBlazoradeIdWasmApplication()
     //.AddTokenStore<BlazorSessionTokenStore>()
     .AddTokenStore<BlazorPersistentTokenStore>()
-    .AddPropertyStorage<BlazorPersistentPropertyStore>()
+    .AddPropertyStore<BlazorPersistentPropertyStore>()
     .AddAuthority((sp, options) =>
     {
         var config = sp.GetRequiredService<IConfiguration>();

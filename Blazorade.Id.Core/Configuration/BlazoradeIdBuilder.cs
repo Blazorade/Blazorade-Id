@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Text.Json;
 
 namespace Blazorade.Id.Core.Configuration
 {
@@ -18,7 +19,7 @@ namespace Blazorade.Id.Core.Configuration
         /// <param name="services"></param>
         public BlazoradeIdBuilder(IServiceCollection services)
         {
-            this.Services = services;
+            this.Services = this.AddBlazoradeIdSharedServices(services);
         }
 
         /// <summary>
@@ -72,10 +73,10 @@ namespace Blazorade.Id.Core.Configuration
         /// <summary>
         /// Adds the property storage used in the application.
         /// </summary>
-        /// <typeparam name="TPropertyStorage">The type of property storage to add.</typeparam>
-        public BlazoradeIdBuilder AddPropertyStorage<TPropertyStorage>() where TPropertyStorage : class, IPropertyStore
+        /// <typeparam name="TPropertyStore">The type of property storage to add.</typeparam>
+        public BlazoradeIdBuilder AddPropertyStore<TPropertyStore>() where TPropertyStore : class, IPropertyStore
         {
-            this.Services.AddScoped<IPropertyStore, TPropertyStorage>();
+            this.Services.AddScoped<IPropertyStore, TPropertyStore>();
             return this;
         }
 
@@ -84,7 +85,7 @@ namespace Blazorade.Id.Core.Configuration
         /// </summary>
         /// <param name="config"></param>
         /// <returns></returns>
-        public BlazoradeIdBuilder AddPropertyStorage(Func<IServiceProvider, IPropertyStore> config)
+        public BlazoradeIdBuilder AddPropertyStore(Func<IServiceProvider, IPropertyStore> config)
         {
             this.Services.AddScoped<IPropertyStore>(sp => config.Invoke(sp));
             return this;
@@ -111,5 +112,27 @@ namespace Blazorade.Id.Core.Configuration
             return this;
         }
 
+
+
+        /// <summary>
+        /// Adds the default Blazorade Id services that are shared across all Blazorade Id application types.
+        /// </summary>
+        private IServiceCollection AddBlazoradeIdSharedServices(IServiceCollection services)
+        {
+            return services
+                .AddScoped<EndpointService>()
+                .AddScoped<ICodeChallengeService, CodeChallengeService>()
+                .AddScoped<ITokenService, TokenService>()
+                .AddScoped<IAuthCodeProcessor, AuthCodeProcessor>()
+                .AddHttpClient()
+
+                .AddOptions<JsonSerializerOptions>()
+                .Configure(opt =>
+                {
+                    opt.PropertyNameCaseInsensitive = true;
+                    opt.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+                }).Services
+                ;
+        }
     }
 }

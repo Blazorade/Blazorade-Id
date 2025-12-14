@@ -1,7 +1,60 @@
 ﻿@page "/"
+@inject ITokenService TokenService
+@inject IPropertyStore PropertyStore
 
-<PageTitle>Home</PageTitle>
+<PageTitle>Blazorade Id Sample Server App</PageTitle>
 
-<h1>Hello, world!</h1>
+<h1>Get Tokens</h1>
+<InputText @bind-Value="this.Scopes" DisplayName="Scopes" />
+<button type="submit" @onclick="this.OnGetTokensAsync">Get Tokens</button>
 
-Welcome to your new app.
+@if(this.AccessToken?.Length > 0)
+{
+    <h2>Access Token</h2>
+    <p>
+        <a href="https://jwt.ms/#access_token=@this.AccessToken" target="_blank">@this.AccessToken</a>
+    </p>
+}
+@if(this.IdToken?.Length > 0)
+{
+    <h2>ID Token</h2>
+    <p>
+        <a href="https://jwt.ms/#id_token=@this.IdToken" target="_blank">@this.IdToken</a>
+    </p>
+}
+
+@code {
+    private string? Scopes = "openid profile email";
+    private string? AccessToken;
+    private string? IdToken;
+
+    protected async override Task OnAfterRenderAsync(bool firstRender)
+    {
+        await base.OnAfterRenderAsync(firstRender);
+        if(firstRender)
+        {
+            var scopes = await this.PropertyStore.GetScopeAsync();
+            this.StateHasChanged();
+        }
+    }
+
+    private async Task OnGetTokensAsync(MouseEventArgs args)
+    {
+        this.AccessToken = null;
+        this.IdToken = null;
+
+        await this.PropertyStore.SetScopeAsync(this.Scopes);
+            
+        var accessTokenJwt = await this.TokenService.GetAccessTokenAsync(new GetTokenOptions
+        {
+            Prompt = Prompt.Consent,
+            Scopes = $"{this.Scopes}".Split(' ', StringSplitOptions.RemoveEmptyEntries)
+        });
+
+        this.AccessToken = accessTokenJwt?.RawData;
+
+        var idTokenJwt = await this.TokenService.GetIdentityTokenAsync();
+        this.IdToken = idTokenJwt?.RawData;
+
+    }
+}
