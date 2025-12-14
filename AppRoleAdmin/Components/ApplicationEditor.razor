@@ -1,6 +1,8 @@
 ﻿@using Microsoft.Graph.Models
 @inject GraphClientService GraphClient
 
+<AppRoleEditorDrawer AppRole="this.EditedAppRole" IsOpen="this.IsAppRoleEditorOpen" />
+
 @if(null != this.Application)
 {
     <MudPaper Elevation="0" Class="pa-2 mb-8 mt-4">
@@ -16,10 +18,10 @@
     <MudStack Row="true" AlignItems="AlignItems.Start">
         <div>
             <MudText Typo="Typo.h5">App Roles</MudText>
-            <MudList T="Application">
+            <MudList T="AppRole" SelectionMode="SelectionMode.SingleSelection" @bind-SelectedValue="this.SelectedAppRole" @bind-SelectedValue:after="() => { this.EditedAppRole = this.SelectedAppRole; }" >
                 @foreach (var role in this.Application.AppRoles ?? [])
                 {
-                    <MudListItem OnClick="async () => await OnAppRoleSelectedAsync(role)">
+                    <MudListItem Value="role">
                         <MudText Typo="Typo.h6">@role.Value</MudText>
                         <MudText Typo="Typo.caption">App Role Id: @role.Id</MudText>
                         <MudText Typo="Typo.subtitle1">@role.DisplayName</MudText>
@@ -27,60 +29,78 @@
                     </MudListItem>
                 }
             </MudList>
+
+            <MudButtonGroup Color="Color.Primary" Variant="Variant.Outlined" Class="mt-4">
+                <MudButton Disabled="null == this.SelectedAppRole" OnClick="() => { this.IsAppRoleEditorOpen = true; }">Edit</MudButton>
+                <MudButton OnClick="() => { this.EditedAppRole = this.GetNewAppRole(); this.IsAppRoleEditorOpen = true; }">Add App Role</MudButton>
+            </MudButtonGroup>
         </div>
-        @if (this.Assignments?.Count > 0)
-        {
-            <div>
-                <MudText Typo="Typo.h5">Assigned Principals</MudText>
+        <div>
+            <MudText Typo="Typo.h5">Assigned Principals</MudText>
+            @if (this.Assignments?.Count > 0)
+            {
                 <MudList T="AppRoleAssignment">
                     @foreach (var assignment in this.Assignments)
                     {
-                        <MudListItem>
+                        <MudListItem Value="assignment">
                             <MudText Typo="Typo.h6">@assignment.PrincipalType: @assignment.PrincipalDisplayName</MudText>
                             <MudText Typo="Typo.caption">Principal Id: @assignment.PrincipalId</MudText>
                         </MudListItem>
                     }
                 </MudList>
-            </div>
-        }
+            }
+        </div>
     </MudStack>
 }
 
-@code {
 
+@code {
     [Parameter]
     public Application? Application { get; set; }
 
-    private ServicePrincipal? AppServicePrincipal { get; set; }
+    private ServicePrincipal? AppServicePrincipal;
 
-    private List<AppRoleAssignment>? Assignments { get; set; }
+    private List<AppRoleAssignment>? Assignments;
 
-    private async Task OnAppRoleSelectedAsync(AppRole appRole)
-    {
-        this.Assignments = new List<AppRoleAssignment>();
+    private AppRole? EditedAppRole;
+    private AppRole? SelectedAppRole;
 
-        if(null != this.AppServicePrincipal)
-        {
-            Console.WriteLine("Getting app role assignments...");
-
-            var assignments = this.GraphClient.GetAppRoleAssignmentsAsync(this.AppServicePrincipal, appRole);
-            await foreach(var assignment in assignments)
-            {
-                this.Assignments.Add(assignment);
-                Console.WriteLine($"{assignment.PrincipalType}: {assignment.PrincipalDisplayName}");
-            }
-        }
-    }
+    private bool IsAppRoleEditorOpen;
 
     protected async override Task OnParametersSetAsync()
     {
         await base.OnParametersSetAsync();
+        this.Assignments = new List<AppRoleAssignment>();
+
         if(null != this.Application)
         {
-            Console.WriteLine($"App Id: {this.Application.AppId}");
-
             this.AppServicePrincipal = await this.GraphClient.GetServicePrincipalAsync(this.Application);
-            Console.WriteLine($"Service Principal Id: {this.AppServicePrincipal?.Id}");
         }
     }
+
+    private async Task OnSelectedAppRoleChangedAsync()
+    {
+        Console.WriteLine($"Selected app role: {this.SelectedAppRole?.Value}");
+
+        this.Assignments = new List<AppRoleAssignment>();
+        if (null != this.AppServicePrincipal && null != this.SelectedAppRole)
+        {
+            Console.WriteLine("Getting app role assignments...");
+
+            var assignments = this.GraphClient.GetAppRoleAssignmentsAsync(this.AppServicePrincipal, this.SelectedAppRole);
+            await foreach (var assignment in assignments)
+            {
+                this.Assignments.Add(assignment);
+            }
+        }
+    }
+
+    private AppRole GetNewAppRole()
+    {
+        return new AppRole
+        {
+            Value = "Resource.Action.Constraint"
+        };
+    }
+
 }

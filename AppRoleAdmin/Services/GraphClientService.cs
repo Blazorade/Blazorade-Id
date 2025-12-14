@@ -36,6 +36,7 @@ namespace AppRoleAdmin.Services
 
             return null;
         }
+        
         public async IAsyncEnumerable<Application> GetApplicationsAsync(string? query)
         {
             var graph = await this.GetGraphClientAsync(scope: Scopes.ApplicationReadAll);
@@ -116,6 +117,21 @@ namespace AppRoleAdmin.Services
             yield break;
         }
 
+        public async Task<Application?> PatchApplicationAppRolesAsync(Application app)
+        {
+            var graph = await this.GetGraphClientAsync(scope: Scopes.ApplicationReadWriteAll);
+            if(null != graph)
+            {
+                var updatedApp = new Application
+                {
+                    AppRoles = app.AppRoles,
+                };
+                var patchedApp = await graph.Applications[app.Id].PatchAsync(new Application { AppRoles = app.AppRoles });
+                return patchedApp;
+            }
+
+            return null;
+        }
 
 
         private async Task<GraphServiceClient?> GetGraphClientAsync(string? scope)

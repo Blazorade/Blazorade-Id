@@ -1,0 +1,41 @@
+﻿@using Microsoft.Graph.Models
+@inject GraphClientService GraphClient
+
+<MudDrawer @bind-Open="this.IsOpen" OverlayAutoClose="true" Anchor="Anchor.End" Variant="DrawerVariant.Temporary" MiniWidth="240px" Width="480px">
+    <MudDrawerHeader>
+        <MudText Typo="Typo.h4">App Role</MudText>
+    </MudDrawerHeader>
+
+    <MudContainer Fixed="true">
+        <AppRoleEditor AppRole="this.AppRole" @bind-IsAppRoleValid="this.IsAppRoleValid" @bind-IsAppRoleValid:after="() => { this.DisableSaveButton = !this.IsAppRoleValid; }" />
+
+        <div class="mt-4">
+            <MudButton Color="Color.Primary" Variant="Variant.Filled" Disabled="this.DisableSaveButton">Save</MudButton>
+        </div>
+    </MudContainer>
+</MudDrawer>
+
+
+@code {
+
+    [Parameter]
+    public bool IsOpen { get; set; }
+
+    [Parameter]
+    public AppRole? AppRole { get; set; }
+
+    [Parameter]
+    public bool IsAppRoleValid { get; set; } = false;
+
+    private bool DisableSaveButton = true;
+
+
+    protected async override Task OnParametersSetAsync()
+    {
+        await base.OnParametersSetAsync();
+
+        this.DisableSaveButton = !this.IsAppRoleValid;
+
+        Console.WriteLine($"AppRoleEditorDrawer. IsOpen={this.IsOpen}, IsAppRoleValid={this.IsAppRoleValid}");
+    }
+}

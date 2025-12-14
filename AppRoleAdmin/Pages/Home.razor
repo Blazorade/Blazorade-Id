@@ -5,8 +5,7 @@
 <MudText Typo="Typo.h1">App Role Admin</MudText>
 
 <MudFab Color="Color.Primary" EndIcon="@Icons.Material.Filled.Search" Label="Pick App" OnClick="() => this.IsAppSelectorOpen = true" />
-<ApplicationSelectorDrawer @bind-IsOpen="this.IsAppSelectorOpen" ApplicationSelected="this.OnApplicationSelected" />
-
+<ApplicationSelectorDrawer IsOpen="this.IsAppSelectorOpen" ApplicationSelected="this.OnApplicationSelected" />
 <ApplicationEditor Application="this.SelectedApplication" />
 
 @code {
@@ -15,6 +14,7 @@
 
     private async Task OnApplicationSelected(Application app)
     {
+        this.IsAppSelectorOpen = false;
         this.SelectedApplication = app;
         Console.WriteLine($"Selected application: {app.DisplayName}");
     }
