@@ -35,11 +35,6 @@ namespace Blazorade.Id.Core.Configuration
                 .Configure<IServiceProvider>((o, sp) =>
                 {
                     config.Invoke(sp, o);
-                    if (string.IsNullOrEmpty(o.RedirectUri))
-                    {
-                        var rup = sp.GetRequiredService<IRedirectUriProvider>();
-                        o.RedirectUri = rup.GetRedirectUri().ToString();
-                    }
                 });
             return this;
         }

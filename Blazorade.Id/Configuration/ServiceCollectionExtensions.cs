@@ -66,15 +66,13 @@ namespace Microsoft.Extensions.DependencyInjection
                 .AddBlazoredSessionStorage()
                 .AddBlazoredLocalStorage()
                 .AddSharedBlazoradeIdServices()
+                    .AddScoped<IRedirectUriProvider, BlazorRedirectUriProvider>()
                 .AddScoped<IAuthCodeProvider, BlazorAuthCodeProvider>()
                 .AddScoped<IPropertyStore, BlazorSessionPropertyStore>()
                 .AddScoped<ITokenStore, InMemoryTokenStore>()
                 .AddScoped<IAuthenticationStateNotifier, BlazorAuthenticationStateNotifier>()
                 .AddScoped<BlazoradeIdScriptService>()
 
-                // The following service is used when configuring options, so it has to be registered as singleton,
-                // since options are always singleton.
-                .AddSingleton<IRedirectUriProvider, BlazorRedirectUriProvider>()
                 ;
         }
 

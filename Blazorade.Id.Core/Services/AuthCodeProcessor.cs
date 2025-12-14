@@ -21,7 +21,8 @@ namespace Blazorade.Id.Core.Services
             IHttpClientFactory httpClientFactory,
             IAuthenticationStateNotifier authStateNotifier,
             IOptions<JsonSerializerOptions> jsonOptions,
-            IOptions<AuthorityOptions> authOptions
+            IOptions<AuthorityOptions> authOptions,
+            IRedirectUriProvider redirUriProvider
         ) {
             this.PropertyStore = propertyStore ?? throw new ArgumentNullException(nameof(propertyStore));
             this.TokenStore = tokenStore ?? throw new ArgumentNullException(nameof(tokenStore));
@@ -30,6 +31,7 @@ namespace Blazorade.Id.Core.Services
             this.AuthStateNotifier = authStateNotifier ?? throw new ArgumentNullException(nameof(authStateNotifier));
             this.JsonOptions = jsonOptions?.Value ?? throw new ArgumentNullException(nameof(jsonOptions));
             this.AuthOptions = authOptions?.Value ?? throw new ArgumentNullException(nameof(authOptions));
+            this.RedirUriProvider = redirUriProvider ?? throw new ArgumentNullException(nameof(redirUriProvider));
         }
 
         private readonly IPropertyStore PropertyStore;
@@ -39,6 +41,7 @@ namespace Blazorade.Id.Core.Services
         private readonly IAuthenticationStateNotifier AuthStateNotifier;
         private readonly JsonSerializerOptions JsonOptions;
         private readonly AuthorityOptions AuthOptions;
+        private readonly IRedirectUriProvider RedirUriProvider;
 
         public async Task<bool> ProcessAuthorizationCodeAsync(string code, GetTokenOptions? options = null)
         {
@@ -49,13 +52,15 @@ namespace Blazorade.Id.Core.Services
             var scope = await this.PropertyStore.GetScopeAsync();
             var codeVerifier = await this.PropertyStore.GetCodeVerifierAsync();
 
+            var redirUri = this.AuthOptions.RedirectUri ?? this.RedirUriProvider.GetRedirectUri().ToString();
+
             var tokenRequestBuilder = await this.EndpointService.CreateTokenRequestBuilderAsync();
             var tokenRequest = tokenRequestBuilder
                 .WithClientId(this.AuthOptions.ClientId)
                 .WithAuthorizationCode(code)
                 .WithCodeVerifier(codeVerifier)
                 .WithScope(scope)
-                .WithRedirectUri(this.AuthOptions.RedirectUri)
+                .WithRedirectUri(redirUri)
                 .Build();
 
             await this.PropertyStore.RemoveNonceAsync();

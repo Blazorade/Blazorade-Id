@@ -28,6 +28,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpleWasm", "SimpleWasm\Si
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppRoleAdmin", "AppRoleAdmin\AppRoleAdmin.csproj", "{367EFCB4-39FE-4870-9BA3-22F0199FF3EC}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpleServerApp", "SimpleServerApp\SimpleServerApp.csproj", "{204199AE-2364-4EA8-9F39-77C70EEBF820}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -70,6 +72,10 @@ Global
 		{367EFCB4-39FE-4870-9BA3-22F0199FF3EC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{367EFCB4-39FE-4870-9BA3-22F0199FF3EC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{367EFCB4-39FE-4870-9BA3-22F0199FF3EC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{204199AE-2364-4EA8-9F39-77C70EEBF820}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{204199AE-2364-4EA8-9F39-77C70EEBF820}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{204199AE-2364-4EA8-9F39-77C70EEBF820}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{204199AE-2364-4EA8-9F39-77C70EEBF820}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -81,6 +87,7 @@ Global
 		{346CCF9B-1378-42F9-96E0-C643B710E28A} = {81458429-2994-4447-947A-DE6335BF72EC}
 		{4ABD4EAA-5668-4C1E-A501-B10E65C8A443} = {81458429-2994-4447-947A-DE6335BF72EC}
 		{367EFCB4-39FE-4870-9BA3-22F0199FF3EC} = {81458429-2994-4447-947A-DE6335BF72EC}
+		{204199AE-2364-4EA8-9F39-77C70EEBF820} = {81458429-2994-4447-947A-DE6335BF72EC}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {065AFC3E-116F-4307-8BCE-513210EF3786}

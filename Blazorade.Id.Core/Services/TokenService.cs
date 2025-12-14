@@ -33,7 +33,8 @@ namespace Blazorade.Id.Core.Services
             EndpointService epService, 
             IOptions<JsonSerializerOptions> jsonOptions,
             IAuthCodeProvider authCodeProvider,
-            IAuthCodeProcessor authCodeProcessor
+            IAuthCodeProcessor authCodeProcessor,
+            IRedirectUriProvider redirectProvider
         ) {
             this.HttpClientFactory = httpFactory ?? throw new ArgumentNullException(nameof(httpFactory));
             this.TokenStore = tokenStore ?? throw new ArgumentNullException(nameof(tokenStore));
@@ -43,6 +44,7 @@ namespace Blazorade.Id.Core.Services
             this.JsonOptions = jsonOptions.Value ?? throw new ArgumentNullException(nameof(jsonOptions));
             this.AuthCodeProvider = authCodeProvider ?? throw new ArgumentNullException(nameof(authCodeProvider));
             this.AuthCodeProcessor = authCodeProcessor ?? throw new ArgumentNullException(nameof(authCodeProcessor));
+            this.RedirectUriProvider = redirectProvider ?? throw new ArgumentNullException(nameof(redirectProvider));
         }
 
         private readonly IHttpClientFactory HttpClientFactory;
@@ -53,6 +55,7 @@ namespace Blazorade.Id.Core.Services
         private readonly JsonSerializerOptions JsonOptions;
         private readonly IAuthCodeProvider AuthCodeProvider;
         private readonly IAuthCodeProcessor AuthCodeProcessor;
+        private readonly IRedirectUriProvider RedirectUriProvider;
 
         /// <summary>
         /// Returns the access token for the current signed in user.
@@ -333,11 +336,13 @@ namespace Blazorade.Id.Core.Services
             var refreshToken = await this.TokenStore.GetRefreshTokenAsync();
             if(refreshToken?.Token?.Length > 0)
             {
+                var redirUri = this.AuthOptions.RedirectUri ?? this.RedirectUriProvider.GetRedirectUri().ToString();
+
                 var requestBuilder = await this.EndpointService.CreateTokenRequestBuilderAsync();
                 var request = requestBuilder
                     .WithClientId(this.AuthOptions.ClientId)
                     .WithRefreshToken(refreshToken.Token)
-                    .WithRedirectUri(this.AuthOptions.RedirectUri)
+                    .WithRedirectUri(redirUri)
                     .Build();
 
                 var result = await this.ExecuteTokenEndpointRequestAsync(request, null);
