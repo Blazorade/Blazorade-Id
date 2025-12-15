@@ -34,7 +34,8 @@ namespace Blazorade.Id.Core.Services
             IOptions<JsonSerializerOptions> jsonOptions,
             IAuthCodeProvider authCodeProvider,
             IAuthCodeProcessor authCodeProcessor,
-            IRedirectUriProvider redirectProvider
+            IRedirectUriProvider redirectProvider,
+            IScopeSorter scopeSorter
         ) {
             this.HttpClientFactory = httpFactory ?? throw new ArgumentNullException(nameof(httpFactory));
             this.TokenStore = tokenStore ?? throw new ArgumentNullException(nameof(tokenStore));
@@ -45,6 +46,7 @@ namespace Blazorade.Id.Core.Services
             this.AuthCodeProvider = authCodeProvider ?? throw new ArgumentNullException(nameof(authCodeProvider));
             this.AuthCodeProcessor = authCodeProcessor ?? throw new ArgumentNullException(nameof(authCodeProcessor));
             this.RedirectUriProvider = redirectProvider ?? throw new ArgumentNullException(nameof(redirectProvider));
+            this.ScopeSorter = scopeSorter ?? throw new ArgumentNullException(nameof(scopeSorter));
         }
 
         private readonly IHttpClientFactory HttpClientFactory;
@@ -56,6 +58,7 @@ namespace Blazorade.Id.Core.Services
         private readonly IAuthCodeProvider AuthCodeProvider;
         private readonly IAuthCodeProcessor AuthCodeProcessor;
         private readonly IRedirectUriProvider RedirectUriProvider;
+        private readonly IScopeSorter ScopeSorter;
 
         /// <summary>
         /// Returns the access token for the current signed in user.

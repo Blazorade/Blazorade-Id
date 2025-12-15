@@ -83,11 +83,36 @@ namespace Blazorade.Id.Core.Configuration
         /// <summary>
         /// Adds the property storage to use in the application.
         /// </summary>
-        /// <param name="config"></param>
-        /// <returns></returns>
         public BlazoradeIdBuilder AddPropertyStore(Func<IServiceProvider, IPropertyStore> config)
         {
             this.Services.AddScoped<IPropertyStore>(sp => config.Invoke(sp));
+            return this;
+        }
+
+        /// <summary>
+        /// Adds the scope sorter used in the application.
+        /// </summary>
+        /// <typeparam name="TScopeSorter">The type of scope sorter to use.</typeparam>
+        /// <remarks>
+        /// A default scope sorter is provided and registered by Blazorade Id, but you can implement
+        /// your own scope sorter by implementing the <see cref="IScopeSorter"/> interface.
+        /// </remarks>
+        public BlazoradeIdBuilder AddScopeSorter<TScopeSorter>() where TScopeSorter : class, IScopeSorter
+        {
+            this.Services.AddScoped<IScopeSorter, TScopeSorter>();
+            return this;
+        }
+
+        /// <summary>
+        /// Adds the scope sorter used in the application.
+        /// </summary>
+        /// <remarks>
+        /// A default scope sorter is provided and registered by Blazorade Id, but you can implement
+        /// your own scope sorter by implementing the <see cref="IScopeSorter"/> interface.
+        /// </remarks>
+        public BlazoradeIdBuilder AddScopeSorter(Func<IServiceProvider, IScopeSorter> config)
+        {
+            this.Services.AddScoped<IScopeSorter>(sp => config.Invoke(sp));
             return this;
         }
 
@@ -124,6 +149,7 @@ namespace Blazorade.Id.Core.Configuration
                 .AddScoped<ICodeChallengeService, CodeChallengeService>()
                 .AddScoped<ITokenService, TokenService>()
                 .AddScoped<IAuthCodeProcessor, AuthCodeProcessor>()
+                .AddScoped<IScopeSorter, DefaultScopeSorter>()
                 .AddHttpClient()
 
                 .AddOptions<JsonSerializerOptions>()

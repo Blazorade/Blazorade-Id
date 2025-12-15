@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Blazorade.Id.Core.Model;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -16,6 +17,14 @@ namespace Blazorade.Id.Core.Services
     /// </remarks>
     public interface IScopeSorter
     {
-
+        /// <summary>
+        /// Responseible for sorting the provided scopes into groups representing the target resources they belong to.
+        /// </summary>
+        /// <param name="scopes">The scopes to sort.</param>
+        /// <returns>
+        /// Returns a dictionary where the identifier for the target resource is the key, and the list of scopes
+        /// belonging to that resource is the value.
+        /// </returns>
+        Task<IDictionary<string, IList<string>>> SortScopesAsync(IEnumerable<string> scopes);
     }
 }
