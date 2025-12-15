@@ -13,6 +13,7 @@ using Blazorade.Core.Components;
 using Blazorade.Core.Interop;
 using System.Reflection.Metadata;
 using System.Security.Cryptography;
+using Blazorade.Id.Core.Model;
 
 namespace Blazorade.Id.Services
 {
@@ -79,6 +80,11 @@ namespace Blazorade.Id.Services
                 .WithCodeChallenge(codeVerifier);
 
             if(options.Prompt.HasValue) uriBuilder.WithPrompt(options.Prompt.Value);
+            if (options.LoginHint?.Length > 0)
+            {
+                await this.PropertyStore.SetUsernameAsync(options.LoginHint);
+                uriBuilder.WithLoginHint(options.LoginHint);
+            }
 
             var uri = uriBuilder.Build();
             string responseUrl = string.Empty;

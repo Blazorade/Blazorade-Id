@@ -3,6 +3,7 @@ using Blazorade.Id.Core.Model;
 using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Net.Http;
 using System.Runtime.CompilerServices;
@@ -74,10 +75,10 @@ namespace Blazorade.Id.Core.Services
             await this.PropertyStore.RemoveScopeAsync();
             await this.PropertyStore.RemoveCodeVerifierAsync();
 
-            return await this.ProcessTokenRequestAsync(tokenRequest, nonce);
-       }
+            return await this.ProcessTokenRequestAsync(tokenRequest, nonce, scope);
+        }
 
-        private async Task<bool> ProcessTokenRequestAsync(HttpRequestMessage request, string? nonce)
+        private async Task<bool> ProcessTokenRequestAsync(HttpRequestMessage request, string? nonce, string? scope)
         {
             var now = DateTime.UtcNow;
             TokenSet? tokenSet = null;
@@ -108,17 +109,43 @@ namespace Blazorade.Id.Core.Services
 
             if(null != tokenSet)
             {
-                if (tokenSet?.RefreshToken?.Length > 0)
+                string? loginHint = null;
+                JwtSecurityToken? idToken = null;
+                // Before storing any tokens, we need to resolve the loginHint from the identity token, if one
+                // is available in the token set. The loginHint is stored in the identity token in the preferred_username
+                // claim.
+                if(tokenSet.IdentityToken?.Length > 0)
                 {
-                    await this.TokenStore.SetRefreshTokenAsync(tokenSet.RefreshToken);
+                    try
+                    {
+                        idToken = new JwtSecurityToken(tokenSet.IdentityToken);
+                        loginHint = idToken.GetPreferredUsername();
+                    }
+                    catch { }
                 }
-                if (tokenSet?.AccessToken?.Length > 0)
+
+                if(loginHint?.Length > 0)
                 {
-                    await this.TokenStore.SetAccessTokenAsync(tokenSet.AccessToken);
+                    await this.PropertyStore.SetUsernameAsync(loginHint);
                 }
-                if (tokenSet?.IdentityToken?.Length > 0)
+
+                var getOptions = new GetTokenOptions
                 {
-                    await this.TokenStore.SetIdentityTokenAsync(tokenSet.IdentityToken);
+                    LoginHint = loginHint,
+                    Scopes = scope?.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries) ?? []
+                };
+
+                if (tokenSet.RefreshToken?.Length > 0)
+                {
+                    await this.TokenStore.SetRefreshTokenAsync(tokenSet.RefreshToken, options: getOptions);
+                }
+                if (tokenSet.AccessToken?.Length > 0)
+                {
+                    await this.TokenStore.SetAccessTokenAsync(tokenSet.AccessToken, options: getOptions);
+                }
+                if(null != idToken)
+                {
+                    await this.TokenStore.SetIdentityTokenAsync(idToken, getOptions);
                 }
 
                 await this.AuthStateNotifier.StateHasChangedAsync();

@@ -1,5 +1,5 @@
 ﻿using Blazorade.Id.Core.Configuration;
-using Blazorade.Id.Core.Services;
+using Blazorade.Id.Core.Model;
 using Microsoft.Extensions.Primitives;
 using Microsoft.IdentityModel.Tokens;
 using System;
