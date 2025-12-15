@@ -1,11 +1,31 @@
-﻿@page "/"
+﻿@using Blazorade.Id.Services
+@using Microsoft.AspNetCore.Components.Forms
+
+@page "/"
 @inject ITokenService TokenService
-@inject IPropertyStore PropertyStore
+@inject ILocalStorageService LocalStore
 
 <PageTitle>Blazorade Id Sample Server App</PageTitle>
 
 <h1>Get Tokens</h1>
-<InputText @bind-Value="this.Scopes" DisplayName="Scopes" />
+
+<div>
+    <label for="scopesField">Scopes</label>
+    <InputText @bind-Value="this.Scopes" DisplayName="Scopes" id="scopesField" />
+</div>
+<div style="margin-top: 1em;">
+    <label for="promptField">Prompt</label>
+    <InputSelect TValue="Blazorade.Id.Core.Services.Prompt?" @bind-Value="this.Prompt" id="promptField">
+        <option>Not Specified</option>
+        <option value="None">None</option>
+        <option value="Login">Login</option>
+        <option value="Consent">Consent</option>
+        <option value="Select_Account">Select Account</option>
+    </InputSelect>
+</div>
+<div style="margin-top: 1em;">
+
+</div>
 <button type="submit" @onclick="this.OnGetTokensAsync">Get Tokens</button>
 
 @if(this.AccessToken?.Length > 0)
@@ -24,18 +44,26 @@
 }
 
 @code {
-    private string? Scopes = "openid profile email";
+    private const string DefaultScopes = "openid profile email";
+    private string? Scopes;
     private string? AccessToken;
     private string? IdToken;
+    private Blazorade.Id.Core.Services.Prompt? Prompt;
 
     protected async override Task OnAfterRenderAsync(bool firstRender)
     {
         await base.OnAfterRenderAsync(firstRender);
         if(firstRender)
         {
-            var scopes = await this.PropertyStore.GetScopeAsync();
+            this.Scopes = await this.LocalStore.GetItemAsync<string?>("scopes") ?? DefaultScopes;
             this.StateHasChanged();
         }
+    }
+
+    protected async override Task OnParametersSetAsync()
+    {
+        await base.OnParametersSetAsync();
+
     }
 
     private async Task OnGetTokensAsync(MouseEventArgs args)
@@ -43,11 +71,11 @@
         this.AccessToken = null;
         this.IdToken = null;
 
-        await this.PropertyStore.SetScopeAsync(this.Scopes);
-            
+        await this.LocalStore.SetItemAsync("scopes", this.Scopes);
+
         var accessTokenJwt = await this.TokenService.GetAccessTokenAsync(new GetTokenOptions
         {
-            Prompt = Prompt.Consent,
+            Prompt = this.Prompt,
             Scopes = $"{this.Scopes}".Split(' ', StringSplitOptions.RemoveEmptyEntries)
         });
 

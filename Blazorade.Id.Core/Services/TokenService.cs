@@ -60,16 +60,15 @@ namespace Blazorade.Id.Core.Services
         /// <summary>
         /// Returns the access token for the current signed in user.
         /// </summary>
-        /// <param name="scopes">The scopes that are required to be present in the access token.</param>
+        /// <param name="options">The options for getting the access token.</param>
         /// <remarks>
         /// This service will attempt to refresh the access token in case the previously stored token
         /// has expired, but a refresh token is available.
         /// </remarks>
         public async Task<JwtSecurityToken?> GetAccessTokenAsync(GetTokenOptions? options = null)
         {
-            options = options ?? new GetTokenOptions();
-            options.Scopes = options.Scopes ?? $"{this.AuthOptions.Scope}".Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
-
+            options = this.GetTokenOptions(options);
+            var container = await this.TokenStore.GetAccessTokenAsync();
             var token = await this.GetValidTokenAsync(this.TokenStore.GetAccessTokenAsync, options);
             return token;
         }
@@ -77,60 +76,17 @@ namespace Blazorade.Id.Core.Services
         /// <summary>
         /// Returns the identity token for the current signed in user.
         /// </summary>
+        /// <param name="options">The options for getting the identity token.</param>
         /// <remarks>
         /// This service will attempt to refresh the identity token in case the previously stored token
         /// has expired, but a refresh token is available.
         /// </remarks>
         public async Task<JwtSecurityToken?> GetIdentityTokenAsync(GetTokenOptions? options = null)
         {
-            options = options ?? new GetTokenOptions { Prompt = Prompt.None };
-            options.Scopes = []; // Identity tokens do not have scopes.
-
+            options = this.GetTokenOptions(options);
+            var container = await this.TokenStore.GetIdentityTokenAsync();
             var token = await this.GetValidTokenAsync(this.TokenStore.GetIdentityTokenAsync, options);
             return token;
-        }
-
-        /// <summary>
-        /// Processes the given authorization code. The tokens acquired with the given code are stored
-        /// in the configured storage.
-        /// </summary>
-        /// <param name="code">The authorization code received from the authorization endpoint.</param>
-        /// <param name="redirectUri">
-        /// The URI that was specified when sending the user to the authorization endpoint.
-        /// </param>
-        /// <param name="expectedNonce">
-        /// The nonce that was sent to the authorization endpoint. If this is set, then the same 
-        /// nonce must be found as a nonce claim in the identity token. If not, the identity 
-        /// token will be rejected.
-        /// </param>
-        /// <returns>A set of tokens that were acquired with the authorization code.</returns>
-        /// <exception cref="ArgumentException">
-        /// The exception that is thrown if <paramref name="redirectUri"/> is not an absolute URI.
-        /// </exception>
-        public async ValueTask<OperationResult<TokenSet>> ProcessAuthorizationCodeAsync(string code, string redirectUri, string? expectedNonce)
-        {
-            var uri = new Uri(redirectUri);
-            if(!uri.IsAbsoluteUri)
-            {
-                throw new ArgumentException("The given redirect URI must be an absolute URI, and it must match the redirect URI that was specified in the login request sent to the authorization endpoint.", nameof(redirectUri));
-            }
-
-            var codeVerifier = await this.PropertyStore.GetCodeVerifierAsync();
-            var scope = await this.PropertyStore.GetScopeAsync();
-
-            var tokenRequestBuilder = await this.EndpointService.CreateTokenRequestBuilderAsync();
-            var tokenRequest = tokenRequestBuilder
-                .WithClientId(this.AuthOptions.ClientId)
-                .WithAuthorizationCode(code)
-                .WithCodeVerifier(codeVerifier)
-                .WithScope(scope)
-                .WithRedirectUri(uri)
-                .Build();
-
-            await this.PropertyStore.RemoveScopeAsync();
-            await this.PropertyStore.RemoveCodeVerifierAsync();
-
-            return await this.ExecuteTokenEndpointRequestAsync(tokenRequest, expectedNonce);
         }
 
         /// <summary>
@@ -293,7 +249,7 @@ namespace Blazorade.Id.Core.Services
         /// is successful, the valid token is returned using the same <paramref name="tokenGetter"/>.
         /// </summary>
         /// <param name="tokenGetter">A delegate that is used to get a token from storage.</param>
-        /// <param name="scopes">The scopes that the returned token must contain. An empty array will ignore the scopes.</param>
+        /// <param name="options">Options that control how the token is acquired.</param>
         private async ValueTask<JwtSecurityToken?> GetValidTokenAsync(Func<ValueTask<TokenContainer?>> tokenGetter, GetTokenOptions options)
         {
             JwtSecurityToken? token = null!;
@@ -309,8 +265,19 @@ namespace Blazorade.Id.Core.Services
             {
                 if (!options.Prompt.RequiresInteraction())
                 {
+                    bool canRefresh = true;
+
+                    if(options.Scopes?.Count() > 0)
+                    {
+                        // First we need to determine if refreshing is possible at all. In order for the refresh to
+                        // be successful, we need to have acquired a token with the same scopes as we are requesting now.
+                        var acquiredScopes = await this.TokenStore.GetAcquiredScopesAsync();
+                        var requestedScopes = options.Scopes != null ? string.Join(' ', options.Scopes) : null;
+                        canRefresh = acquiredScopes == requestedScopes;
+                    }
+
                     // Try to refresh tokens silently first.
-                    if (await this.RefreshTokensAsync())
+                    if (canRefresh && await this.RefreshTokensAsync())
                     {
                         tokenContainer = await tokenGetter();
                         token = tokenContainer?.GetToken(options.Scopes);
@@ -319,6 +286,7 @@ namespace Blazorade.Id.Core.Services
 
                 if (null == token)
                 {
+                    // If the token still is null, then we need to aquire it interactively.
                     var result = await this.AcquireTokensInteractiveAsync(options);
                     if (result)
                     {
@@ -352,5 +320,11 @@ namespace Blazorade.Id.Core.Services
             return false;
         }
 
+        private GetTokenOptions GetTokenOptions(GetTokenOptions? options)
+        {
+            options = options ?? new GetTokenOptions();
+            options.Scopes = options.Scopes ?? $"{this.AuthOptions.Scope}".Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+            return options;
+        }
     }
 }

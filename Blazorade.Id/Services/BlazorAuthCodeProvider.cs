@@ -16,8 +16,14 @@ using System.Security.Cryptography;
 
 namespace Blazorade.Id.Services
 {
+    /// <summary>
+    /// An <see cref="IAuthCodeProvider"/> implementation for use in Blazor Server and Blazor WebAssembly applications.
+    /// </summary>
     public class BlazorAuthCodeProvider : IAuthCodeProvider
     {
+        /// <summary>
+        /// Creates a new instance of the class.
+        /// </summary>
         public BlazorAuthCodeProvider(
             EndpointService endpointService, 
             ICodeChallengeService codeChallengeService,
@@ -46,6 +52,7 @@ namespace Blazorade.Id.Services
 
         private const int AuthorizeTimeout = 60000;
 
+        /// <inheritdoc/>
         public async Task<string?> GetAuthorizationCodeAsync(GetTokenOptions options)
         {
             var redirUrl = this.AuthOptions.RedirectUri?.Length > 0

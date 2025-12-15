@@ -12,8 +12,14 @@ using System.Threading.Tasks;
 
 namespace Blazorade.Id.Core.Services
 {
+    /// <summary>
+    /// The default implementation of the <see cref="IAuthCodeProcessor"/> service interface.
+    /// </summary>
     public class AuthCodeProcessor : IAuthCodeProcessor
     {
+        /// <summary>
+        /// Creates a new instance of the class.
+        /// </summary>
         public AuthCodeProcessor(
             IPropertyStore propertyStore, 
             ITokenStore tokenStore, 
@@ -43,9 +49,10 @@ namespace Blazorade.Id.Core.Services
         private readonly AuthorityOptions AuthOptions;
         private readonly IRedirectUriProvider RedirUriProvider;
 
+        /// <inheritdoc/>
         public async Task<bool> ProcessAuthorizationCodeAsync(string code, GetTokenOptions? options = null)
         {
-            options = options ?? new GetTokenOptions();
+            options = options ?? new GetTokenOptions(); 
             options.Scopes = options.Scopes ?? this.AuthOptions.Scope?.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries) ?? [];
 
             var nonce = await this.PropertyStore.GetNonceAsync();

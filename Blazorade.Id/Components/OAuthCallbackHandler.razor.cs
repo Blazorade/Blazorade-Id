@@ -9,6 +9,9 @@ using System.Threading.Tasks;
 
 namespace Blazorade.Id.Components
 {
+    /// <summary>
+    /// A Blazor component that handles OAuth callback responses.
+    /// </summary>
     partial class OAuthCallbackHandler
     {
 
@@ -19,6 +22,9 @@ namespace Blazorade.Id.Components
         private BlazoradeIdScriptService ScriptService { get; set; } = null!;
 
 
+        /// <summary>
+        /// Handles communication with the parent window.
+        /// </summary>
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
             await base.OnAfterRenderAsync(firstRender);

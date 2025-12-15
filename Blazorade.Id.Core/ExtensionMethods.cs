@@ -9,42 +9,11 @@ using System.Threading.Tasks;
 
 namespace Blazorade.Id.Core
 {
+    /// <summary>
+    /// Defines methods for extending existing classes in Blazorade Id.
+    /// </summary>
     public static class ExtensionMethods
     {
-        /// <summary>
-        /// Checks whether the given token contains all of the specified scopes.
-        /// </summary>
-        /// <param name="token">The token to check for scopes.</param>
-        /// <param name="scopes">
-        /// <para>
-        /// The scopes to require that the token contains.
-        /// </para>
-        /// <para>
-        /// The method returns <see langword="true"/> if the token contains all of the specified scopes,
-        /// or if the <paramref name="scopes"/> collection is empty.
-        /// </para>
-        /// <para>
-        /// The method returns <see langword="false"/> if the token does not contain all of the specified scopes.
-        /// </para>
-        /// </param>
-        public static bool ContainsScopes(this JwtSecurityToken token, IEnumerable<string> scopes)
-        {
-            if(scopes.Count() > 0)
-            {
-                var scopesClaim = token.Claims.FirstOrDefault(c => c.Type == "scp");
-                if (null != scopesClaim && scopesClaim?.Value?.Length > 0)
-                {
-                    var claimScopes = scopesClaim.Value.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
-                    return claimScopes.Intersect(scopes).Count() == scopes.Count();
-                }
-                else
-                {
-                    return false;
-                }
-            }
-
-            return true;
-        }
 
         /// <summary>
         /// Returns the value of the claim with the specified <paramref name="claimType"/>.
@@ -96,14 +65,14 @@ namespace Blazorade.Id.Core
             if(container?.Expires > DateTime.UtcNow)
             {
                 var token = container.ParseToken();
-                if(token is not null && token.ContainsScopes(scopes ?? []))
-                {
-                    return token;
-                }
+                return token;
             }
             return null;
         }
 
+        /// <summary>
+        /// Determines whether the specified <paramref name="prompt"/> requires user interaction.
+        /// </summary>
         public static bool RequiresInteraction(this Prompt? prompt)
         {
             return prompt.HasValue && (prompt == Prompt.Login || prompt == Prompt.Consent || prompt == Prompt.Select_Account);

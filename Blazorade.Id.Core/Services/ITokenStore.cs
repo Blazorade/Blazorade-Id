@@ -18,6 +18,11 @@ namespace Blazorade.Id.Core.Services
         ValueTask<TokenContainer?> GetAccessTokenAsync();
 
         /// <summary>
+        /// Returns the scopes that a previously acquired token was acquired with.
+        /// </summary>
+        ValueTask<string?> GetAcquiredScopesAsync();
+
+        /// <summary>
         /// Returns the identity token stored in the token store if it is available and if it is still valid.
         /// </summary>
         /// <returns></returns>
@@ -30,17 +35,9 @@ namespace Blazorade.Id.Core.Services
         ValueTask<TokenContainer?> GetRefreshTokenAsync();
 
         /// <summary>
-        /// Creates a <see cref="JwtSecurityToken"/> from the given access token string and stores it in the token store.
+        /// Sets the scopes that a previously acquired token was acquired with.
         /// </summary>
-        /// <param name="token">The token to store in the store.</param>
-        /// <returns>Returns the token instance if the given token string was a valid <see cref="JwtSecurityToken"/>.</returns>
-        ValueTask<TokenContainer?> SetAccessTokenAsync(string token);
-
-        /// <summary>
-        /// Stores the given access token in the token store.
-        /// </summary>
-        /// <param name="token">The token to store.</param>
-        ValueTask<TokenContainer?> SetAccessTokenAsync(JwtSecurityToken token);
+        ValueTask SetAcquiredScopesAsync(string scopes);
 
         /// <summary>
         /// Stores the given access token container in the token store.
@@ -49,30 +46,11 @@ namespace Blazorade.Id.Core.Services
         ValueTask SetAccessTokenAsync(TokenContainer token);
 
         /// <summary>
-        /// Creates a <see cref="JwtSecurityToken"/> from the given identity token string and stores it in the token store.
-        /// </summary>
-        /// <param name="token">The token to store in the store.</param>
-        /// <returns>Returns the token instance if the given token string was a valid <see cref="JwtSecurityToken"/>.</returns>
-        ValueTask<TokenContainer?> SetIdentityTokenAsync(string token);
-
-        /// <summary>
-        /// Stores the given identity token in the token store.
-        /// </summary>
-        /// <param name="token">The identity token to store.</param>
-        ValueTask<TokenContainer?> SetIdentityTokenAsync(JwtSecurityToken token);
-
-        /// <summary>
         /// Stores the given identity token contain in the token store.
         /// </summary>
         /// <param name="token">The token container to store.</param>
         /// <returns></returns>
         ValueTask SetIdentityTokenAsync(TokenContainer token);
-
-        /// <summary>
-        /// Stores the given refresh token string in the token store.
-        /// </summary>
-        /// <param name="token">The refresh token to store.</param>
-        ValueTask<TokenContainer?> SetRefreshTokenAsync(string token);
 
         /// <summary>
         /// Stores the given refresh token container in the token store.

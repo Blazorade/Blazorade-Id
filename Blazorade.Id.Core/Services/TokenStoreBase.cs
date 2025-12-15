@@ -17,54 +17,22 @@ namespace Blazorade.Id.Core.Services
         public abstract ValueTask<TokenContainer?> GetAccessTokenAsync();
 
         /// <inheritdoc/>
+        public abstract ValueTask<string?> GetAcquiredScopesAsync();
+
+        /// <inheritdoc/>
         public abstract ValueTask<TokenContainer?> GetIdentityTokenAsync();
 
         /// <inheritdoc/>
         public abstract ValueTask<TokenContainer?> GetRefreshTokenAsync();
 
         /// <inheritdoc/>
-        public async virtual ValueTask<TokenContainer?> SetAccessTokenAsync(string token)
-        {
-            var jwt = new JwtSecurityToken(token);
-            return await this.SetAccessTokenAsync(jwt);
-        }
-
-        /// <inheritdoc/>
-        public async ValueTask<TokenContainer?> SetAccessTokenAsync(JwtSecurityToken token)
-        {
-            var container = new TokenContainer(token);
-            await this.SetAccessTokenAsync(container);
-            return container;
-        }
-
-        /// <inheritdoc/>
         public abstract ValueTask SetAccessTokenAsync(TokenContainer token);
 
         /// <inheritdoc/>
-        public async ValueTask<TokenContainer?> SetIdentityTokenAsync(string token)
-        {
-            var jwt = new JwtSecurityToken(token);
-            return await this.SetIdentityTokenAsync(jwt);
-        }
-
-        /// <inheritdoc/>
-        public async ValueTask<TokenContainer?> SetIdentityTokenAsync(JwtSecurityToken token)
-        {
-            var container = new TokenContainer(token);
-            await this.SetIdentityTokenAsync(container);
-            return container;
-        }
+        public abstract ValueTask SetAcquiredScopesAsync(string scopes);
 
         /// <inheritdoc/>
         public abstract ValueTask SetIdentityTokenAsync(TokenContainer token);
-
-        /// <inheritdoc/>
-        public virtual async ValueTask<TokenContainer?> SetRefreshTokenAsync(string token)
-        {
-            var container = new TokenContainer(token);
-            await this.SetRefreshTokenAsync(container);
-            return container;
-        }
 
         /// <inheritdoc/>
         public abstract ValueTask SetRefreshTokenAsync(TokenContainer token);
@@ -76,8 +44,15 @@ namespace Blazorade.Id.Core.Services
         /// </summary>
         protected string GetKey(TokenType tokenType)
         {
-            return $"blazorade.id.{tokenType.ToString().ToLower()}";
+            return this.GetKey(tokenType.ToString());
         }
 
+        /// <summary>
+        /// Returns a fully qualified key for the specified <paramref name="name"/>.
+        /// </summary>
+        protected string GetKey(string name)
+        {
+            return $"blazorade.id.{name.ToLower()}";
+        }
     }
 }
