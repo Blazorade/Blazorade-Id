@@ -58,12 +58,6 @@
         }
     }
 
-    protected async override Task OnParametersSetAsync()
-    {
-        await base.OnParametersSetAsync();
-
-    }
-
     private async Task OnGetTokensAsync(MouseEventArgs args)
     {
         this.AccessToken = null;
@@ -78,11 +72,10 @@
             };
 
         var accessTokenJwt = await this.TokenService.GetAccessTokenAsync(getOptions);
-
         this.AccessToken = accessTokenJwt?.RawData;
 
-        var idTokenJwt = await this.TokenService.GetIdentityTokenAsync(new GetTokenOptions { Scopes = getOptions.Scopes });
-        this.IdToken = idTokenJwt?.RawData;
+        // var idTokenJwt = await this.TokenService.GetIdentityTokenAsync(new GetTokenOptions { Scopes = getOptions.Scopes });
+        // this.IdToken = idTokenJwt?.RawData;
 
     }
 }

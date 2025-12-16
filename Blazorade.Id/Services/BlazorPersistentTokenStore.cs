@@ -23,19 +23,12 @@ namespace Blazorade.Id.Services
             this.Service = service ?? throw new ArgumentNullException(nameof(service));
         }
 
-        private const string AccessTokenScopesKey = "AccessTokenScopes";
         private ILocalStorageService Service;
 
         /// <inheritdoc/>
         public async override ValueTask<TokenContainer?> GetAccessTokenAsync()
         {
             return await this.GetContainerAsync(TokenType.AccessToken);
-        }
-        /// <inheritdoc/>
-        public async override ValueTask<string?> GetAcquiredScopesAsync()
-        {
-            var key = this.GetKey(AccessTokenScopesKey);
-            return await this.Service.GetItemAsync<string?>(key);
         }
 
         /// <inheritdoc/>
@@ -55,13 +48,6 @@ namespace Blazorade.Id.Services
         {
             var key = this.GetKey(TokenType.AccessToken);
             await this.Service.SetItemAsync(key, token);
-        }
-
-        /// <inheritdoc/>
-        public async override ValueTask SetAcquiredScopesAsync(string scopes)
-        {
-            var key = this.GetKey(AccessTokenScopesKey);
-            await this.Service.SetItemAsync(key, scopes);
         }
 
         /// <inheritdoc/>

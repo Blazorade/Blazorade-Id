@@ -25,6 +25,11 @@ namespace Blazorade.Id.Core.Services
         /// Returns a dictionary where the identifier for the target resource is the key, and the list of scopes
         /// belonging to that resource is the value.
         /// </returns>
-        Task<IDictionary<string, IList<string>>> SortScopesAsync(IEnumerable<string> scopes);
+        /// <remarks>
+        /// This method is intentionally not an async method. This encourages implementations not to connect to
+        /// external data sources to assist in the sorting process. The sorting should be done based on static
+        /// information only.
+        /// </remarks>
+        ScopeGroup SortScopes(IEnumerable<string> scopes);
     }
 }

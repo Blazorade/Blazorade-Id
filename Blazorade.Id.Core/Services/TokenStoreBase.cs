@@ -17,9 +17,6 @@ namespace Blazorade.Id.Core.Services
         public abstract ValueTask<TokenContainer?> GetAccessTokenAsync();
 
         /// <inheritdoc/>
-        public abstract ValueTask<string?> GetAcquiredScopesAsync();
-
-        /// <inheritdoc/>
         public abstract ValueTask<TokenContainer?> GetIdentityTokenAsync();
 
         /// <inheritdoc/>
@@ -27,9 +24,6 @@ namespace Blazorade.Id.Core.Services
 
         /// <inheritdoc/>
         public abstract ValueTask SetAccessTokenAsync(TokenContainer token);
-
-        /// <inheritdoc/>
-        public abstract ValueTask SetAcquiredScopesAsync(string scopes);
 
         /// <inheritdoc/>
         public abstract ValueTask SetIdentityTokenAsync(TokenContainer token);

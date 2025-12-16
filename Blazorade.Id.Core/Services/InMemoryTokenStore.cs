@@ -15,7 +15,6 @@ namespace Blazorade.Id.Core.Services
     public class InMemoryTokenStore : TokenStoreBase
     {
         private TokenContainer? AccessToken;
-        private string? AccessTokenScopes;
         private TokenContainer? IdentityToken;
         private TokenContainer? RefreshToken;
 
@@ -28,12 +27,6 @@ namespace Blazorade.Id.Core.Services
             }
 
             return ValueTask.FromResult<TokenContainer?>(null);
-        }
-
-        /// <inheritdoc/>
-        public override ValueTask<string?> GetAcquiredScopesAsync()
-        {
-            return ValueTask.FromResult(this.AccessTokenScopes);
         }
 
         /// <inheritdoc/>
@@ -62,13 +55,6 @@ namespace Blazorade.Id.Core.Services
         public override ValueTask SetAccessTokenAsync(TokenContainer token)
         {
             this.AccessToken = token;
-            return ValueTask.CompletedTask;
-        }
-
-        /// <inheritdoc/>
-        public override ValueTask SetAcquiredScopesAsync(string scopes)
-        {
-            this.AccessTokenScopes = scopes;
             return ValueTask.CompletedTask;
         }
 

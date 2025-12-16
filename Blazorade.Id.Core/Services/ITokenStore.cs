@@ -8,6 +8,9 @@ using System.Threading.Tasks;
 
 namespace Blazorade.Id.Core.Services
 {
+    /// <summary>
+    /// Defines the interface that must be implemented by token store implementations.
+    /// </summary>
     public interface ITokenStore
     {
 
@@ -16,11 +19,6 @@ namespace Blazorade.Id.Core.Services
         /// </summary>
         /// <returns></returns>
         ValueTask<TokenContainer?> GetAccessTokenAsync();
-
-        /// <summary>
-        /// Returns the scopes that a previously acquired token was acquired with.
-        /// </summary>
-        ValueTask<string?> GetAcquiredScopesAsync();
 
         /// <summary>
         /// Returns the identity token stored in the token store if it is available and if it is still valid.
@@ -33,11 +31,6 @@ namespace Blazorade.Id.Core.Services
         /// </summary>
         /// <returns></returns>
         ValueTask<TokenContainer?> GetRefreshTokenAsync();
-
-        /// <summary>
-        /// Sets the scopes that a previously acquired token was acquired with.
-        /// </summary>
-        ValueTask SetAcquiredScopesAsync(string scopes);
 
         /// <summary>
         /// Stores the given access token container in the token store.

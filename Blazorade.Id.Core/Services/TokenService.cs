@@ -71,7 +71,13 @@ namespace Blazorade.Id.Core.Services
         /// </remarks>
         public async Task<JwtSecurityToken?> GetAccessTokenAsync(GetTokenOptions? options = null)
         {
-            options = this.GetTokenOptions(options);
+            options = await this.GetTokenOptionsAsync(options);
+            ScopeGroup sortedScopes = this.ScopeSorter.SortScopes(options.Scopes ?? []);
+            foreach(var item in sortedScopes)
+            {
+                
+            }
+
             var container = await this.TokenStore.GetAccessTokenAsync();
             var token = await this.GetValidTokenAsync(this.TokenStore.GetAccessTokenAsync, options);
             return token;
@@ -87,7 +93,7 @@ namespace Blazorade.Id.Core.Services
         /// </remarks>
         public async Task<JwtSecurityToken?> GetIdentityTokenAsync(GetTokenOptions? options = null)
         {
-            options = this.GetTokenOptions(options);
+            options = await this.GetTokenOptionsAsync(options);
             var container = await this.TokenStore.GetIdentityTokenAsync();
             var token = await this.GetValidTokenAsync(this.TokenStore.GetIdentityTokenAsync, options);
             return token;
@@ -275,9 +281,7 @@ namespace Blazorade.Id.Core.Services
                     {
                         // First we need to determine if refreshing is possible at all. In order for the refresh to
                         // be successful, we need to have acquired a token with the same scopes as we are requesting now.
-                        var acquiredScopes = await this.TokenStore.GetAcquiredScopesAsync();
                         var requestedScopes = options.Scopes != null ? string.Join(' ', options.Scopes) : null;
-                        canRefresh = acquiredScopes == requestedScopes;
                     }
 
                     // Try to refresh tokens silently first.
@@ -324,10 +328,15 @@ namespace Blazorade.Id.Core.Services
             return false;
         }
 
-        private GetTokenOptions GetTokenOptions(GetTokenOptions? options)
+        private async Task<GetTokenOptions> GetTokenOptionsAsync(GetTokenOptions? options)
         {
             options = options ?? new GetTokenOptions();
             options.Scopes = options.Scopes ?? $"{this.AuthOptions.Scope}".Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+            if(string.IsNullOrEmpty(options.LoginHint))
+            {
+                options.LoginHint = await this.PropertyStore.GetUsernameAsync();
+            }
+
             return options;
         }
     }

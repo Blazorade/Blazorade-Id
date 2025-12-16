@@ -16,9 +16,9 @@ namespace Blazorade.Id.Core.Services
     public class DefaultScopeSorter : IScopeSorter
     {
         /// <inheritdoc/>
-        public Task<IDictionary<string, IList<string>>> SortScopesAsync(IEnumerable<string> scopes)
+        public ScopeGroup SortScopes(IEnumerable<string> scopes)
         {
-            IDictionary<string, IList<string>> result = new Dictionary<string, IList<string>>();
+            var result = new ScopeGroup();
 
             Action<string, string> addScope = (resource, scope) =>
             {
@@ -46,7 +46,7 @@ namespace Blazorade.Id.Core.Services
                 addScope(resource, localScope);
             }
 
-            return Task.FromResult(result);
+            return result;
         }
     }
 }
