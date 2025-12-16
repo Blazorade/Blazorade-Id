@@ -60,6 +60,7 @@ namespace Blazorade.Id.Core.Services
         private readonly IRedirectUriProvider RedirectUriProvider;
         private readonly IScopeSorter ScopeSorter;
 
+
         /// <summary>
         /// Returns the access token for the current signed in user.
         /// </summary>
@@ -195,9 +196,9 @@ namespace Blazorade.Id.Core.Services
             return false;
         }
 
-        private async ValueTask<OperationResult<TokenSet>> ExecuteTokenEndpointRequestAsync(HttpRequestMessage request, string? expectedNonce)
+        private async ValueTask<OperationResult<TokenResponse>> ExecuteTokenEndpointRequestAsync(HttpRequestMessage request, string? expectedNonce)
         {
-            TokenSet? tokenSet = null;
+            TokenResponse? tokenResponse = null;
             OperationError? error = null;
 
             var now = DateTime.UtcNow;
@@ -209,10 +210,10 @@ namespace Blazorade.Id.Core.Services
                     var content = await response.Content.ReadAsStringAsync();
                     if (response.IsSuccessStatusCode)
                     {
-                        tokenSet = JsonSerializer.Deserialize<TokenSet>(content, options: this.JsonOptions);
-                        if (null != tokenSet)
+                        tokenResponse = JsonSerializer.Deserialize<TokenResponse>(content, options: this.JsonOptions);
+                        if (null != tokenResponse)
                         {
-                            tokenSet.ExpiresAtUtc = now.AddSeconds(tokenSet.ExpiresIn);
+                            tokenResponse.ExpiresAtUtc = now.AddSeconds(tokenResponse.ExpiresIn);
                         }
                     }
                     else
@@ -226,24 +227,24 @@ namespace Blazorade.Id.Core.Services
                 error = new OperationError { Description = ex.Message };
             }
 
-            if (tokenSet?.RefreshToken?.Length > 0)
+            if (tokenResponse?.RefreshToken?.Length > 0)
             {
                 // We don't set the expiration for the refresh token, because it does not expire at the same time with 
                 // the other tokens.
-                await this.TokenStore.SetRefreshTokenAsync(new TokenContainer(tokenSet.RefreshToken, null));
+                await this.TokenStore.SetRefreshTokenAsync(new TokenContainer(tokenResponse.RefreshToken, null));
             }
 
-            if (tokenSet?.IdentityToken?.Length > 0)
+            if (tokenResponse?.IdentityToken?.Length > 0)
             {
-                await this.ProcessIdentityTokenAsync(tokenSet.IdentityToken, expectedNonce);
+                await this.ProcessIdentityTokenAsync(tokenResponse.IdentityToken, expectedNonce);
             }
 
-            if (tokenSet?.AccessToken?.Length > 0)
+            if (tokenResponse?.AccessToken?.Length > 0)
             {
-                await this.ProcessAccessTokenAsync(tokenSet.AccessToken);
+                await this.ProcessAccessTokenAsync(tokenResponse.AccessToken);
             }
 
-            return new OperationResult<TokenSet>(tokenSet, error);
+            return new OperationResult<TokenResponse>(tokenResponse, error);
         }
 
         /// <summary>

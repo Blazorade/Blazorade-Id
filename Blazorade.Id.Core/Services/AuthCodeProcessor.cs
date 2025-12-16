@@ -81,7 +81,7 @@ namespace Blazorade.Id.Core.Services
         private async Task<bool> ProcessTokenRequestAsync(HttpRequestMessage request, string? nonce, string? scope)
         {
             var now = DateTime.UtcNow;
-            TokenSet? tokenSet = null;
+            TokenResponse? tokenResponse = null;
             var client = this.HttpClientFactory.CreateClient();
             try
             {
@@ -90,10 +90,10 @@ namespace Blazorade.Id.Core.Services
                     var content = await response.Content.ReadAsStringAsync();
                     if (response.IsSuccessStatusCode)
                     {
-                        tokenSet = JsonSerializer.Deserialize<TokenSet>(content, options: this.JsonOptions);
-                        if(null != tokenSet)
+                        tokenResponse = JsonSerializer.Deserialize<TokenResponse>(content, options: this.JsonOptions);
+                        if(null != tokenResponse)
                         {
-                            tokenSet.ExpiresAtUtc = now.AddSeconds(tokenSet.ExpiresIn);
+                            tokenResponse.ExpiresAtUtc = now.AddSeconds(tokenResponse.ExpiresIn);
                         }
                     }
                     else
@@ -107,18 +107,18 @@ namespace Blazorade.Id.Core.Services
                 var msg = ex.Message;
             }
 
-            if(null != tokenSet)
+            if(null != tokenResponse)
             {
                 string? loginHint = null;
                 JwtSecurityToken? idToken = null;
                 // Before storing any tokens, we need to resolve the loginHint from the identity token, if one
                 // is available in the token set. The loginHint is stored in the identity token in the preferred_username
                 // claim.
-                if(tokenSet.IdentityToken?.Length > 0)
+                if(tokenResponse.IdentityToken?.Length > 0)
                 {
                     try
                     {
-                        idToken = new JwtSecurityToken(tokenSet.IdentityToken);
+                        idToken = new JwtSecurityToken(tokenResponse.IdentityToken);
                         loginHint = idToken.GetPreferredUsername();
                     }
                     catch { }
@@ -135,13 +135,13 @@ namespace Blazorade.Id.Core.Services
                     Scopes = scope?.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries) ?? []
                 };
 
-                if (tokenSet.RefreshToken?.Length > 0)
+                if (tokenResponse.RefreshToken?.Length > 0)
                 {
-                    await this.TokenStore.SetRefreshTokenAsync(tokenSet.RefreshToken, options: getOptions);
+                    await this.TokenStore.SetRefreshTokenAsync(tokenResponse.RefreshToken, options: getOptions);
                 }
-                if (tokenSet.AccessToken?.Length > 0)
+                if (tokenResponse.AccessToken?.Length > 0)
                 {
-                    await this.TokenStore.SetAccessTokenAsync(tokenSet.AccessToken, options: getOptions);
+                    await this.TokenStore.SetAccessTokenAsync(tokenResponse.AccessToken, options: getOptions);
                 }
                 if(null != idToken)
                 {
