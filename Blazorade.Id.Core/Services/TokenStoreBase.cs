@@ -14,7 +14,7 @@ namespace Blazorade.Id.Core.Services
     public abstract class TokenStoreBase : ITokenStore
     {
         /// <inheritdoc/>
-        public abstract ValueTask<TokenContainer?> GetAccessTokenAsync();
+        public abstract ValueTask<TokenContainer?> GetAccessTokenAsync(string resourceId);
 
         /// <inheritdoc/>
         public abstract ValueTask<TokenContainer?> GetIdentityTokenAsync();
@@ -23,7 +23,7 @@ namespace Blazorade.Id.Core.Services
         public abstract ValueTask<TokenContainer?> GetRefreshTokenAsync();
 
         /// <inheritdoc/>
-        public abstract ValueTask SetAccessTokenAsync(TokenContainer token);
+        public abstract ValueTask SetAccessTokenAsync(string resourceId, TokenContainer token);
 
         /// <inheritdoc/>
         public abstract ValueTask SetIdentityTokenAsync(TokenContainer token);
@@ -36,17 +36,18 @@ namespace Blazorade.Id.Core.Services
         /// <summary>
         /// Returns a key that can be used to store/retrieve a token of the specified <paramref name="tokenType"/>.
         /// </summary>
-        protected string GetKey(TokenType tokenType)
+        protected string GetKey(TokenType tokenType, string? suffix = null)
         {
-            return this.GetKey(tokenType.ToString());
+            return this.GetKey(tokenType.ToString(), suffix: suffix);
         }
 
         /// <summary>
         /// Returns a fully qualified key for the specified <paramref name="name"/>.
         /// </summary>
-        protected string GetKey(string name)
+        protected string GetKey(string name, string? suffix = null)
         {
-            return $"blazorade.id.{name.ToLower()}";
+            suffix = null != suffix ? $".{suffix}" : string.Empty;
+            return $"blazorade.id.{name.ToLower()}{suffix}";
         }
     }
 }

@@ -24,6 +24,10 @@ namespace Blazorade.Id.Core.Services
         /// </summary>
         /// <typeparam name="T">The type to return the property as.</typeparam>
         /// <param name="key">The key of the property to return.</param>
+        /// <returns>
+        /// Returns the property if it exists. If the property does not exist, the default value of the type MUST be returned.
+        /// Implementations that need to know if a property exists or not should use <see cref="ContainsKeyAsync"/> method first.
+        /// </returns>
         ValueTask<T> GetPropertyAsync<T>(string key);
 
         /// <summary>

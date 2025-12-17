@@ -9,6 +9,6 @@ namespace Blazorade.Id.Core.Services
 {
     public interface IAuthCodeProcessor
     {
-        Task<bool> ProcessAuthorizationCodeAsync(string code, GetTokenOptions? options = null);
+        Task<bool> ProcessAuthorizationCodeAsync(string code);
     }
 }

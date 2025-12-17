@@ -13,12 +13,12 @@ namespace Blazorade.Id.Core.Services
     /// <remarks>
     /// 
     /// </remarks>
-    public class DefaultScopeSorter : IScopeSorter
+    public class ScopeSorter : IScopeSorter
     {
         /// <inheritdoc/>
-        public ScopeGroup SortScopes(IEnumerable<string> scopes)
+        public ScopeDictionary SortScopes(IEnumerable<string> scopes)
         {
-            var result = new ScopeGroup();
+            var result = new ScopeDictionary();
 
             Action<string, string> addScope = (resource, scope) =>
             {

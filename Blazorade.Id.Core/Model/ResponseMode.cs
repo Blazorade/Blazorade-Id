@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Blazorade.Id.Core.Services
+namespace Blazorade.Id.Core.Model
 {
     /// <summary>
     /// Defines response modes for how tokens and other information is returned to a client.

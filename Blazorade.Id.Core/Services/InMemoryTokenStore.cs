@@ -14,19 +14,25 @@ namespace Blazorade.Id.Core.Services
     /// </summary>
     public class InMemoryTokenStore : TokenStoreBase
     {
-        private TokenContainer? AccessToken;
+        private Dictionary<string, TokenContainer> AccessTokens = new Dictionary<string, TokenContainer>();
         private TokenContainer? IdentityToken;
         private TokenContainer? RefreshToken;
 
         /// <inheritdoc/>
-        public override ValueTask<TokenContainer?> GetAccessTokenAsync()
+        public override ValueTask<TokenContainer?> GetAccessTokenAsync(string resourceId)
         {
-            if(this.AccessToken?.Expires > DateTime.UtcNow)
+            TokenContainer? container = null;
+            if(this.AccessTokens.ContainsKey(resourceId))
             {
-                return ValueTask.FromResult<TokenContainer?>(this.AccessToken);
+                container = this.AccessTokens[resourceId];
+                if(container.Expires < DateTime.UtcNow)
+                {
+                    container = null;
+                    this.AccessTokens.Remove(resourceId);
+                }
             }
 
-            return ValueTask.FromResult<TokenContainer?>(null);
+            return ValueTask.FromResult<TokenContainer?>(container);
         }
 
         /// <inheritdoc/>
@@ -52,9 +58,9 @@ namespace Blazorade.Id.Core.Services
         }
 
         /// <inheritdoc/>
-        public override ValueTask SetAccessTokenAsync(TokenContainer token)
+        public override ValueTask SetAccessTokenAsync(string resourceId, TokenContainer token)
         {
-            this.AccessToken = token;
+            this.AccessTokens[resourceId] = token;
             return ValueTask.CompletedTask;
         }
 

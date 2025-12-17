@@ -71,7 +71,6 @@ namespace Microsoft.Extensions.DependencyInjection
                 .AddScoped<IRedirectUriProvider, BlazorRedirectUriProvider>()
                 .AddScoped<IAuthCodeProvider, BlazorAuthCodeProvider>()
                 .AddScoped<IPropertyStore, BlazorSessionPropertyStore>()
-                .AddScoped<ITokenStore, InMemoryTokenStore>()
                 .AddScoped<IAuthenticationStateNotifier, BlazorAuthenticationStateNotifier>()
                 .AddScoped<BlazoradeIdScriptService>()
 

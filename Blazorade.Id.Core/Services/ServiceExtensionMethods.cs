@@ -20,6 +20,21 @@ namespace Blazorade.Id.Core.Services
         private const string NonceKey = "nonce";
 
 
+        /// <inheritdoc/>
+        public static async Task<EndpointUriBuilder> CreateAuthorizationUriBuilderAsync(this IEndpointService epService, ICodeChallengeService codeChallengeService)
+        {
+            var uri = await epService.GetAuthorizationEndpointAsync() ?? throw new Exception("Could not resolve URI for authorization endpoint.");
+            return new EndpointUriBuilder(uri, codeChallengeService);
+        }
+
+        /// <inheritdoc/>
+        public static async Task<TokenEndpointUriBuilder> CreateTokenRequestBuilderAsync(this IEndpointService epService)
+        {
+            var uri = await epService.GetTokenEndpointAsync() ?? throw new Exception("Could not resolve URI for token endpoint");
+            return new TokenEndpointUriBuilder(uri);
+        }
+
+
         /// <summary>
         /// Returns the code verifier that was used when starting the current login process.
         /// </summary>
@@ -110,22 +125,22 @@ namespace Blazorade.Id.Core.Services
         /// Stores the given access token in the token store.
         /// </summary>
         /// <returns>Returns the container holding the access token.</returns>
-        public async static ValueTask<TokenContainer?> SetAccessTokenAsync(this ITokenStore store, string? token, GetTokenOptions? options = null)
+        public async static ValueTask<TokenContainer?> SetAccessTokenAsync(this ITokenStore store, string resourceId, string? token, GetTokenOptions? options = null)
         {
             var jwt = new JwtSecurityToken(token);
-            return await store.SetAccessTokenAsync(jwt, options: options);
+            return await store.SetAccessTokenAsync(resourceId, jwt, options: options);
         }
 
         /// <summary>
         /// Stores the given access token in the token store.
         /// </summary>
         /// <returns>Returns the container holding the access token.</returns>
-        public async static ValueTask<TokenContainer?> SetAccessTokenAsync(this ITokenStore store, JwtSecurityToken? token, GetTokenOptions? options = null)
+        public async static ValueTask<TokenContainer?> SetAccessTokenAsync(this ITokenStore store, string resourceId, JwtSecurityToken? token, GetTokenOptions? options = null)
         {
             if(null != token)
             {
                 var container = new TokenContainer(token, acquisitionOptions: options);
-                await store.SetAccessTokenAsync(container);
+                await store.SetAccessTokenAsync(resourceId, container);
                 return container;
             }
             return null;

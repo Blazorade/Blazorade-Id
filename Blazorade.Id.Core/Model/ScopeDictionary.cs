@@ -7,10 +7,11 @@ using System.Threading.Tasks;
 namespace Blazorade.Id.Core.Model
 {
     /// <summary>
-    /// Represents a grouped set of scopes produced by an implementation of the 
+    /// Represents scopes that are grouped by the resource they are inteded for and keyed by the 
+    /// identifier of that resource. The dictionary is produced by an implementation of the 
     /// <see cref="Services.IScopeSorter"/> service interface.
     /// </summary>
-    public class ScopeGroup : DictionaryBase<string, IList<string>>
+    public class ScopeDictionary : DictionaryBase<string, IList<string>>
     {
 
     }

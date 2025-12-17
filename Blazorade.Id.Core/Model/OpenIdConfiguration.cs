@@ -14,10 +14,28 @@ namespace Blazorade.Id.Core.Model
         public string AuthorizationEndpointUri { get; set; } = string.Empty;
 
         /// <summary>
+        /// The device authorization endpoint URI.
+        /// </summary>
+        [JsonPropertyName("device_authorization_endpoint")]
+        public string DeviceAuthorizationEndpointUri { get; set; } = string.Empty;
+
+        /// <summary>
+        /// The Kerberos endpoint URI.
+        /// </summary>
+        [JsonPropertyName("kerberos_endpoint")]
+        public string KerberosEndpointUri { get; set; } = string.Empty;
+
+        /// <summary>
         /// The token endpoint URI.
         /// </summary>
         [JsonPropertyName("token_endpoint")]
         public string TokenEndpointUri {  get; set; } = string.Empty;
+        
+        /// <summary>
+        /// The user info endpoint URI.
+        /// </summary>
+        [JsonPropertyName("userinfo_endpoint")]
+        public string UserInfoEndpointUri {  get; set; } = string.Empty;
 
         /// <summary>
         /// The end session endpoint URI.

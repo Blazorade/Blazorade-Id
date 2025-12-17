@@ -71,6 +71,63 @@ namespace Blazorade.Id.Core.Configuration
         }
 
         /// <summary>
+        /// Adds the authorization code processor used in the application.
+        /// </summary>
+        /// <typeparam name="TAuthCodeProcessor">The type of authorization code processor to use.</typeparam>
+        public BlazoradeIdBuilder AddAuthCodeProcessor<TAuthCodeProcessor>() where TAuthCodeProcessor : class, IAuthCodeProcessor
+        {
+            this.Services.AddScoped<IAuthCodeProcessor, TAuthCodeProcessor>();
+            return this;
+        }
+
+        /// <summary>
+        /// Adds the authorization code processor used in the application.
+        /// </summary>
+        public BlazoradeIdBuilder AddAuthCodeProcessor(Func<IServiceProvider, IAuthCodeProcessor> config)
+        {
+            this.Services.AddScoped<IAuthCodeProcessor>(sp => config.Invoke(sp));
+            return this;
+        }
+
+        /// <summary>
+        /// Adds the authorization code provider used in the application.
+        /// </summary>
+        /// <typeparam name="TAuthCodeProvider">The type of authorization code provider to use.</typeparam>
+        public BlazoradeIdBuilder AddAuthCodeProvider<TAuthCodeProvider>() where TAuthCodeProvider : class, IAuthCodeProvider
+        {
+            this.Services.AddScoped<IAuthCodeProvider, TAuthCodeProvider>();
+            return this;
+        }
+        
+        /// <summary>
+        /// Adds the authorization code provider used in the application.
+        /// </summary>
+        public BlazoradeIdBuilder AddAuthCodeProvider(Func<IServiceProvider, IAuthCodeProvider> config)
+        {
+            this.Services.AddScoped<IAuthCodeProvider>(sp => config.Invoke(sp));
+            return this;
+        }
+
+        /// <summary>
+        /// Adds the endpoint service used in the application.
+        /// </summary>
+        /// <typeparam name="TEndpointService">The type of endpoint service.</typeparam>
+        public BlazoradeIdBuilder AddEndpointService<TEndpointService>() where TEndpointService : class, IEndpointService
+        {
+            this.Services.AddScoped<IEndpointService, TEndpointService>();
+            return this;
+        }
+
+        /// <summary>
+        /// Adds the endpoint service used in the application.
+        /// </summary>
+        public BlazoradeIdBuilder AddEndpointService(Func<IServiceProvider, IEndpointService> config)
+        {
+            this.Services.AddScoped<IEndpointService>(sp => config.Invoke(sp));
+            return this;
+        }
+
+        /// <summary>
         /// Adds the property storage used in the application.
         /// </summary>
         /// <typeparam name="TPropertyStore">The type of property storage to add.</typeparam>
@@ -86,6 +143,25 @@ namespace Blazorade.Id.Core.Configuration
         public BlazoradeIdBuilder AddPropertyStore(Func<IServiceProvider, IPropertyStore> config)
         {
             this.Services.AddScoped<IPropertyStore>(sp => config.Invoke(sp));
+            return this;
+        }
+
+        /// <summary>
+        /// Adds the redirect URI provider used in the application.
+        /// </summary>
+        /// <typeparam name="TRedirectUriProvider">The type of redirect URI provider to use.</typeparam>
+        public BlazoradeIdBuilder AddRedirectUriProvider<TRedirectUriProvider>() where TRedirectUriProvider : class, IRedirectUriProvider
+        {
+            this.Services.AddScoped<IRedirectUriProvider, TRedirectUriProvider>();
+            return this;
+        }
+
+        /// <summary>
+        /// Adds the redirect URI provider used in the application.
+        /// </summary>
+        public BlazoradeIdBuilder AddRedirectUriProvider(Func<IServiceProvider, IRedirectUriProvider> config)
+        {
+            this.Services.AddScoped<IRedirectUriProvider>(sp => config.Invoke(sp));
             return this;
         }
 
@@ -113,6 +189,25 @@ namespace Blazorade.Id.Core.Configuration
         public BlazoradeIdBuilder AddScopeSorter(Func<IServiceProvider, IScopeSorter> config)
         {
             this.Services.AddScoped<IScopeSorter>(sp => config.Invoke(sp));
+            return this;
+        }
+
+        /// <summary>
+        /// Adds the token refresher to use in the application.
+        /// </summary>
+        /// <typeparam name="TTokenRefresher">The type of token refresher.</typeparam>
+        public BlazoradeIdBuilder AddTokenRefresher<TTokenRefresher>() where TTokenRefresher : class, ITokenRefresher
+        {
+            this.Services.AddScoped<ITokenRefresher, TTokenRefresher>();
+            return this;
+        }
+
+        /// <summary>
+        /// Adds the token refresher to use in the application.
+        /// </summary>
+        public BlazoradeIdBuilder AddTokenRefresher(Func<IServiceProvider, ITokenRefresher> config)
+        {
+            this.Services.AddScoped<ITokenRefresher>(sp => config.Invoke(sp));
             return this;
         }
 
@@ -145,11 +240,14 @@ namespace Blazorade.Id.Core.Configuration
         private IServiceCollection AddBlazoradeIdSharedServices(IServiceCollection services)
         {
             return services
-                .AddScoped<EndpointService>()
+                .AddScoped<IEndpointService, EndpointService>()
                 .AddScoped<ICodeChallengeService, CodeChallengeService>()
                 .AddScoped<ITokenService, TokenService>()
                 .AddScoped<IAuthCodeProcessor, AuthCodeProcessor>()
-                .AddScoped<IScopeSorter, DefaultScopeSorter>()
+                .AddScoped<IScopeSorter, ScopeSorter>()
+                .AddScoped<ITokenStore, InMemoryTokenStore>()
+                .AddScoped<IPropertyStore, InMemoryPropertyStore>()
+                .AddScoped<ITokenRefresher, TokenRefresher>()
                 .AddHttpClient()
 
                 .AddOptions<JsonSerializerOptions>()

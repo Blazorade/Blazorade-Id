@@ -26,7 +26,7 @@ namespace Blazorade.Id.Services
         /// Creates a new instance of the class.
         /// </summary>
         public BlazorAuthCodeProvider(
-            EndpointService endpointService, 
+            IEndpointService endpointService, 
             ICodeChallengeService codeChallengeService,
             IPropertyStore propertyStore,
             NavigationManager navMan,
@@ -43,7 +43,7 @@ namespace Blazorade.Id.Services
             this.RedirUriProvider = redirUriProvider ?? throw new ArgumentNullException(nameof(redirUriProvider));
         }
 
-        private readonly EndpointService EndpointService;
+        private readonly IEndpointService EndpointService;
         private readonly ICodeChallengeService CodeChallengeService;
         private readonly IPropertyStore PropertyStore;
         private readonly NavigationManager NavMan;
@@ -69,7 +69,7 @@ namespace Blazorade.Id.Services
             var scopes = string.Join(' ', options.Scopes ?? []);
             await this.PropertyStore.SetScopeAsync(scopes);
 
-            var uriBuilder = await this.EndpointService.CreateAuthorizationUriBuilderAsync();
+            var uriBuilder = await this.EndpointService.CreateAuthorizationUriBuilderAsync(this.CodeChallengeService);
             uriBuilder
                 .WithClientId(this.AuthOptions.ClientId)
                 .WithResponseType(ResponseType.Code)

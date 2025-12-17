@@ -10,12 +10,12 @@ namespace Blazorade.Id.Core.Services
     /// <summary>
     /// A request builder that is used to build requests to a token endpoint.
     /// </summary>
-    public class TokenRequestBuilder : BuilderBase<HttpRequestMessage>
+    public class TokenEndpointUriBuilder : BuilderBase<HttpRequestMessage>
     {
         /// <summary>
         /// Creates a new instance of the class and specifies the token endpoint to send the built request to.
         /// </summary>
-        public TokenRequestBuilder(string tokenEndpointUri)
+        public TokenEndpointUriBuilder(string tokenEndpointUri)
         {
             this.TokenEndpointUri = tokenEndpointUri;
         }
@@ -27,7 +27,7 @@ namespace Blazorade.Id.Core.Services
         /// <summary>
         /// Sets the client ID of the application requesting the information.
         /// </summary>
-        public TokenRequestBuilder WithClientId(string clientId)
+        public TokenEndpointUriBuilder WithClientId(string clientId)
         {
             this.Parameters[ClientIdName] = clientId;
             return this;
@@ -36,7 +36,7 @@ namespace Blazorade.Id.Core.Services
         /// <summary>
         /// Adds a scope to the request.
         /// </summary>
-        public TokenRequestBuilder WithScope(string? scope)
+        public TokenEndpointUriBuilder WithScope(string? scope)
         {
             if(scope?.Length > 0)
             {
@@ -51,7 +51,7 @@ namespace Blazorade.Id.Core.Services
         /// <remarks>
         /// You should use either this method or <see cref="WithRefreshToken(string?)"/>, but not both.
         /// </remarks>
-        public TokenRequestBuilder WithAuthorizationCode(string? code)
+        public TokenEndpointUriBuilder WithAuthorizationCode(string? code)
         {
             if(code?.Length > 0)
             {
@@ -68,7 +68,7 @@ namespace Blazorade.Id.Core.Services
         /// <remarks>
         /// You should use either this method or <see cref="WithAuthorizationCode(string?)"/>, but not both.
         /// </remarks>
-        public TokenRequestBuilder WithRefreshToken(string? refreshToken)
+        public TokenEndpointUriBuilder WithRefreshToken(string? refreshToken)
         {
             if(refreshToken?.Length > 0)
             {
@@ -88,7 +88,7 @@ namespace Blazorade.Id.Core.Services
         /// that the request comes from a browser at the same URI that the user was originally
         /// redirected to from the authorization endpoint.
         /// </remarks>
-        public TokenRequestBuilder WithRedirectUri(string? redirectUri)
+        public TokenEndpointUriBuilder WithRedirectUri(string? redirectUri)
         {
             if(redirectUri?.Length > 0)
             {
@@ -103,7 +103,7 @@ namespace Blazorade.Id.Core.Services
         /// <remarks>
         ///  This information is required if you use an authorization code.
         /// </remarks>
-        public TokenRequestBuilder WithRedirectUri(Uri? redirectUri)
+        public TokenEndpointUriBuilder WithRedirectUri(Uri? redirectUri)
         {
             return this.WithRedirectUri(redirectUri?.ToString());
         }
@@ -116,7 +116,7 @@ namespace Blazorade.Id.Core.Services
         /// when sending the user to the authorization endpoint. Code challenges
         /// are created using the <see cref="CodeChallengeService"/>.
         /// </remarks>
-        public TokenRequestBuilder WithCodeVerifier(string? codeVerifier)
+        public TokenEndpointUriBuilder WithCodeVerifier(string? codeVerifier)
         {
             if(codeVerifier?.Length > 0)
             {

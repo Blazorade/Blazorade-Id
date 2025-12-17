@@ -26,9 +26,10 @@ namespace Blazorade.Id.Services
         private readonly ISessionStorageService Service;
 
         /// <inheritdoc/>
-        public async override ValueTask<TokenContainer?> GetAccessTokenAsync()
+        public async override ValueTask<TokenContainer?> GetAccessTokenAsync(string resourceId)
         {
-            return await this.GetContainerAsync(TokenType.AccessToken);
+            var key = this.GetKey(TokenType.AccessToken, suffix: resourceId);
+            return await this.Service.GetItemAsync<TokenContainer?>(key);
         }
 
         /// <inheritdoc/>
@@ -44,9 +45,9 @@ namespace Blazorade.Id.Services
         }
 
         /// <inheritdoc/>
-        public async override ValueTask SetAccessTokenAsync(TokenContainer token)
+        public async override ValueTask SetAccessTokenAsync(string resourceId, TokenContainer token)
         {
-            var key = this.GetKey(TokenType.AccessToken);
+            var key = this.GetKey(TokenType.AccessToken, suffix: resourceId);
             await this.Service.SetItemAsync(key, token);
         }
 
