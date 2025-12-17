@@ -54,6 +54,20 @@ namespace Blazorade.Id.Core
         }
 
         /// <summary>
+        /// Returns the scopes defined from the given <paramref name="token"/>.
+        /// </summary>
+        public static IEnumerable<string> GetScopes(this JwtSecurityToken? token)
+        {
+            if(null != token)
+            {
+                var scopes = token.GetClaimValue("scp") ?? "";
+                return scopes.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+            }
+
+            return Enumerable.Empty<string>();
+        }
+
+        /// <summary>
         /// Returns the token from the given <paramref name="container"/>.
         /// </summary>
         /// <param name="container">The container to get the token from.</param>

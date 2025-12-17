@@ -24,26 +24,24 @@ namespace Blazorade.Id.Core.Services
             {
                 if (!result.ContainsKey(resource))
                 {
-                    result[resource] = new List<string>();
+                    result[resource] = new List<Scope>();
                 }
-                result[resource].Add(scope);
+                result[resource].Add(new Scope(scope));
             };
 
             foreach (var scope in scopes)
             {
-                string resource, localScope;
+                string resource;
                 if(scope.Contains('/'))
                 {
                     resource = scope.Substring(0, scope.LastIndexOf('/'));
-                    localScope = scope.Substring(scope.LastIndexOf('/') + 1);
                 }
                 else
                 {
                     resource = "ms-graph";
-                    localScope = scope;
                 }
 
-                addScope(resource, localScope);
+                addScope(resource, scope);
             }
 
             return result;

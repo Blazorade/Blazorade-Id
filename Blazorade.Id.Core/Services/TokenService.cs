@@ -80,18 +80,44 @@ namespace Blazorade.Id.Core.Services
             foreach(var item in sortedScopes)
             {
                 var container = await this.TokenStore.GetAccessTokenAsync(item.Key);
-                
-                if(null == container || container.Expires < DateTime.UtcNow || container?.AcquisitionOptions?.ContainsScopes(item.Value) == false)
+
+                if (
+                    !options.Prompt.RequiresInteraction()
+                    && (
+                        null == container
+                        || container.Expires < DateTime.UtcNow
+                        || container?.AcquisitionOptions?.ContainsScopes(item.Value.ToArray()) == false
+                    )
+                )
                 {
+                    // Set the container to null, since at this point, it is not valid, and must be renewed somehow.
+                    container = null;
+
                     // No container was found, or it has expired, or it does not contain all requested scopes.
-                    if(await this.TokenRefresher.RefreshTokensAsync(new TokenRefreshOptions { Scopes = item.Value }))
+                    if (await this.TokenRefresher.RefreshTokensAsync(new TokenRefreshOptions { Scopes = item.Value.Select(x => x.ToString()) }))
                     {
                         container = await this.TokenStore.GetAccessTokenAsync(item.Key);
                     }
                 }
-                else
+
+                if(null == container)
                 {
-                    result.Add(item.Key, container);
+                    // If the container is still null, we need to acquire it interactively. At this point, we will use
+                    // all of the scopes requested by the caller, since we want to have the user consent to all of them.
+                    var code = await this.AuthCodeProvider.GetAuthorizationCodeAsync(options);
+                    if(code?.Length > 0)
+                    {
+                        var processed = await this.AuthCodeProcessor.ProcessAuthorizationCodeAsync(code);
+                        if (processed)
+                        {
+                            container = await this.TokenStore.GetAccessTokenAsync(item.Key);
+                        }
+                    }
+                }
+
+                if (null != container)
+                {
+                    result[item.Key] = container;
                 }
             }
 

@@ -32,7 +32,7 @@ namespace Blazorade.Id.Core.Model
         /// <summary>
         /// Creates a container from the given <see cref="JwtSecurityToken"/> instance.
         /// </summary>
-        public TokenContainer(JwtSecurityToken? token, GetTokenOptions? acquisitionOptions = null) : this(token?.RawData, token?.GetExpirationTimeUtc(), acquisitionOptions: acquisitionOptions)
+        public TokenContainer(JwtSecurityToken? token, GetTokenOptions? acquisitionOptions = null) : this(GetEncodedValue(token), token?.GetExpirationTimeUtc(), acquisitionOptions: acquisitionOptions)
         {
         }
 
@@ -64,5 +64,18 @@ namespace Blazorade.Id.Core.Model
 
             return null;
         }
+
+
+        private static string? GetEncodedValue(JwtSecurityToken? token)
+        {
+            if(null != token)
+            {
+                var handler = new JwtSecurityTokenHandler();
+                return handler.WriteToken(token);
+            }
+
+            return null;
+        }
+        
     }
 }

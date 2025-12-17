@@ -2,7 +2,9 @@
 using Blazorade.Id.Core.Services;
 using System;
 using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
+using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -19,15 +21,38 @@ namespace Blazorade.Id.Tests.Services
         private readonly ITokenStore TokenStore;
         private readonly IScopeSorter ScopeSorter;
 
-        public Task<bool> RefreshTokensAsync(TokenRefreshOptions options)
+
+        public DateTimeOffset? Expiration { get; set; }
+
+        public bool DisableRefresh { get; set; } = false;
+
+        public async Task<bool> RefreshTokensAsync(TokenRefreshOptions options)
         {
+            if (DisableRefresh) return false;
+
             var sorted = this.ScopeSorter.SortScopes(options.Scopes);
             foreach(var item in sorted)
             {
+                var claims = new List<Claim>()
+                {
+                    new Claim("scp", string.Join(' ', item.Value))
+                };
+
+                if(this.Expiration.HasValue)
+                {
+                    claims.Add(new Claim("exp", this.Expiration.Value.ToUnixTimeSeconds().ToString()));
+                }
+
+                var token = new JwtSecurityToken(
+                    claims: claims
+                );
+
                 
+                var container = new TokenContainer(token, new GetTokenOptions { Scopes = item.Value.Select(x => x.ToString()) });
+                await this.TokenStore.SetAccessTokenAsync(item.Key, container);
             }
 
-            return Task.FromResult(true);
+            return sorted.Count > 0;
         }
     }
 }

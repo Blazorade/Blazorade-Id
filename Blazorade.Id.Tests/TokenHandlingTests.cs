@@ -21,19 +21,39 @@ namespace Blazorade.Id.Tests
 
         private IServiceProvider Provider = null!;
         private ITokenService TokenService = null!;
+        private TestTokenRefresher TokenRefresher = null!;
+        private TestCodeProcessor CodeProcessor = null!;
+        private TestCodeProvider CodeProvider = null!;
+
         [TestInitialize]
         public void TestInitialize()
         {
             this.Provider = ServiceRegistrations.GetServiceProvider();
             this.TokenService = this.Provider.GetRequiredService<ITokenService>();
+            this.TokenRefresher = this.Provider.GetTokenRefresher();
+            this.CodeProcessor = this.Provider.GetAuthCodeProcessor();
+            this.CodeProvider = this.Provider.GetAuthCodeProvider();
         }
 
 
         [TestMethod]
-        public async Task GetAccessToken001()
+        public async Task GetAccessTokens001()
         {
-            var at = await this.TokenService.GetAccessTokenAsync(new GetTokenOptions { Scopes = new[] { "openid", "profile", "email", "urn:blazorade:id/user_impersonation" } });
-            Assert.IsNotNull(at);
+            this.TokenRefresher.Expiration = DateTimeOffset.UtcNow.AddHours(1);
+            var ats = await this.TokenService.GetAccessTokenAsync(new GetTokenOptions { Scopes = new[] { "openid", "profile", "email", "urn:blazorade:id/user_impersonation" } });
+            Assert.IsNotNull(ats);
+            Assert.HasCount(2, ats);
+        }
+
+        [TestMethod]
+        public async Task GetAccessTokens002()
+        {
+            this.TokenRefresher.Expiration = DateTimeOffset.UtcNow.AddHours(1);
+            this.TokenRefresher.DisableRefresh = true; // Simulate non-existent refresh token.
+
+            var ats = await this.TokenService.GetAccessTokenAsync();
+            Assert.IsNotNull(ats);
+            Assert.HasCount(1, ats);
         }
     }
 }
