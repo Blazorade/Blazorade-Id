@@ -72,16 +72,30 @@ namespace Blazorade.Id.Core.Services
         /// This service will attempt to refresh the access token in case the previously stored token
         /// has expired, but a refresh token is available.
         /// </remarks>
-        public async Task<JwtSecurityToken?> GetAccessTokenAsync(GetTokenOptions? options = null)
+        public async Task<AccessTokenDictionary> GetAccessTokenAsync(GetTokenOptions? options = null)
         {
+            var result = new AccessTokenDictionary();
             options = await this.GetTokenOptionsAsync(options);
             ScopeDictionary sortedScopes = this.ScopeSorter.SortScopes(options.Scopes ?? []);
             foreach(var item in sortedScopes)
             {
-                var token = await this.TokenStore.GetAccessTokenAsync(item.Key);
+                var container = await this.TokenStore.GetAccessTokenAsync(item.Key);
+                
+                if(null == container || container.Expires < DateTime.UtcNow || container?.AcquisitionOptions?.ContainsScopes(item.Value) == false)
+                {
+                    // No container was found, or it has expired, or it does not contain all requested scopes.
+                    if(await this.TokenRefresher.RefreshTokensAsync(new TokenRefreshOptions { Scopes = item.Value }))
+                    {
+                        container = await this.TokenStore.GetAccessTokenAsync(item.Key);
+                    }
+                }
+                else
+                {
+                    result.Add(item.Key, container);
+                }
             }
 
-            return null;
+            return result;
         }
 
         /// <summary>

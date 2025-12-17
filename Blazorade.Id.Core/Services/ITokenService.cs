@@ -14,13 +14,13 @@ namespace Blazorade.Id.Core.Services
     public interface ITokenService
     {
         /// <summary>
-        /// Returns the access token for the current user.
+        /// Returns zero or more access tokens that match the specified <paramref name="options"/>.
         /// </summary>
         /// <remarks>
-        /// If a valid token is not available, the token service is responsible for either refreshing the token using a refresh token or starting
-        /// a new authorization flow to obtain a new access token.
+        /// If a valid token is not available, the token service is responsible for either refreshing the token using a token refresher service
+        /// or starting a new authorization flow to obtain a new access token.
         /// </remarks>
-        Task<JwtSecurityToken?> GetAccessTokenAsync(GetTokenOptions? options = null);
+        Task<AccessTokenDictionary> GetAccessTokenAsync(GetTokenOptions? options = null);
 
         /// <summary>
         /// Returns the identity token for the current user.

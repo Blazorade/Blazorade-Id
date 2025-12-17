@@ -30,6 +30,19 @@ namespace Blazorade.Id.Core.Model
         /// A set of scopes to request when acquiring the token.
         /// </summary>
         public IEnumerable<string>? Scopes { get; set; }
+
+        /// <summary>
+        /// Returns <see langword="true"/> if the current options contains all of the specified <paramref name="scopes"/>;
+        /// </summary>
+        /// <param name="scopes">
+        /// The scopes to match against <see cref="Scopes"/>. All of the given scopes must exist in <see cref="Scopes"/>.
+        /// </param>
+        /// <returns></returns>
+        public bool ContainsScopes(IEnumerable<string> scopes)
+        {
+            var current = this.Scopes ?? [];
+            return scopes.All(x => current.Contains(x));
+        }
     }
 
 }

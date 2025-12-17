@@ -5,6 +5,7 @@ using Blazorade.Id.Core.Model;
 using Microsoft.Graph;
 using Microsoft.Graph.Applications;
 using Microsoft.Graph.Models;
+using Blazorade.Id.Core;
 
 namespace AppRoleAdmin.Services
 {
@@ -137,10 +138,10 @@ namespace AppRoleAdmin.Services
 
         private async Task<GraphServiceClient?> GetGraphClientAsync(string? scope)
         {
-            var token = await this.TokenService.GetAccessTokenAsync(options: new GetTokenOptions { Scopes = scope != null ? new[] { scope } : null });
-
-            if(null != token)
+            var tokens = await this.TokenService.GetAccessTokenAsync(options: new GetTokenOptions { Scopes = scope != null ? new[] { scope } : null });
+            if(tokens.Count > 0)
             {
+                var token = tokens.Values.First().ParseToken();
                 var httpClient = this.HttpFactory.CreateClient();
                 httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token?.RawData);
 

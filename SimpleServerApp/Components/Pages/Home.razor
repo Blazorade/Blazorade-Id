@@ -71,8 +71,8 @@
                 Scopes = $"{this.Scopes}".Split(' ', StringSplitOptions.RemoveEmptyEntries)
             };
 
-        var accessTokenJwt = await this.TokenService.GetAccessTokenAsync(getOptions);
-        this.AccessToken = accessTokenJwt?.RawData;
+        // var accessTokenJwt = await this.TokenService.GetAccessTokenAsync(getOptions);
+        // this.AccessToken = accessTokenJwt?.RawData;
 
         // var idTokenJwt = await this.TokenService.GetIdentityTokenAsync(new GetTokenOptions { Scopes = getOptions.Scopes });
         // this.IdToken = idTokenJwt?.RawData;
