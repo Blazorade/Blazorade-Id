@@ -72,28 +72,43 @@ namespace Blazorade.Id.Core.Services
         /// This service will attempt to refresh the access token in case the previously stored token
         /// has expired, but a refresh token is available.
         /// </remarks>
-        public async Task<AccessTokenDictionary> GetAccessTokenAsync(GetTokenOptions? options = null)
+        public async Task<AccessTokenDictionary> GetAccessTokensAsync(GetTokenOptions? options = null)
         {
             var result = new AccessTokenDictionary();
             options = await this.GetTokenOptionsAsync(options);
             ScopeDictionary sortedScopes = this.ScopeSorter.SortScopes(options.Scopes ?? []);
-            foreach(var item in sortedScopes)
+
+            foreach(var item in from x in sortedScopes where x.Value.ContainsResourceScopes() select x)
             {
-                var container = await this.TokenStore.GetAccessTokenAsync(item.Key);
+                // Since we are getting access tokens, we only enumerate those scopes that are
+                // associated with resources. A group with only Open ID scopes will be skipped.
+
+                TokenContainer? container = null;
+
+                if(!options.Prompt.RequiresInteraction())
+                {
+                    container = await this.TokenStore.GetAccessTokenAsync(item.Key);
+                }
 
                 if (
-                    !options.Prompt.RequiresInteraction()
-                    && (
+                    (
                         null == container
                         || container.Expires < DateTime.UtcNow
-                        || container?.AcquisitionOptions?.ContainsScopes(item.Value.ToArray()) == false
-                    )
+                        || !container.ContainsScopes(item.Value.ToArray())
+                    ) 
+                    && !options.Prompt.RequiresInteraction()
                 )
                 {
+                    // The container is in some way not valid for the current request. There was either no container found,
+                    // it was expired, or it did not contain all the scopes that were requested.
+                    // So, we attempt to refresh the tokens silently first.
+                    // We can refresh tokens silently only if the prompt option does not require interaction.
+
                     // Set the container to null, since at this point, it is not valid, and must be renewed somehow.
                     container = null;
 
-                    // No container was found, or it has expired, or it does not contain all requested scopes.
+                    // No container was found, or it has expired, or it does not contain all requested scopes, so we
+                    // need to refresh it.
                     if (await this.TokenRefresher.RefreshTokensAsync(new TokenRefreshOptions { Scopes = item.Value.Select(x => x.ToString()) }))
                     {
                         container = await this.TokenStore.GetAccessTokenAsync(item.Key);

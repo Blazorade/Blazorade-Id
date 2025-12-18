@@ -21,26 +21,18 @@ namespace Blazorade.Id.Core.Model
         /// </summary>
         /// <param name="token">The raw encoded representation of the token.</param>
         /// <param name="expires">The expiration timestamp, in UTC.</param>
-        /// <param name="acquisitionOptions">The options that were used when acquiring the token.</param>
-        public TokenContainer(string? token, DateTime? expires = null, GetTokenOptions? acquisitionOptions = null)
+        public TokenContainer(string? token, DateTime? expires = null)
         {
             this.Token = token;
             this.Expires = expires;
-            this.AcquisitionOptions = acquisitionOptions;
         }
 
         /// <summary>
         /// Creates a container from the given <see cref="JwtSecurityToken"/> instance.
         /// </summary>
-        public TokenContainer(JwtSecurityToken? token, GetTokenOptions? acquisitionOptions = null) : this(GetEncodedValue(token), token?.GetExpirationTimeUtc(), acquisitionOptions: acquisitionOptions)
-        {
-        }
+        public TokenContainer(JwtSecurityToken? token) : this(GetEncodedValue(token), token?.GetExpirationTimeUtc()) { }
 
 
-        /// <summary>
-        /// The options that were used when acquiring the token.
-        /// </summary>
-        public GetTokenOptions? AcquisitionOptions { get; set; }
 
         /// <summary>
         /// The raw encoded representation of the token.
@@ -51,6 +43,13 @@ namespace Blazorade.Id.Core.Model
         /// The date and time, in UTC, when the token expires.
         /// </summary>
         public DateTime? Expires { get; set; }
+
+        /// <summary>
+        /// The scopes associated with the token, if any.
+        /// </summary>
+        public IEnumerable<string>? Scopes { get; set; }
+
+
 
         /// <summary>
         /// Parses the encoded token into a <see cref="JwtSecurityToken"/> object.

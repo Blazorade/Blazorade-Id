@@ -23,13 +23,13 @@ namespace Blazorade.Id.Core.Services
         public abstract ValueTask<TokenContainer?> GetRefreshTokenAsync();
 
         /// <inheritdoc/>
-        public abstract ValueTask SetAccessTokenAsync(string resourceId, TokenContainer token);
+        public abstract ValueTask SetAccessTokenAsync(string resourceId, TokenContainer? token);
 
         /// <inheritdoc/>
-        public abstract ValueTask SetIdentityTokenAsync(TokenContainer token);
+        public abstract ValueTask SetIdentityTokenAsync(TokenContainer? token);
 
         /// <inheritdoc/>
-        public abstract ValueTask SetRefreshTokenAsync(TokenContainer token);
+        public abstract ValueTask SetRefreshTokenAsync(TokenContainer? token);
 
 
 

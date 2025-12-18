@@ -67,28 +67,5 @@ namespace Blazorade.Id.Core
             return Enumerable.Empty<string>();
         }
 
-        /// <summary>
-        /// Returns the token from the given <paramref name="container"/>.
-        /// </summary>
-        /// <param name="container">The container to get the token from.</param>
-        /// <param name="scopes">The scopes that the token must contain.</param>
-        /// <returns>The token if it is valid and contains the required scopes; otherwise, <c>null</c>.</returns>
-        public static JwtSecurityToken? GetToken(this TokenContainer? container, IEnumerable<string>? scopes)
-        {
-            if(container?.Expires > DateTime.UtcNow)
-            {
-                var token = container.ParseToken();
-                return token;
-            }
-            return null;
-        }
-
-        /// <summary>
-        /// Determines whether the specified <paramref name="prompt"/> requires user interaction.
-        /// </summary>
-        public static bool RequiresInteraction(this Prompt? prompt)
-        {
-            return prompt.HasValue && (prompt == Prompt.Login || prompt == Prompt.Consent || prompt == Prompt.Select_Account);
-        }
     }
 }

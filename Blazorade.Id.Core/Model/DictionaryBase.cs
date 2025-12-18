@@ -13,6 +13,10 @@ namespace Blazorade.Id.Core.Model
     /// </summary>
     /// <typeparam name="TKey">The type for the key in the dictionary.</typeparam>
     /// <typeparam name="TValue">The type for the value in the dictionary.</typeparam>
+    /// <remarks>
+    /// This class provides capabilities to work with the items stored in the dictionary that
+    /// are not possible by inheriting directly from <see cref="Dictionary{TKey, TValue}"/>.
+    /// </remarks>
     public abstract class DictionaryBase<TKey, TValue> : IDictionary<TKey, TValue> where TKey : notnull
     {
         private Dictionary<TKey, TValue> InnerDictionary = new Dictionary<TKey, TValue>();

@@ -58,21 +58,29 @@ namespace Blazorade.Id.Core.Services
         }
 
         /// <inheritdoc/>
-        public override ValueTask SetAccessTokenAsync(string resourceId, TokenContainer token)
+        public override ValueTask SetAccessTokenAsync(string resourceId, TokenContainer? token)
         {
-            this.AccessTokens[resourceId] = token;
+            if(null != token)
+            {
+                this.AccessTokens[resourceId] = token;
+            }
+            else if(this.AccessTokens.ContainsKey(resourceId))
+            {
+                this.AccessTokens.Remove(resourceId);
+            }
+
             return ValueTask.CompletedTask;
         }
 
         /// <inheritdoc/>
-        public override ValueTask SetIdentityTokenAsync(TokenContainer token)
+        public override ValueTask SetIdentityTokenAsync(TokenContainer? token)
         {
             this.IdentityToken = token;
             return ValueTask.CompletedTask;
         }
 
         /// <inheritdoc/>
-        public override ValueTask SetRefreshTokenAsync(TokenContainer token)
+        public override ValueTask SetRefreshTokenAsync(TokenContainer? token)
         {
             this.RefreshToken = token;
             return ValueTask.CompletedTask;

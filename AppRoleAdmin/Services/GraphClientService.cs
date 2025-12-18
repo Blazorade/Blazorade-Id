@@ -138,7 +138,7 @@ namespace AppRoleAdmin.Services
 
         private async Task<GraphServiceClient?> GetGraphClientAsync(string? scope)
         {
-            var tokens = await this.TokenService.GetAccessTokenAsync(options: new GetTokenOptions { Scopes = scope != null ? new[] { scope } : null });
+            var tokens = await this.TokenService.GetAccessTokensAsync(options: new GetTokenOptions { Scopes = scope != null ? new[] { scope } : null });
             if(tokens.Count > 0)
             {
                 var token = tokens.Values.First().ParseToken();

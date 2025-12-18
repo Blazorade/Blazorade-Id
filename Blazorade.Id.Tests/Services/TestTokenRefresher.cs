@@ -23,12 +23,12 @@ namespace Blazorade.Id.Tests.Services
 
 
         public DateTimeOffset? Expiration { get; set; }
-
-        public bool DisableRefresh { get; set; } = false;
+        public TokenContainer? RefreshToken { get; set; }
 
         public async Task<bool> RefreshTokensAsync(TokenRefreshOptions options)
         {
-            if (DisableRefresh) return false;
+            var refreshToken = this.RefreshToken ?? await this.TokenStore.GetRefreshTokenAsync();
+            if (null == refreshToken) return false;
 
             var sorted = this.ScopeSorter.SortScopes(options.Scopes);
             foreach(var item in sorted)
@@ -48,8 +48,13 @@ namespace Blazorade.Id.Tests.Services
                 );
 
                 
-                var container = new TokenContainer(token, new GetTokenOptions { Scopes = item.Value.Select(x => x.ToString()) });
+                var container = new TokenContainer(token);
                 await this.TokenStore.SetAccessTokenAsync(item.Key, container);
+            }
+
+            if(sorted.Count > 0)
+            {
+                await this.TokenStore.SetRefreshTokenAsync("refreshed-refresh-token");
             }
 
             return sorted.Count > 0;

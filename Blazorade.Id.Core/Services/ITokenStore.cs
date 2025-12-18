@@ -34,19 +34,19 @@ namespace Blazorade.Id.Core.Services
         /// Stores the given access token container in the token store.
         /// </summary>
         /// <param name="resourceId">The identifier of the resource the access token is intended for.</param>
-        /// <param name="token">The token container to store.</param>
-        ValueTask SetAccessTokenAsync(string resourceId, TokenContainer token);
+        /// <param name="token">The token container to store. If set to <see langword="null"/>, the implementation can either store the null value or remove it completely.</param>
+        ValueTask SetAccessTokenAsync(string resourceId, TokenContainer? token);
 
         /// <summary>
         /// Stores the given identity token contain in the token store.
         /// </summary>
-        /// <param name="token">The token container to store.</param>
-        ValueTask SetIdentityTokenAsync(TokenContainer token);
+        /// <param name="token">The token container to store. If set to <see langword="null"/>, the implementation can either store the null value or remove it completely.</param>
+        ValueTask SetIdentityTokenAsync(TokenContainer? token);
 
         /// <summary>
         /// Stores the given refresh token container in the token store.
         /// </summary>
-        /// <param name="token">The refresh token to store.</param>
-        ValueTask SetRefreshTokenAsync(TokenContainer token);
+        /// <param name="token">The token container to store. If set to <see langword="null"/>, the implementation can either store the null value or remove it completely.</param>
+        ValueTask SetRefreshTokenAsync(TokenContainer? token);
     }
 }

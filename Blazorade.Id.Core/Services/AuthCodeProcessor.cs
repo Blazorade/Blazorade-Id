@@ -24,13 +24,14 @@ namespace Blazorade.Id.Core.Services
         public AuthCodeProcessor(
             IPropertyStore propertyStore, 
             ITokenStore tokenStore, 
-            EndpointService endpointService, 
+            IEndpointService endpointService, 
             IHttpClientFactory httpClientFactory,
             IAuthenticationStateNotifier authStateNotifier,
             IOptions<JsonSerializerOptions> jsonOptions,
             IOptions<AuthorityOptions> authOptions,
             IRedirectUriProvider redirUriProvider,
-            IScopeSorter ScopeSorter
+            IScopeSorter scopeSorter,
+            ITokenRefresher tokenRefresher
         ) {
             this.PropertyStore = propertyStore ?? throw new ArgumentNullException(nameof(propertyStore));
             this.TokenStore = tokenStore ?? throw new ArgumentNullException(nameof(tokenStore));
@@ -40,18 +41,20 @@ namespace Blazorade.Id.Core.Services
             this.JsonOptions = jsonOptions?.Value ?? throw new ArgumentNullException(nameof(jsonOptions));
             this.AuthOptions = authOptions?.Value ?? throw new ArgumentNullException(nameof(authOptions));
             this.RedirUriProvider = redirUriProvider ?? throw new ArgumentNullException(nameof(redirUriProvider));
-            this.ScopeSorter = ScopeSorter ?? throw new ArgumentNullException(nameof(ScopeSorter));
+            this.ScopeSorter = scopeSorter ?? throw new ArgumentNullException(nameof(scopeSorter));
+            this.TokenRefresher = tokenRefresher ?? throw new ArgumentNullException(nameof(tokenRefresher));
         }
 
         private readonly IPropertyStore PropertyStore;
         private readonly ITokenStore TokenStore;
-        private readonly EndpointService EndpointService;
+        private readonly IEndpointService EndpointService;
         private readonly IHttpClientFactory HttpClientFactory;
         private readonly IAuthenticationStateNotifier AuthStateNotifier;
         private readonly JsonSerializerOptions JsonOptions;
         private readonly AuthorityOptions AuthOptions;
         private readonly IRedirectUriProvider RedirUriProvider;
         private readonly IScopeSorter ScopeSorter;
+        private readonly ITokenRefresher TokenRefresher;
 
         /// <inheritdoc/>
         public async Task<bool> ProcessAuthorizationCodeAsync(string code)
@@ -68,31 +71,73 @@ namespace Blazorade.Id.Core.Services
 
             var redirUri = this.AuthOptions.RedirectUri ?? this.RedirUriProvider.GetRedirectUri().ToString();
 
-            var sortedScopes = this.ScopeSorter.SortScopes(scope?.Split(' ', StringSplitOptions.RemoveEmptyEntries) ?? []);
-            if(sortedScopes.Count > 0)
+            // First, we exchange the auth code for the initial set of tokens. In this exchange, we are
+            // only interested in the refresh token. We will then use that refresh token to acquire both
+            // access tokens and identity tokens using the token refresher service.
+            result = await this.ExchangeAuthCodeAsync(code, this.AuthOptions.ClientId, codeVerifier, redirUri);
+            if(result)
             {
-                var key = sortedScopes.Keys.First();
-                var scopes = sortedScopes[key];
-                // The auth code that we process here is good only for one request to the token endpoint.
-                // We can't reuse it to get all access tokens for all scope groups returned by the scope sorter.
-                // What we do then is that we take the first scope group and use the auth code to get tokens for
-                // that group. Then with the remaining groups we use refresh tokens to get access tokens for those.
-                result = await this.ProcessAuthCodeAsync(code, codeVerifier, this.AuthOptions.ClientId, key, string.Join(' ', scopes), redirUri);
-                if(result)
+                var sortedScopes = this.ScopeSorter.SortScopes(scope?.Split(' ', StringSplitOptions.RemoveEmptyEntries) ?? []);
+                if (sortedScopes.Count > 0)
                 {
-                    // Now we process the rest of the scope groups with refresh tokens
-                    // and remember to skip the first one. It would work also to refresh
-                    // the first group, but that is unnecessary since we just exchanged
-                    // the auth code for tokens for the scopes in the first group.
-                    foreach(var item in sortedScopes.Skip(1))
+                    foreach (var item in sortedScopes)
                     {
-                        
+                        await this.TokenRefresher.RefreshTokensAsync(new TokenRefreshOptions
+                        {
+                            Scopes = item.Value
+                        });
                     }
                 }
-                return result;
             }
 
             return result;
+        }
+
+        private async Task<bool> ExchangeAuthCodeAsync(string code, string clientId, string codeVerifier, string redirUri)
+        {
+            var now = DateTime.UtcNow;
+            TokenResponse? tokenResponse = null;
+
+            var tokenRequestBuilder = await this.EndpointService.CreateTokenRequestBuilderAsync();
+            var tokenRequest = tokenRequestBuilder
+                .WithAuthorizationCode(code)
+                .WithClientId(this.AuthOptions.ClientId)
+                .WithCodeVerifier(codeVerifier)
+                .WithRedirectUri(redirUri)
+                .Build();
+
+            var client = this.HttpClientFactory.CreateClient();
+            try
+            {
+                using (var response = await client.SendAsync(tokenRequest))
+                {
+                    var content = await response.Content.ReadAsStringAsync();
+                    if(response.IsSuccessStatusCode)
+                    {
+                        tokenResponse = JsonSerializer.Deserialize<TokenResponse>(content, options: this.JsonOptions);
+                        if (null != tokenResponse)
+                        {
+                            tokenResponse.ExpiresAtUtc = now.AddSeconds(tokenResponse.ExpiresIn);
+
+                            if(tokenResponse.RefreshToken?.Length > 0)
+                            {
+                                await this.TokenStore.SetRefreshTokenAsync(tokenResponse.RefreshToken);
+                                return true;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        Console.WriteLine($"Authorization code exchange failed with status code {response.StatusCode}: {content}");
+                    }
+                }
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine($"Error while exchanging authorization code: {ex.Message}");
+            }
+
+            return false;
         }
 
         private async Task<bool> ProcessAuthCodeAsync(string code, string codeVerifier, string clientId, string resourceIdentifier, string scope, string redirUri)

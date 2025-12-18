@@ -33,25 +33,23 @@ namespace Blazorade.Id.Tests
             Assert.HasCount(1, scps);
             var scp = scps.Single();
 
-            Assert.AreEqual("urn:blazorade:id", scp.ResourceId);
-            Assert.AreEqual("user_impersonation", scp.Value);
+            Assert.AreEqual("urn:blazorade:id/user_impersonation", scp);
         }
 
         [TestMethod]
         public void SortScopes02()
         {
+            string[] source = ["api://foo-bar/stuff.do", "https://api.mycompany.com/read"];
             var sorter = new ScopeSorter();
-            var sorted = sorter.SortScopes(new[] {
-                "api://foo-bar/stuff.do",
-                "https://api.mycompany.com/read"
-            });
+            var sorted = sorter.SortScopes(source);
 
             Assert.HasCount(2, sorted);
             foreach(var key in sorted.Keys)
             {
-                var scopes = sorted[key] ?? [];
+                var scopes = sorted[key];
                 Assert.HasCount(1, scopes);
-                Assert.IsTrue(scopes.All(x => x.ResourceId == key));
+                source.Contains(scopes.Single());
+                Assert.StartsWith(key, scopes.Single());
             }
         }
     }

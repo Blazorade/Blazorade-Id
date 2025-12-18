@@ -31,7 +31,11 @@ namespace Blazorade.Id.Core.Model
         public JwtSecurityToken? GetTokenByScope(string scope)
         {
             if(null == scope) throw new ArgumentNullException(nameof(scope));
-            if (scope.Contains(' ')) scope = scope.Substring(scope.IndexOf(' '));
+            if (scope.Contains(' '))
+            {
+                var arr = scope.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+                scope = arr[0];
+            }
 
             foreach(var container in this.Values)
             {

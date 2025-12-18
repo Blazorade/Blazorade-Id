@@ -15,6 +15,11 @@ namespace Blazorade.Id.Core.Services
     /// </remarks>
     public class ScopeSorter : IScopeSorter
     {
+        /// <summary>
+        /// The default resource identifier for scopes associated with Microsoft Graph.
+        /// </summary>
+        public string MicrosoftGraphResourceId = "https://graph.microsoft.com";
+
         /// <inheritdoc/>
         public ScopeDictionary SortScopes(IEnumerable<string> scopes)
         {
@@ -24,9 +29,9 @@ namespace Blazorade.Id.Core.Services
             {
                 if (!result.ContainsKey(resource))
                 {
-                    result[resource] = new List<Scope>();
+                    result[resource] = new ScopeList();
                 }
-                result[resource].Add(new Scope(scope));
+                result[resource].Add(scope);
             };
 
             foreach (var scope in scopes)
@@ -38,7 +43,7 @@ namespace Blazorade.Id.Core.Services
                 }
                 else
                 {
-                    resource = "ms-graph";
+                    resource = MicrosoftGraphResourceId;
                 }
 
                 addScope(resource, scope);

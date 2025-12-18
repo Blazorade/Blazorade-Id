@@ -26,13 +26,18 @@
 </div>
 <button type="submit" @onclick="this.OnGetTokensAsync">Get Tokens</button>
 
-@if(this.AccessToken?.Length > 0)
+@if(this.AccessTokens.Count > 0)
 {
-    <h2>Access Token</h2>
-    <p>
-        <a href="https://jwt.ms/#access_token=@this.AccessToken" target="_blank">@this.AccessToken</a>
-    </p>
+    <h2>Access Tokens</h2>
+    @foreach(var item in this.AccessTokens)
+    {
+        <h3>Resource: @item.Key</h3>
+        <p>
+            <a href="https://jwt.ms/#access_token=@item.Value.Token" target="_blank">@item.Value.Token</a>
+        </p>
+    }
 }
+
 @if(this.IdToken?.Length > 0)
 {
     <h2>ID Token</h2>
@@ -44,7 +49,7 @@
 @code {
     private const string DefaultScopes = "openid profile email";
     private string? Scopes;
-    private string? AccessToken;
+    private AccessTokenDictionary AccessTokens = new AccessTokenDictionary();
     private string? IdToken;
     private Prompt? Prompt;
 
@@ -60,7 +65,7 @@
 
     private async Task OnGetTokensAsync(MouseEventArgs args)
     {
-        this.AccessToken = null;
+        this.AccessTokens.Clear();
         this.IdToken = null;
 
         await this.LocalStore.SetItemAsync("scopes", this.Scopes);
@@ -71,11 +76,10 @@
                 Scopes = $"{this.Scopes}".Split(' ', StringSplitOptions.RemoveEmptyEntries)
             };
 
-        // var accessTokenJwt = await this.TokenService.GetAccessTokenAsync(getOptions);
-        // this.AccessToken = accessTokenJwt?.RawData;
+        this.AccessTokens = await this.TokenService.GetAccessTokensAsync(getOptions);
 
-        // var idTokenJwt = await this.TokenService.GetIdentityTokenAsync(new GetTokenOptions { Scopes = getOptions.Scopes });
-        // this.IdToken = idTokenJwt?.RawData;
+        var idTokenJwt = await this.TokenService.GetIdentityTokenAsync(new GetTokenOptions { Scopes = getOptions.Scopes });
+        this.IdToken = idTokenJwt?.RawData;
 
     }
 }

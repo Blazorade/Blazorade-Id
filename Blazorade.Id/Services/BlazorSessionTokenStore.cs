@@ -45,24 +45,24 @@ namespace Blazorade.Id.Services
         }
 
         /// <inheritdoc/>
-        public async override ValueTask SetAccessTokenAsync(string resourceId, TokenContainer token)
+        public async override ValueTask SetAccessTokenAsync(string resourceId, TokenContainer? token)
         {
             var key = this.GetKey(TokenType.AccessToken, suffix: resourceId);
-            await this.Service.SetItemAsync(key, token);
+            await this.SetItemAsync(key, token);
         }
 
         /// <inheritdoc/>
-        public async override ValueTask SetIdentityTokenAsync(TokenContainer token)
+        public async override ValueTask SetIdentityTokenAsync(TokenContainer? token)
         {
             var key = this.GetKey(TokenType.IdentityToken);
-            await this.Service.SetItemAsync(key, token);
+            await this.SetItemAsync(key, token);
         }
 
         /// <inheritdoc/>
-        public async override ValueTask SetRefreshTokenAsync(TokenContainer token)
+        public async override ValueTask SetRefreshTokenAsync(TokenContainer? token)
         {
             var key = this.GetKey(TokenType.RefreshToken);
-            await this.Service.SetItemAsync(key, token);
+            await this.SetItemAsync(key, token);
         }
 
 
@@ -70,6 +70,18 @@ namespace Blazorade.Id.Services
         {
             var key = this.GetKey(tokenType);
             return await this.Service.GetItemAsync<TokenContainer?>(key);
+        }
+
+        private async Task SetItemAsync(string key, TokenContainer? token)
+        {
+            if (null != token)
+            {
+                await this.Service.SetItemAsync(key, token);
+            }
+            else if (await this.Service.ContainKeyAsync(key))
+            {
+                await this.Service.RemoveItemAsync(key);
+            }
         }
     }
 }

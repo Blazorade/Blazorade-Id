@@ -11,7 +11,7 @@ namespace Blazorade.Id.Core.Model
     /// identifier of that resource. The dictionary is produced by an implementation of the 
     /// <see cref="Services.IScopeSorter"/> service interface.
     /// </summary>
-    public class ScopeDictionary : DictionaryBase<string, IList<Scope>>
+    public class ScopeDictionary : DictionaryBase<string, ScopeList>
     {
 
     }

@@ -42,17 +42,6 @@ namespace Blazorade.Id.Core.Model
             var current = this.Scopes ?? [];
             return scopes.All(x => current.Contains(x));
         }
-
-        /// <summary>
-        /// Returns <see langword="true"/> if the current options contains all of the specified <paramref name="scopes"/>;
-        /// </summary>
-        /// <param name="scopes">
-        /// The scopes to match against <see cref="Scopes"/>. All of the given scopes must exist in <see cref="Scopes"/>.
-        /// </param>
-        public bool ContainsScopes(params Scope[] scopes)
-        {
-            return this.ContainsScopes(scopes.Select(x => x.ToString()).ToArray());
-        }
     }
 
 }
