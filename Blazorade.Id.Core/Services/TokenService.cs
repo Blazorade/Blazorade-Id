@@ -122,6 +122,12 @@ namespace Blazorade.Id.Core.Services
                     if(await this.AcquireTokensInteractiveAsync(options))
                     {
                         container = await this.TokenStore.GetAccessTokenAsync(item.Key);
+
+                        // We successfully acquired tokens interactively, we don't have to do that
+                        // again for the next sorted group of scopes because when prompting the user
+                        // they will be asked to consent to all scopes requested, not just the group
+                        // of scopes we are processing for item.
+                        options.Prompt = null;
                     }
                 }
 
