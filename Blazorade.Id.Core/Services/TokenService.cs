@@ -90,14 +90,7 @@ namespace Blazorade.Id.Core.Services
                     container = await this.TokenStore.GetAccessTokenAsync(item.Key);
                 }
 
-                if (
-                    (
-                        null == container
-                        || container.Expires < DateTime.UtcNow
-                        || !container.ContainsScopes(item.Value.ToArray())
-                    ) 
-                    && !options.Prompt.RequiresInteraction()
-                )
+                if (!this.IsTokenContainerValid(container, item.Value) && !options.Prompt.RequiresInteraction())
                 {
                     // The container is in some way not valid for the current request. There was either no container found,
                     // it was expired, or it did not contain all the scopes that were requested.
@@ -164,14 +157,7 @@ namespace Blazorade.Id.Core.Services
             // associated with Open ID.
             var openIdScopes = from x in options.Scopes ?? [] where ScopeList.OpenIdScopes.Contains(x) select x;
 
-            if (
-                (
-                    null == container 
-                    || container.Expires < DateTime.UtcNow 
-                    || !container.ContainsScopes(openIdScopes)
-                )
-                && !options.Prompt.RequiresInteraction()
-            )
+            if (!this.IsTokenContainerValid(container, openIdScopes) && !options.Prompt.RequiresInteraction())
             {
                 container = null;
                 if(await this.TokenRefresher.RefreshTokensAsync(new TokenRefreshOptions { Scopes = openIdScopes.ToArray() }))
@@ -207,6 +193,15 @@ namespace Blazorade.Id.Core.Services
             }
 
             return false;
+        }
+
+        private bool IsTokenContainerValid(TokenContainer? container, IEnumerable<string> requiredScopes)
+        {
+            if (null == container) return false;
+            if (container.Expires < DateTime.UtcNow) return false;
+            if (!container.ContainsScopes(requiredScopes.ToArray())) return false;
+
+            return true;
         }
 
         private async Task<GetTokenOptions> GetTokenOptionsAsync(GetTokenOptions? options)
