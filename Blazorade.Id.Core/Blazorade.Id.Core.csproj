@@ -4,7 +4,7 @@
 		<TargetFramework>net8.0</TargetFramework>
 		<Nullable>enable</Nullable>
 		<Title>Blazorade ID Core</Title>
-		<Version>1.0.0-beta.4</Version>
+		<Version>1.0.0-beta.5</Version>
 		<Authors>Mika Berglund</Authors>
 		<Company>Blazorade</Company>
 		<Product>Blazorade ID Core</Product>
