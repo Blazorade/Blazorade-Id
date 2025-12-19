@@ -15,8 +15,8 @@ namespace Blazorade.Id.Core.Services
     {
 
         private const string CodeVerifierKey = "codeVerifier";
+        private const string LoginHintKey = "loginHint";
         private const string ScopeKey = "scope";
-        private const string UsernameKey = "username";
         private const string NonceKey = "nonce";
 
 
@@ -45,6 +45,15 @@ namespace Blazorade.Id.Core.Services
         }
 
         /// <summary>
+        /// Returns the login hint that was used when starting the previous login process.
+        /// </summary>
+        public static async ValueTask<string?> GetLoginHintAsync(this IPropertyStore store)
+        {
+            var key = PrefixKey(LoginHintKey);
+            return await store.GetPropertyAsync<string?>(key);
+        }
+
+        /// <summary>
         /// Returns the nonce that was used when starting the current login process.
         /// </summary>
         public static async ValueTask<string?> GetNonceAsync(this IPropertyStore storage)
@@ -59,15 +68,6 @@ namespace Blazorade.Id.Core.Services
         public static async ValueTask<string?> GetScopeAsync(this IPropertyStore storage)
         {
             var key = PrefixKey(ScopeKey);
-            return await storage.GetPropertyAsync<string?>(key);
-        }
-
-        /// <summary>
-        /// Returns the username for the current signed in user.
-        /// </summary>
-        public static async ValueTask<string?> GetUsernameAsync(this IPropertyStore storage)
-        {
-            var key = PrefixKey(UsernameKey);
             return await storage.GetPropertyAsync<string?>(key);
         }
 
@@ -98,27 +98,6 @@ namespace Blazorade.Id.Core.Services
         {
             var key = PrefixKey(ScopeKey);
             await storage.RemovePropertyAsync(key);
-        }
-
-        /// <summary>
-        /// Removes the username for the current signed in user, for instance when logging out.
-        /// </summary>
-        public static async ValueTask RemoveUsernameAsync(this IPropertyStore storage)
-        {
-            var key = PrefixKey(UsernameKey);
-            await storage.RemovePropertyAsync(key);
-        }
-
-        /// <summary>
-        /// Removes all items from all stores for the current user.
-        /// </summary>
-        /// <returns></returns>
-        public static async ValueTask RemoveItemsAsync(this IPropertyStore storage)
-        {
-            await storage.RemoveCodeVerifierAsync();
-            await storage.RemoveNonceAsync();
-            await storage.RemoveScopeAsync();
-            await storage.RemoveUsernameAsync();
         }
 
         /// <summary>
@@ -181,6 +160,23 @@ namespace Blazorade.Id.Core.Services
         }
 
         /// <summary>
+        /// Stores the given login hint in the property store.
+        /// </summary>
+        /// <remarks>
+        /// Setting the login hint to a <see langword="null"/> value removes any previously stored login hint.
+        /// </remarks>
+        public static ValueTask SetLoginHintAsync(this IPropertyStore store, string? loginHint)
+        {
+            var key = PrefixKey(LoginHintKey);
+            if(null != loginHint)
+            {
+                return store.SetPropertyAsync(key, loginHint);
+            }
+
+            return store.RemovePropertyAsync(key);
+        }
+
+        /// <summary>
         /// Sets the nonce that was used when starting the current login process.
         /// </summary>
         public static async ValueTask SetNonceAsync(this IPropertyStore storage, string? nonce)
@@ -207,15 +203,6 @@ namespace Blazorade.Id.Core.Services
         {
             var key = PrefixKey(ScopeKey);
             await storage.SetPropertyAsync(key, scope);
-        }
-
-        /// <summary>
-        /// Sets the username for the current signed in user.
-        /// </summary>
-        public static async ValueTask SetUsernameAsync(this IPropertyStore storage, string? username)
-        {
-            var key = PrefixKey(UsernameKey);
-            await storage.SetPropertyAsync(key, username);
         }
 
 

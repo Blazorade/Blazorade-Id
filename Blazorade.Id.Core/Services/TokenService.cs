@@ -169,11 +169,6 @@ namespace Blazorade.Id.Core.Services
             // If the prompt option is None, we should not attempt to acquire tokens interactively.
             if (options.Prompt == Prompt.None) return false;
 
-            if(options.Prompt == Prompt.Login)
-            {
-                options.LoginHint = await this.PropertyStore.GetUsernameAsync();
-            }
-
             var code = await this.AuthCodeProvider.GetAuthorizationCodeAsync(options);
             if(code?.Length > 0)
             {
@@ -198,7 +193,7 @@ namespace Blazorade.Id.Core.Services
             options.Scopes = options.Scopes ?? $"{this.AuthOptions.Scope}".Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
             if(string.IsNullOrEmpty(options.LoginHint))
             {
-                options.LoginHint = await this.PropertyStore.GetUsernameAsync();
+                options.LoginHint = await this.PropertyStore.GetLoginHintAsync();
             }
 
             return options;

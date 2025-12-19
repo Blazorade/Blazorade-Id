@@ -80,17 +80,8 @@ namespace Blazorade.Id.Services
                 .WithCodeChallenge(codeVerifier);
 
             if(options.Prompt.HasValue) uriBuilder.WithPrompt(options.Prompt.Value);
-            if (options.LoginHint?.Length > 0)
-            {
-                await this.PropertyStore.SetUsernameAsync(options.LoginHint);
-                uriBuilder.WithLoginHint(options.LoginHint);
-            }
-            else
-            {
-                await this.PropertyStore.RemoveUsernameAsync();
-            }
 
-                var uri = uriBuilder.Build();
+            var uri = uriBuilder.Build();
             string responseUrl = string.Empty;
             string? code = null;
             var input = new Dictionary<string, object>
