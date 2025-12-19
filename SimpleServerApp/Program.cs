@@ -25,6 +25,15 @@ builder.Services
     //.AddTokenStore<BlazorPersistentTokenStore>()
     //.AddPropertyStore<BlazorSessionPropertyStore>()
     //.AddPropertyStore<BlazorPersistentPropertyStore>()
+    .AddTokenStore(sp =>
+    {
+        // This allows you to store refresh tokens in local storage, which means they persist across browser sessions.
+        // WARNING: Storing refresh tokens in local storage can expose them to XSS attacks. Only enable this
+        // if you understand the security risks. Refresh tokens are long-lived and can be used to obtain new access tokens
+        // and identity tokens.
+        var innerStore = sp.GetRequiredService<Blazored.LocalStorage.ILocalStorageService>();
+        return new BlazorPersistentTokenStore(innerStore) { AllowRefreshTokensInWebStorage = true };
+    })
     ;
 
 
