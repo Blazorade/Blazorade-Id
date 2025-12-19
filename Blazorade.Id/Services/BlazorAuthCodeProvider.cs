@@ -85,8 +85,12 @@ namespace Blazorade.Id.Services
                 await this.PropertyStore.SetUsernameAsync(options.LoginHint);
                 uriBuilder.WithLoginHint(options.LoginHint);
             }
+            else
+            {
+                await this.PropertyStore.RemoveUsernameAsync();
+            }
 
-            var uri = uriBuilder.Build();
+                var uri = uriBuilder.Build();
             string responseUrl = string.Empty;
             string? code = null;
             var input = new Dictionary<string, object>
