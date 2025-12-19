@@ -13,7 +13,7 @@ namespace Blazorade.Id.Services
     /// <summary>
     /// A token store that uses the browser local storage to persist tokens across sessions.
     /// </summary>
-    public class BlazorPersistentTokenStore : TokenStoreBase
+    public class BlazorPersistentTokenStore : TokenWebStoreBase
     {
         /// <summary>
         /// Creates a new instance of the <see cref="BlazorPersistentTokenStore"/> class.
@@ -41,7 +41,14 @@ namespace Blazorade.Id.Services
         /// <inheritdoc/>
         public async override ValueTask<TokenContainer?> GetRefreshTokenAsync()
         {
-            return await this.GetContainerAsync(TokenType.RefreshToken);
+            if(this.AllowRefreshTokensInWebStorage)
+            {
+                return await this.GetContainerAsync(TokenType.RefreshToken);
+            }
+            else
+            {
+                return await this.InMemoryStore.GetRefreshTokenAsync();
+            }
         }
 
         /// <inheritdoc/>
@@ -61,8 +68,15 @@ namespace Blazorade.Id.Services
         /// <inheritdoc/>
         public async override ValueTask SetRefreshTokenAsync(TokenContainer? token)
         {
-            var key = this.GetKey(TokenType.RefreshToken);
-            await this.SetItemAsync(key, token);
+            if(this.AllowRefreshTokensInWebStorage)
+            {
+                var key = this.GetKey(TokenType.RefreshToken);
+                await this.SetItemAsync(key, token);
+            }
+            else
+            {
+                await this.InMemoryStore.SetRefreshTokenAsync(token);
+            }
         }
 
 

@@ -13,7 +13,7 @@ namespace Blazorade.Id.Services
     /// <summary>
     /// A token store that stores tokens in the browser session storage.
     /// </summary>
-    public class BlazorSessionTokenStore : TokenStoreBase
+    public class BlazorSessionTokenStore : TokenWebStoreBase
     {
         /// <summary>
         /// Creates a new instance of the <see cref="BlazorSessionTokenStore"/> class.
