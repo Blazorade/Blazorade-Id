@@ -13,7 +13,7 @@ namespace Blazorade.Id.Core.Model
     /// identifier of that resource. The dictionary is produced by an implementation of the 
     /// <see cref="Services.ITokenService"/> service interface.
     /// </summary>
-    public class AccessTokenDictionary : DictionaryBase<string, TokenContainer>
+    public class AccessTokenDictionary : DictionaryBase<string, JwtSecurityToken>
     {
 
         /// <summary>
@@ -37,9 +37,8 @@ namespace Blazorade.Id.Core.Model
                 scope = arr[0];
             }
 
-            foreach(var container in this.Values)
+            foreach(var token in this.Values)
             {
-                var token = container.ParseToken();
                 if(token.GetScopes().Contains(scope))
                 {
                     return token;

@@ -141,7 +141,7 @@ namespace AppRoleAdmin.Services
             var tokens = await this.TokenService.GetAccessTokensAsync(options: new GetTokenOptions { Scopes = scope != null ? new[] { scope } : null });
             if(tokens.Count > 0)
             {
-                var token = tokens.Values.First().ParseToken();
+                var token = tokens.Values.First();
                 var httpClient = this.HttpFactory.CreateClient();
                 httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token?.RawData);
 

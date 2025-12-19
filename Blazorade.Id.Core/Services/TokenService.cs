@@ -119,20 +119,16 @@ namespace Blazorade.Id.Core.Services
                 {
                     // If the container is still null, we need to acquire it interactively. At this point, we will use
                     // all of the scopes requested by the caller, since we want to have the user consent to all of them.
-                    var code = await this.AuthCodeProvider.GetAuthorizationCodeAsync(options);
-                    if(code?.Length > 0)
+                    if(await this.AcquireTokensInteractiveAsync(options))
                     {
-                        var processed = await this.AuthCodeProcessor.ProcessAuthorizationCodeAsync(code);
-                        if (processed)
-                        {
-                            container = await this.TokenStore.GetAccessTokenAsync(item.Key);
-                        }
+                        container = await this.TokenStore.GetAccessTokenAsync(item.Key);
                     }
                 }
 
-                if (null != container)
+                var token = container?.ParseToken();
+                if(null != token)
                 {
-                    result[item.Key] = container;
+                    result[item.Key] = token;
                 }
             }
 
@@ -150,9 +146,40 @@ namespace Blazorade.Id.Core.Services
         public async Task<JwtSecurityToken?> GetIdentityTokenAsync(GetTokenOptions? options = null)
         {
             options = await this.GetTokenOptionsAsync(options);
-            var container = await this.TokenStore.GetIdentityTokenAsync();
-            var token = await this.GetValidTokenAsync(this.TokenStore.GetIdentityTokenAsync, options);
-            return token;
+            TokenContainer? container = null;
+
+
+            if (!options.Prompt.RequiresInteraction())
+            {
+                container = await this.TokenStore.GetIdentityTokenAsync();
+            }
+
+            // Because we're interested in just the identity token, we pick the scopes that are
+            // associated with Open ID.
+            var openIdScopes = from x in options.Scopes ?? [] where ScopeList.OpenIdScopes.Contains(x) select x;
+
+            if (
+                (
+                    null == container 
+                    || container.Expires < DateTime.UtcNow 
+                    || !container.ContainsScopes(openIdScopes)
+                )
+                && !options.Prompt.RequiresInteraction()
+            )
+            {
+                container = null;
+                if(await this.TokenRefresher.RefreshTokensAsync(new TokenRefreshOptions { Scopes = openIdScopes.ToArray() }))
+                {
+                    container = await this.TokenStore.GetIdentityTokenAsync();
+                }
+            }
+
+            if(null == container && await this.AcquireTokensInteractiveAsync(options))
+            {
+                container = await this.TokenStore.GetIdentityTokenAsync();
+            }
+
+            return container?.ParseToken();
         }
 
 
@@ -171,60 +198,6 @@ namespace Blazorade.Id.Core.Services
             }
 
             return false;
-        }
-
-        /// <summary>
-        /// Uses the given <paramref name="tokenGetter"/> to get a valid token. If a valid token is not found,
-        /// then the service will attempt to refresh the tokens using a refresh token, if available. If refresh
-        /// is successful, the valid token is returned using the same <paramref name="tokenGetter"/>.
-        /// </summary>
-        /// <param name="tokenGetter">A delegate that is used to get a token from storage.</param>
-        /// <param name="options">Options that control how the token is acquired.</param>
-        private async ValueTask<JwtSecurityToken?> GetValidTokenAsync(Func<ValueTask<TokenContainer?>> tokenGetter, GetTokenOptions options)
-        {
-            JwtSecurityToken? token = null!;
-            TokenContainer? tokenContainer = null;
-
-            if (!options.Prompt.RequiresInteraction())
-            {
-                tokenContainer = await tokenGetter();
-                token = tokenContainer?.GetToken(options.Scopes);
-            }
-
-            if (null == token)
-            {
-                if (!options.Prompt.RequiresInteraction())
-                {
-                    bool canRefresh = true;
-
-                    if(options.Scopes?.Count() > 0)
-                    {
-                        // First we need to determine if refreshing is possible at all. In order for the refresh to
-                        // be successful, we need to have acquired a token with the same scopes as we are requesting now.
-                        var requestedScopes = options.Scopes != null ? string.Join(' ', options.Scopes) : null;
-                    }
-
-                    // Try to refresh tokens silently first.
-                    if (canRefresh && await this.TokenRefresher.RefreshTokensAsync(new TokenRefreshOptions { Scopes = options.Scopes ?? [] }))
-                    {
-                        tokenContainer = await tokenGetter();
-                        token = tokenContainer?.GetToken(options.Scopes);
-                    }
-                }
-
-                if (null == token)
-                {
-                    // If the token still is null, then we need to aquire it interactively.
-                    var result = await this.AcquireTokensInteractiveAsync(options);
-                    if (result)
-                    {
-                        tokenContainer = await tokenGetter();
-                        token = tokenContainer?.GetToken(options.Scopes);
-                    }
-                }
-            }
-
-            return token;
         }
 
         private async Task<GetTokenOptions> GetTokenOptionsAsync(GetTokenOptions? options)
