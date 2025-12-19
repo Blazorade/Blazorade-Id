@@ -20,13 +20,13 @@ namespace Blazorade.Id.Core.Services
         /// <summary>
         /// Creates an instance of the class.
         /// </summary>
-        public EndpointService(IHttpClientFactory clientFactory, IOptions<AuthorityOptions> authOptions)
+        public EndpointService(IHttpService httpService, IOptions<AuthorityOptions> authOptions)
         {
-            this.Client = clientFactory.CreateClient();
+            this.HttpService = httpService ?? throw new ArgumentNullException(nameof(httpService));
             this.Options = authOptions.Value ?? throw new ArgumentNullException(nameof(authOptions));
         }
 
-        private readonly HttpClient Client;
+        private readonly IHttpService HttpService;
         private readonly AuthorityOptions Options;
 
 
@@ -101,7 +101,7 @@ namespace Blazorade.Id.Core.Services
                 Method = HttpMethod.Get,
                 RequestUri = new Uri(metadataUri)
             };
-            var response = await this.Client.SendAsync(request);
+            var response = await this.HttpService.SendRequestAsync(request);
             if (response.IsSuccessStatusCode)
             {
                 using (var strm = await response.Content.ReadAsStreamAsync())

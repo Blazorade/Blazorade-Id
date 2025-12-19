@@ -25,7 +25,7 @@ namespace Blazorade.Id.Core.Services
             IPropertyStore propertyStore, 
             ITokenStore tokenStore, 
             IEndpointService endpointService, 
-            IHttpClientFactory httpClientFactory,
+            IHttpService httpService,
             IAuthenticationStateNotifier authStateNotifier,
             IOptions<JsonSerializerOptions> jsonOptions,
             IOptions<AuthorityOptions> authOptions,
@@ -36,7 +36,7 @@ namespace Blazorade.Id.Core.Services
             this.PropertyStore = propertyStore ?? throw new ArgumentNullException(nameof(propertyStore));
             this.TokenStore = tokenStore ?? throw new ArgumentNullException(nameof(tokenStore));
             this.EndpointService = endpointService ?? throw new ArgumentNullException(nameof(endpointService));
-            this.HttpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
+            this.HttpService = httpService ?? throw new ArgumentNullException(nameof(httpService));
             this.AuthStateNotifier = authStateNotifier ?? throw new ArgumentNullException(nameof(authStateNotifier));
             this.JsonOptions = jsonOptions?.Value ?? throw new ArgumentNullException(nameof(jsonOptions));
             this.AuthOptions = authOptions?.Value ?? throw new ArgumentNullException(nameof(authOptions));
@@ -48,7 +48,7 @@ namespace Blazorade.Id.Core.Services
         private readonly IPropertyStore PropertyStore;
         private readonly ITokenStore TokenStore;
         private readonly IEndpointService EndpointService;
-        private readonly IHttpClientFactory HttpClientFactory;
+        private readonly IHttpService HttpService;
         private readonly IAuthenticationStateNotifier AuthStateNotifier;
         private readonly JsonSerializerOptions JsonOptions;
         private readonly AuthorityOptions AuthOptions;
@@ -106,10 +106,9 @@ namespace Blazorade.Id.Core.Services
                 .WithRedirectUri(redirUri)
                 .Build();
 
-            var client = this.HttpClientFactory.CreateClient();
             try
             {
-                using (var response = await client.SendAsync(tokenRequest))
+                using (var response = await this.HttpService.SendRequestAsync(tokenRequest))
                 {
                     var content = await response.Content.ReadAsStringAsync();
                     if(response.IsSuccessStatusCode)
@@ -154,10 +153,9 @@ namespace Blazorade.Id.Core.Services
                 .WithRedirectUri(redirUri)
                 .Build();
 
-            var client = this.HttpClientFactory.CreateClient();
             try
             {
-                using (var response = await client.SendAsync(tokenRequest))
+                using (var response = await this.HttpService.SendRequestAsync(tokenRequest))
                 {
                     var content = await response.Content.ReadAsStringAsync();
                     if (response.IsSuccessStatusCode)

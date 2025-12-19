@@ -248,6 +248,7 @@ namespace Blazorade.Id.Core.Configuration
                 .AddScoped<ITokenStore, InMemoryTokenStore>()
                 .AddScoped<IPropertyStore, InMemoryPropertyStore>()
                 .AddScoped<ITokenRefresher, TokenRefresher>()
+                .AddScoped<IHttpService, HttpService>()
                 .AddHttpClient()
 
                 .AddOptions<JsonSerializerOptions>()

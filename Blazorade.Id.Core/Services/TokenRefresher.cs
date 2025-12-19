@@ -24,7 +24,7 @@ namespace Blazorade.Id.Core.Services
             ITokenStore tokenStore,
             IRedirectUriProvider redirectUriProvider,
             IEndpointService endpointService,
-            IHttpClientFactory httpClientFactory,
+            IHttpService httpService,
             IOptions<AuthorityOptions> authOptions
         )
         {
@@ -32,7 +32,7 @@ namespace Blazorade.Id.Core.Services
             this.TokenStore = tokenStore ?? throw new ArgumentNullException(nameof(tokenStore));
             this.RedirUriProvider = redirectUriProvider ?? throw new ArgumentNullException(nameof(redirectUriProvider));
             this.EndpointService = endpointService ?? throw new ArgumentNullException(nameof(endpointService));
-            this.HttpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
+            this.HttpService = httpService ?? throw new ArgumentNullException(nameof(httpService));
             this.AuthOptions = authOptions?.Value ?? throw new ArgumentNullException(nameof(authOptions));
         }
 
@@ -40,7 +40,7 @@ namespace Blazorade.Id.Core.Services
         private readonly ITokenStore TokenStore;
         private readonly IRedirectUriProvider RedirUriProvider;
         private readonly IEndpointService EndpointService;
-        private readonly IHttpClientFactory HttpClientFactory;
+        private readonly IHttpService HttpService;
         private readonly AuthorityOptions AuthOptions;
 
         /// <inheritdoc/>
@@ -63,11 +63,10 @@ namespace Blazorade.Id.Core.Services
                         .WithScope(string.Join(' ', item.Value))
                         .Build();
 
-                    var httpClient = this.HttpClientFactory.CreateClient();
                     try
                     {
                         var now = DateTime.UtcNow;
-                        using (var response = await httpClient.SendAsync(request))
+                        using (var response = await this.HttpService.SendRequestAsync(request))
                         {
                             if (response.IsSuccessStatusCode)
                             {
