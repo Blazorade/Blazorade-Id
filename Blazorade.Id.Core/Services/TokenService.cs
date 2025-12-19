@@ -26,40 +26,28 @@ namespace Blazorade.Id.Core.Services
         /// </summary>
         /// <exception cref="ArgumentNullException">The exception that is thrown if an argument is <c>null</c>.</exception>
         public TokenService(
-            IHttpClientFactory httpFactory, 
+            IOptions<AuthorityOptions> authOptions, 
             ITokenStore tokenStore,
             IPropertyStore propertyStore,
-            IOptions<AuthorityOptions> authOptions, 
-            IEndpointService epService, 
-            IOptions<JsonSerializerOptions> jsonOptions,
             IAuthCodeProvider authCodeProvider,
             IAuthCodeProcessor authCodeProcessor,
-            IRedirectUriProvider redirectProvider,
             IScopeSorter scopeSorter,
             ITokenRefresher tokenRefresher
         ) {
-            this.HttpClientFactory = httpFactory ?? throw new ArgumentNullException(nameof(httpFactory));
+            this.AuthOptions = authOptions.Value ?? throw new ArgumentNullException(nameof(authOptions));
             this.TokenStore = tokenStore ?? throw new ArgumentNullException(nameof(tokenStore));
             this.PropertyStore = propertyStore ?? throw new ArgumentNullException(nameof(propertyStore));
-            this.AuthOptions = authOptions.Value ?? throw new ArgumentNullException(nameof(authOptions));
-            this.EndpointService = epService ?? throw new ArgumentNullException(nameof(epService));
-            this.JsonOptions = jsonOptions.Value ?? throw new ArgumentNullException(nameof(jsonOptions));
             this.AuthCodeProvider = authCodeProvider ?? throw new ArgumentNullException(nameof(authCodeProvider));
             this.AuthCodeProcessor = authCodeProcessor ?? throw new ArgumentNullException(nameof(authCodeProcessor));
-            this.RedirectUriProvider = redirectProvider ?? throw new ArgumentNullException(nameof(redirectProvider));
             this.ScopeSorter = scopeSorter ?? throw new ArgumentNullException(nameof(scopeSorter));
             this.TokenRefresher = tokenRefresher ?? throw new ArgumentNullException(nameof(tokenRefresher));
         }
 
-        private readonly IHttpClientFactory HttpClientFactory;
         private readonly IPropertyStore PropertyStore;
         private readonly ITokenStore TokenStore;
         private readonly AuthorityOptions AuthOptions;
-        private readonly IEndpointService EndpointService;
-        private readonly JsonSerializerOptions JsonOptions;
         private readonly IAuthCodeProvider AuthCodeProvider;
         private readonly IAuthCodeProcessor AuthCodeProcessor;
-        private readonly IRedirectUriProvider RedirectUriProvider;
         private readonly IScopeSorter ScopeSorter;
         private readonly ITokenRefresher TokenRefresher;
 
