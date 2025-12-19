@@ -25,6 +25,7 @@ namespace Blazorade.Id.Core.Services
             IRedirectUriProvider redirectUriProvider,
             IEndpointService endpointService,
             IHttpService httpService,
+            IAuthenticationStateNotifier authStateNotifier,
             IOptions<AuthorityOptions> authOptions
         )
         {
@@ -33,6 +34,7 @@ namespace Blazorade.Id.Core.Services
             this.RedirUriProvider = redirectUriProvider ?? throw new ArgumentNullException(nameof(redirectUriProvider));
             this.EndpointService = endpointService ?? throw new ArgumentNullException(nameof(endpointService));
             this.HttpService = httpService ?? throw new ArgumentNullException(nameof(httpService));
+            this.AuthStateNotifier = authStateNotifier ?? throw new ArgumentNullException(nameof(authStateNotifier));
             this.AuthOptions = authOptions?.Value ?? throw new ArgumentNullException(nameof(authOptions));
         }
 
@@ -41,6 +43,7 @@ namespace Blazorade.Id.Core.Services
         private readonly IRedirectUriProvider RedirUriProvider;
         private readonly IEndpointService EndpointService;
         private readonly IHttpService HttpService;
+        private readonly IAuthenticationStateNotifier AuthStateNotifier;
         private readonly AuthorityOptions AuthOptions;
 
         /// <inheritdoc/>
@@ -102,6 +105,7 @@ namespace Blazorade.Id.Core.Services
                                                 };
 
                                                 await this.TokenStore.SetIdentityTokenAsync(container);
+                                                await this.AuthStateNotifier.StateHasChangedAsync();
                                             }
                                         }
                                         catch { }
