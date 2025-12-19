@@ -192,6 +192,9 @@ namespace Blazorade.Id.Core.Services
 
         private async Task<bool> AcquireTokensInteractiveAsync(GetTokenOptions options)
         {
+            // If the prompt option is None, we should not attempt to acquire tokens interactively.
+            if (options.Prompt == Prompt.None) return false;
+
             if(options.Prompt == Prompt.Login)
             {
                 options.LoginHint = await this.PropertyStore.GetUsernameAsync();
