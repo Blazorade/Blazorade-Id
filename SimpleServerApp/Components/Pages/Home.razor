@@ -3,11 +3,18 @@
 @page "/"
 @inject ITokenService TokenService
 @inject ILocalStorageService LocalStore
+@inject IAuthenticationStateNotifier AuthStateNotifier
 
 <PageTitle>Blazorade Id Sample Server App</PageTitle>
 
 <h1>Get Tokens</h1>
 
+<AuthorizeView>
+    <Authorized Context="auth">
+        <h2>Logged in as: @auth.User.Identity?.Name</h2>
+        <button @onclick="async () => await this.OnGetTokensAsync(prompt: Blazorade.Id.Core.Model.Prompt.Select_Account)">Switch Account</button>
+    </Authorized>
+</AuthorizeView>
 <div>
     <label for="scopesField">Scopes</label>
     <InputText @bind-Value="this.Scopes" DisplayName="Scopes" id="scopesField" />
@@ -25,7 +32,7 @@
 <div style="margin-top: 1em;">
 
 </div>
-<button type="submit" @onclick="this.OnGetTokensAsync">Get Tokens</button>
+<button type="submit" @onclick="async () => await this.OnGetTokensAsync()">Get Tokens</button>
 
 @if(this.AccessTokens.Count > 0)
 {
@@ -39,11 +46,11 @@
     }
 }
 
-@if(this.IdToken?.Length > 0)
+@if(this.IdToken?.RawData?.Length > 0)
 {
     <h2>ID Token</h2>
     <p>
-        <a href="https://jwt.ms/#id_token=@this.IdToken" target="_blank">@this.IdToken</a>
+        <a href="https://jwt.ms/#id_token=@this.IdToken.RawData" target="_blank">@this.IdToken.RawData</a>
     </p>
 }
 
@@ -51,7 +58,7 @@
     private const string DefaultScopes = "openid profile email";
     private string? Scopes;
     private AccessTokenDictionary AccessTokens = new AccessTokenDictionary();
-    private string? IdToken;
+    private JwtSecurityToken? IdToken;
     private Prompt? Prompt;
 
     protected async override Task OnAfterRenderAsync(bool firstRender)
@@ -68,12 +75,18 @@
                 };
 
             this.AccessTokens = await this.TokenService.GetAccessTokensAsync(options);
+            this.IdToken = await this.TokenService.GetIdentityTokenAsync(options);
+
+            if(null != this.IdToken)
+            {
+                await this.AuthStateNotifier.StateHasChangedAsync();
+            }
 
             this.StateHasChanged();
         }
     }
 
-    private async Task OnGetTokensAsync(MouseEventArgs args)
+    private async Task OnGetTokensAsync(Prompt? prompt = null)
     {
         this.AccessTokens.Clear();
         this.IdToken = null;
@@ -82,14 +95,12 @@
 
         var getOptions = new GetTokenOptions
             {
-                Prompt = this.Prompt,
+                Prompt = prompt ?? this.Prompt,
                 Scopes = $"{this.Scopes}".Split(' ', StringSplitOptions.RemoveEmptyEntries)
             };
 
         this.AccessTokens = await this.TokenService.GetAccessTokensAsync(getOptions);
 
-        var idTokenJwt = await this.TokenService.GetIdentityTokenAsync(new GetTokenOptions { Scopes = getOptions.Scopes });
-        this.IdToken = idTokenJwt?.RawData;
-
+        this.IdToken = await this.TokenService.GetIdentityTokenAsync(new GetTokenOptions { Scopes = getOptions.Scopes });
     }
 }
