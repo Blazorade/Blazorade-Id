@@ -51,7 +51,7 @@ namespace Blazorade.Id.Services
         private readonly BlazoradeIdScriptService ScriptService;
         private readonly IRedirectUriProvider RedirUriProvider;
 
-        private const int AuthorizeTimeout = 60000;
+        private const int AuthorizeTimeout = 300000;
 
         /// <inheritdoc/>
         public async Task<string?> GetAuthorizationCodeAsync(GetTokenOptions options)
