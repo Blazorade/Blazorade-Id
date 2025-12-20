@@ -29,7 +29,7 @@ export function openAuthorizationPopup(args) {
 
     if (!popup) {
         if (args.failureCallback && args.failureCallback.target) {
-            args.failureCallback.target.invokeMethodAsync(args.failureCallback.methodName, { error: "Popup could not be opened." });
+            args.failureCallback.target.invokeMethodAsync(args.failureCallback.methodName, { error: "Popup could not be opened.", popupFailed: true });
         }
         return;
     }
