@@ -25,33 +25,94 @@ export function openAuthorizationPopup(args) {
         "toolbar=no,location=no,status=no,menubar=no,scrollbars=yes,resizable=yes" +
         `,width=${width},height=${height},top=${top},left=${left}`;
 
+    function invokeFailure(payload) {
+        console.debug("invokeFailure", payload);
+
+        if (args.failureCallback && args.failureCallback.target) {
+            args.failureCallback.target.invokeMethodAsync(
+                args.failureCallback.methodName,
+                payload
+            );
+        }
+    }
+
     const popup = window.open(authorizeUrl, "authPopup", features);
 
     if (!popup) {
-        if (args.failureCallback && args.failureCallback.target) {
-            args.failureCallback.target.invokeMethodAsync(args.failureCallback.methodName, { error: "Popup could not be opened.", popupFailed: true });
-        }
+        invokeFailure({
+            error: "Popup could not be opened.",
+            reason: 1 // Enum value used in C# to indicate popup could not be opened.
+        });
         return;
     }
 
-    function onMessage(event) {
-        console.debug("onAuthorizationPopupResponse", event);
+    let completed = false;
+    let closePollTimer = null;
 
+    function cleanup() {
+        console.debug("cleanup");
+
+        window.removeEventListener("message", onMessage);
+        if (closePollTimer) {
+            clearInterval(closePollTimer);
+            closePollTimer = null;
+        }
+    }
+
+    function completeSuccess(url) {
+        console.debug("completeSuccess", url);
+
+        if (completed) return;
+        completed = true;
+        cleanup();
+
+        try { popup.close(); } catch { }
+
+        args.successCallback.target.invokeMethodAsync(args.successCallback.methodName, url);
+    }
+
+    function completeFailure(payload) {
+        console.debug("completeFailure", payload);
+
+        if (completed) return;
+        completed = true;
+        cleanup();
+
+        try { popup.close(); } catch { }
+
+        invokeFailure(payload);
+    }
+
+    function onMessage(event) {
+        console.debug("onMessage", event);
+
+        // Keep your existing origin check
         if (event.origin != window.location.origin) {
             return;
         }
 
-        window.removeEventListener("message", onMessage);
-
-        try {
-            popup.close();
+        // Defensive: ensure expected shape
+        const url = event?.data?.url;
+        if (!url) {
+            // If you prefer, treat this as failure instead of ignore
+            return;
         }
-        catch { }
 
-        args.successCallback.target.invokeMethodAsync(args.successCallback.methodName, event.data.url);
+        completeSuccess(url);
     }
 
     window.addEventListener("message", onMessage);
+
+    // Detect user closing the popup before we receive a response
+    closePollTimer = setInterval(() => {
+        // If the popup is gone or closed and we haven't completed, treat as failure
+        if (!popup || popup.closed) {
+            completeFailure({
+                error: "Popup was closed before authorization completed.",
+                reason: 2 // Enum value used in C# to indicate user closed popup.
+            });
+        }
+    }, 250);
 }
 
 export function signalAuthorizationPopupResponseUrl(args) {
