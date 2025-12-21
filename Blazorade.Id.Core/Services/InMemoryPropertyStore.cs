@@ -14,13 +14,13 @@ namespace Blazorade.Id.Core.Services
         private Dictionary<string, object> Properties = new Dictionary<string, object>();
 
         /// <inheritdoc/>
-        public override ValueTask<bool> ContainsKeyAsync(string key)
+        public override Task<bool> ContainsKeyAsync(string key)
         {
-            return ValueTask.FromResult<bool>(this.Properties.ContainsKey(key));
+            return Task.FromResult<bool>(this.Properties.ContainsKey(key));
         }
 
         /// <inheritdoc/>
-        public async override ValueTask<T> GetPropertyAsync<T>(string key)
+        public async override Task<T> GetPropertyAsync<T>(string key)
         {
             if (await this.ContainsKeyAsync(key))
             {
@@ -30,17 +30,17 @@ namespace Blazorade.Id.Core.Services
         }
 
         /// <inheritdoc/>
-        public override ValueTask RemovePropertyAsync(string key)
+        public override Task RemovePropertyAsync(string key)
         {
             this.Properties.Remove(key);
-            return ValueTask.CompletedTask;
+            return Task.CompletedTask;
         }
 
         /// <inheritdoc/>
-        public override ValueTask SetPropertyAsync<T>(string key, T value)
+        public override Task SetPropertyAsync<T>(string key, T value)
         {
             this.Properties[key] = value!;
-            return ValueTask.CompletedTask;
+            return Task.CompletedTask;
         }
     }
 }

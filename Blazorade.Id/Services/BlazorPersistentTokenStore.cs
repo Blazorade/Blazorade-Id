@@ -26,20 +26,31 @@ namespace Blazorade.Id.Services
         private ILocalStorageService Service;
 
         /// <inheritdoc/>
-        public async override ValueTask<TokenContainer?> GetAccessTokenAsync(string resourceId)
+        public override async Task ClearAllAsync()
+        {
+            var keyPrefix = this.GetKeyPrefix();
+            var keys = await this.Service.KeysAsync();
+            foreach(var key in from x in keys where x.StartsWith(keyPrefix) select x)
+            {
+                await this.Service.RemoveItemAsync(key);
+            }
+        }
+
+        /// <inheritdoc/>
+        public async override Task<TokenContainer?> GetAccessTokenAsync(string resourceId)
         {
             var key = this.GetKey(TokenType.AccessToken, suffix: resourceId);
             return await this.Service.GetItemAsync<TokenContainer?>(key);
         }
 
         /// <inheritdoc/>
-        public async override ValueTask<TokenContainer?> GetIdentityTokenAsync()
+        public async override Task<TokenContainer?> GetIdentityTokenAsync()
         {
             return await this.GetContainerAsync(TokenType.IdentityToken);
         }
 
         /// <inheritdoc/>
-        public async override ValueTask<TokenContainer?> GetRefreshTokenAsync()
+        public async override Task<TokenContainer?> GetRefreshTokenAsync()
         {
             if(this.AllowRefreshTokensInWebStorage)
             {
@@ -52,21 +63,21 @@ namespace Blazorade.Id.Services
         }
 
         /// <inheritdoc/>
-        public async override ValueTask SetAccessTokenAsync(string resourceId, TokenContainer? token)
+        public async override Task SetAccessTokenAsync(string resourceId, TokenContainer? token)
         {
             var key = this.GetKey(TokenType.AccessToken, suffix: resourceId);
             await this.SetItemAsync(key, token);
         }
 
         /// <inheritdoc/>
-        public async override ValueTask SetIdentityTokenAsync(TokenContainer? token)
+        public async override Task SetIdentityTokenAsync(TokenContainer? token)
         {
             var key = this.GetKey(TokenType.IdentityToken);
             await this.SetItemAsync(key, token);
         }
 
         /// <inheritdoc/>
-        public async override ValueTask SetRefreshTokenAsync(TokenContainer? token)
+        public async override Task SetRefreshTokenAsync(TokenContainer? token)
         {
             if(this.AllowRefreshTokensInWebStorage)
             {

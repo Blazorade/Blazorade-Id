@@ -13,23 +13,27 @@ namespace Blazorade.Id.Core.Services
     /// </summary>
     public abstract class TokenStoreBase : ITokenStore
     {
-        /// <inheritdoc/>
-        public abstract ValueTask<TokenContainer?> GetAccessTokenAsync(string resourceId);
 
         /// <inheritdoc/>
-        public abstract ValueTask<TokenContainer?> GetIdentityTokenAsync();
+        public abstract Task ClearAllAsync();
 
         /// <inheritdoc/>
-        public abstract ValueTask<TokenContainer?> GetRefreshTokenAsync();
+        public abstract Task<TokenContainer?> GetAccessTokenAsync(string resourceId);
 
         /// <inheritdoc/>
-        public abstract ValueTask SetAccessTokenAsync(string resourceId, TokenContainer? token);
+        public abstract Task<TokenContainer?> GetIdentityTokenAsync();
 
         /// <inheritdoc/>
-        public abstract ValueTask SetIdentityTokenAsync(TokenContainer? token);
+        public abstract Task<TokenContainer?> GetRefreshTokenAsync();
 
         /// <inheritdoc/>
-        public abstract ValueTask SetRefreshTokenAsync(TokenContainer? token);
+        public abstract Task SetAccessTokenAsync(string resourceId, TokenContainer? token);
+
+        /// <inheritdoc/>
+        public abstract Task SetIdentityTokenAsync(TokenContainer? token);
+
+        /// <inheritdoc/>
+        public abstract Task SetRefreshTokenAsync(TokenContainer? token);
 
 
 
@@ -42,12 +46,23 @@ namespace Blazorade.Id.Core.Services
         }
 
         /// <summary>
+        /// Returns the prefix for all keys stored by Blazorade Id token store implementations.
+        /// </summary>
+        /// <returns></returns>
+        protected string GetKeyPrefix()
+        {
+            return "blazorade.id.";
+        }
+
+        /// <summary>
         /// Returns a fully qualified key for the specified <paramref name="name"/>.
         /// </summary>
         protected string GetKey(string name, string? suffix = null)
         {
+            var prefix = this.GetKeyPrefix();
+
             suffix = null != suffix ? $".{suffix}" : string.Empty;
-            return $"blazorade.id.{name.ToLower()}{suffix}";
+            return $"{prefix}{name.ToLower()}{suffix}";
         }
     }
 }

@@ -19,7 +19,7 @@ namespace Blazorade.Id.Core.Configuration
         /// <param name="services"></param>
         public BlazoradeIdBuilder(IServiceCollection services)
         {
-            this.Services = this.AddBlazoradeIdSharedServices(services);
+            this.Services = services;
         }
 
         /// <summary>
@@ -212,6 +212,25 @@ namespace Blazorade.Id.Core.Configuration
         }
 
         /// <summary>
+        /// Adds the sign-out service to use in the application.
+        /// </summary>
+        /// <typeparam name="TSignOutService">The type of sign-out service.</typeparam>
+        public BlazoradeIdBuilder AddSignOutService<TSignOutService>() where TSignOutService : class, ISignOutService
+        {
+            this.Services.AddScoped<ISignOutService, TSignOutService>();
+            return this;
+        }
+
+        /// <summary>
+        /// Adds the sign-out service to use in the application.
+        /// </summary>
+        public BlazoradeIdBuilder AddSignOutService(Func<IServiceProvider, ISignOutService> config)
+        {
+            this.Services.AddScoped<ISignOutService>(sp => config.Invoke(sp));
+            return this;
+        }
+
+        /// <summary>
         /// Adds the token refresher to use in the application.
         /// </summary>
         /// <typeparam name="TTokenRefresher">The type of token refresher.</typeparam>
@@ -251,33 +270,5 @@ namespace Blazorade.Id.Core.Configuration
             return this;
         }
 
-
-
-        /// <summary>
-        /// Adds the default Blazorade Id services that are shared across all Blazorade Id application types.
-        /// </summary>
-        private IServiceCollection AddBlazoradeIdSharedServices(IServiceCollection services)
-        {
-            return services
-                .AddScoped<IEndpointService, EndpointService>()
-                .AddScoped<ICodeChallengeService, CodeChallengeService>()
-                .AddScoped<ITokenService, TokenService>()
-                .AddScoped<IAuthorizationCodeProcessor, AuthCodeProcessor>()
-                .AddScoped<IScopeSorter, ScopeSorter>()
-                .AddScoped<ITokenStore, InMemoryTokenStore>()
-                .AddScoped<IPropertyStore, InMemoryPropertyStore>()
-                .AddScoped<ITokenRefresher, TokenRefresher>()
-                .AddScoped<IHttpService, HttpService>()
-                .AddScoped<IAuthorizationCodeFailureNotifier, AuthorizationCodeFailureNotifier>()
-                .AddHttpClient()
-
-                .AddOptions<JsonSerializerOptions>()
-                .Configure(opt =>
-                {
-                    opt.PropertyNameCaseInsensitive = true;
-                    opt.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
-                }).Services
-                ;
-        }
     }
 }

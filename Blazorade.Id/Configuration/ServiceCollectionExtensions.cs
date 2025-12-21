@@ -60,6 +60,7 @@ namespace Microsoft.Extensions.DependencyInjection
             return services
                 .AddAuthorizationCore()
                 .AddCascadingAuthenticationState()
+                .AddBlazoradeIdSharedServices()
                 .AddScoped<AuthenticationStateProvider, BlazoradeIdAuthenticationStateProvider>()
                 .AddScoped<IHostEnvironmentAuthenticationStateProvider>(sp =>
                 {
@@ -73,6 +74,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 .AddScoped<IPropertyStore, BlazorSessionPropertyStore>()
                 .AddScoped<IAuthenticationStateNotifier, BlazorAuthenticationStateNotifier>()
                 .AddScoped<BlazoradeIdScriptService>()
+                .AddScoped<ISignOutService, BlazorSignOutService>()
 
                 ;
         }

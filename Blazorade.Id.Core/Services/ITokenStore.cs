@@ -15,38 +15,43 @@ namespace Blazorade.Id.Core.Services
     {
 
         /// <summary>
+        /// Clears all tokens from the token store.
+        /// </summary>
+        Task ClearAllAsync();
+
+        /// <summary>
         /// Returns the access token stored in the token store if it is available and if it is still valid.
         /// </summary>
         /// <param name="resourceId">The identifier of the resource the access token is intended for.</param>
-        ValueTask<TokenContainer?> GetAccessTokenAsync(string resourceId);
+        Task<TokenContainer?> GetAccessTokenAsync(string resourceId);
 
         /// <summary>
         /// Returns the identity token stored in the token store if it is available and if it is still valid.
         /// </summary>
-        ValueTask<TokenContainer?> GetIdentityTokenAsync();
+        Task<TokenContainer?> GetIdentityTokenAsync();
 
         /// <summary>
         /// Returns the refresh token stored in the token store if it is available.
         /// </summary>
-        ValueTask<TokenContainer?> GetRefreshTokenAsync();
+        Task<TokenContainer?> GetRefreshTokenAsync();
 
         /// <summary>
         /// Stores the given access token container in the token store.
         /// </summary>
         /// <param name="resourceId">The identifier of the resource the access token is intended for.</param>
         /// <param name="token">The token container to store. If set to <see langword="null"/>, the implementation can either store the null value or remove it completely.</param>
-        ValueTask SetAccessTokenAsync(string resourceId, TokenContainer? token);
+        Task SetAccessTokenAsync(string resourceId, TokenContainer? token);
 
         /// <summary>
         /// Stores the given identity token contain in the token store.
         /// </summary>
         /// <param name="token">The token container to store. If set to <see langword="null"/>, the implementation can either store the null value or remove it completely.</param>
-        ValueTask SetIdentityTokenAsync(TokenContainer? token);
+        Task SetIdentityTokenAsync(TokenContainer? token);
 
         /// <summary>
         /// Stores the given refresh token container in the token store.
         /// </summary>
         /// <param name="token">The token container to store. If set to <see langword="null"/>, the implementation can either store the null value or remove it completely.</param>
-        ValueTask SetRefreshTokenAsync(TokenContainer? token);
+        Task SetRefreshTokenAsync(TokenContainer? token);
     }
 }

@@ -38,7 +38,7 @@ namespace Blazorade.Id.Core.Services
         /// <summary>
         /// Returns the code verifier that was used when starting the current login process.
         /// </summary>
-        public static async ValueTask<string?> GetCodeVerifierAsync(this IPropertyStore storage)
+        public static async Task<string?> GetCodeVerifierAsync(this IPropertyStore storage)
         {
             var key = PrefixKey(CodeVerifierKey);
             return await storage.GetPropertyAsync<string?>(key);
@@ -47,7 +47,7 @@ namespace Blazorade.Id.Core.Services
         /// <summary>
         /// Returns the login hint that was used when starting the previous login process.
         /// </summary>
-        public static async ValueTask<string?> GetLoginHintAsync(this IPropertyStore store)
+        public static async Task<string?> GetLoginHintAsync(this IPropertyStore store)
         {
             var key = PrefixKey(LoginHintKey);
             return await store.GetPropertyAsync<string?>(key);
@@ -56,7 +56,7 @@ namespace Blazorade.Id.Core.Services
         /// <summary>
         /// Returns the nonce that was used when starting the current login process.
         /// </summary>
-        public static async ValueTask<string?> GetNonceAsync(this IPropertyStore storage)
+        public static async Task<string?> GetNonceAsync(this IPropertyStore storage)
         {
             var key = PrefixKey(NonceKey);
             return await storage.GetPropertyAsync<string?>(key);
@@ -65,7 +65,7 @@ namespace Blazorade.Id.Core.Services
         /// <summary>
         /// Returns the scope that was used when starting the current login process.
         /// </summary>
-        public static async ValueTask<string?> GetScopeAsync(this IPropertyStore storage)
+        public static async Task<string?> GetScopeAsync(this IPropertyStore storage)
         {
             var key = PrefixKey(ScopeKey);
             return await storage.GetPropertyAsync<string?>(key);
@@ -75,7 +75,7 @@ namespace Blazorade.Id.Core.Services
         /// Removes the code verifier that was used when starting the current login process.
         /// </summary>
         /// <returns></returns>
-        public static async ValueTask RemoveCodeVerifierAsync(this IPropertyStore storage)
+        public static async Task RemoveCodeVerifierAsync(this IPropertyStore storage)
         {
             var key = PrefixKey(CodeVerifierKey);
             await storage.RemovePropertyAsync(key);
@@ -85,7 +85,7 @@ namespace Blazorade.Id.Core.Services
         /// Sets the nonce that was used when starting the current login process.
         /// </summary>
         /// <returns></returns>
-        public static async ValueTask RemoveNonceAsync(this IPropertyStore storage)
+        public static async Task RemoveNonceAsync(this IPropertyStore storage)
         {
             var key = PrefixKey(NonceKey);
             await storage.RemovePropertyAsync(key);
@@ -94,7 +94,7 @@ namespace Blazorade.Id.Core.Services
         /// <summary>
         /// Sets the scope that was used when starting the current login process.
         /// </summary>
-        public static async ValueTask RemoveScopeAsync(this IPropertyStore storage)
+        public static async Task RemoveScopeAsync(this IPropertyStore storage)
         {
             var key = PrefixKey(ScopeKey);
             await storage.RemovePropertyAsync(key);
@@ -104,7 +104,7 @@ namespace Blazorade.Id.Core.Services
         /// Stores the given access token in the token store.
         /// </summary>
         /// <returns>Returns the container holding the access token.</returns>
-        public async static ValueTask<TokenContainer?> SetAccessTokenAsync(this ITokenStore store, string resourceId, string? token)
+        public async static Task<TokenContainer?> SetAccessTokenAsync(this ITokenStore store, string resourceId, string? token)
         {
             var jwt = new JwtSecurityToken(token);
             return await store.SetAccessTokenAsync(resourceId, jwt);
@@ -114,7 +114,7 @@ namespace Blazorade.Id.Core.Services
         /// Stores the given access token in the token store.
         /// </summary>
         /// <returns>Returns the container holding the access token.</returns>
-        public async static ValueTask<TokenContainer?> SetAccessTokenAsync(this ITokenStore store, string resourceId, JwtSecurityToken? token)
+        public async static Task<TokenContainer?> SetAccessTokenAsync(this ITokenStore store, string resourceId, JwtSecurityToken? token)
         {
             if(null != token)
             {
@@ -128,7 +128,7 @@ namespace Blazorade.Id.Core.Services
         /// <summary>
         /// Sets the code verifier that was used when starting the current login process.
         /// </summary>
-        public static async ValueTask SetCodeVerifierAsync(this IPropertyStore storage, string? codeVerifier)
+        public static async Task SetCodeVerifierAsync(this IPropertyStore storage, string? codeVerifier)
         {
             var key = PrefixKey(CodeVerifierKey);
             await storage.SetPropertyAsync(key, codeVerifier);
@@ -138,7 +138,7 @@ namespace Blazorade.Id.Core.Services
         /// Stores the given identity token in the token store.
         /// </summary>
         /// <returns>Returns the container holding the identity token.</returns>
-        public async static ValueTask<TokenContainer?> SetIdentityTokenAsync(this ITokenStore store, string? token)
+        public async static Task<TokenContainer?> SetIdentityTokenAsync(this ITokenStore store, string? token)
         {
             var jwt = new JwtSecurityToken(token);
             return await store.SetIdentityTokenAsync(jwt);
@@ -148,7 +148,7 @@ namespace Blazorade.Id.Core.Services
         /// Stores the given identity token in the token store.
         /// </summary>
         /// <returns>Returns the container holding the identity token.</returns>
-        public async static ValueTask<TokenContainer?> SetIdentityTokenAsync(this ITokenStore store, JwtSecurityToken? token)
+        public async static Task<TokenContainer?> SetIdentityTokenAsync(this ITokenStore store, JwtSecurityToken? token)
         {
             if (null != token)
             {
@@ -165,7 +165,7 @@ namespace Blazorade.Id.Core.Services
         /// <remarks>
         /// Setting the login hint to a <see langword="null"/> value removes any previously stored login hint.
         /// </remarks>
-        public static ValueTask SetLoginHintAsync(this IPropertyStore store, string? loginHint)
+        public static Task SetLoginHintAsync(this IPropertyStore store, string? loginHint)
         {
             var key = PrefixKey(LoginHintKey);
             if(null != loginHint)
@@ -179,7 +179,7 @@ namespace Blazorade.Id.Core.Services
         /// <summary>
         /// Sets the nonce that was used when starting the current login process.
         /// </summary>
-        public static async ValueTask SetNonceAsync(this IPropertyStore storage, string? nonce)
+        public static async Task SetNonceAsync(this IPropertyStore storage, string? nonce)
         {
             var key = PrefixKey(NonceKey);
             await storage.SetPropertyAsync(key, nonce);
@@ -189,7 +189,7 @@ namespace Blazorade.Id.Core.Services
         /// Stores the given refresh token in the token store.
         /// </summary>
         /// <returns>Returns the container holding the refresh token.</returns>
-        public static async ValueTask<TokenContainer?> SetRefreshTokenAsync(this ITokenStore store, string token)
+        public static async Task<TokenContainer?> SetRefreshTokenAsync(this ITokenStore store, string token)
         {
             var container = new TokenContainer(token);
             await store.SetRefreshTokenAsync(container);
@@ -199,7 +199,7 @@ namespace Blazorade.Id.Core.Services
         /// <summary>
         /// Sets the scope that was used when starting the current login process.
         /// </summary>
-        public static async ValueTask SetScopeAsync(this IPropertyStore storage, string? scope)
+        public static async Task SetScopeAsync(this IPropertyStore storage, string? scope)
         {
             var key = PrefixKey(ScopeKey);
             await storage.SetPropertyAsync(key, scope);

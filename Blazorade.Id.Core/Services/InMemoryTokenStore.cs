@@ -19,7 +19,17 @@ namespace Blazorade.Id.Core.Services
         private TokenContainer? RefreshToken;
 
         /// <inheritdoc/>
-        public override ValueTask<TokenContainer?> GetAccessTokenAsync(string resourceId)
+        public override Task ClearAllAsync()
+        {
+            this.AccessTokens.Clear();
+            this.IdentityToken = null;
+            this.RefreshToken = null;
+
+            return Task.CompletedTask;
+        }
+
+        /// <inheritdoc/>
+        public override Task<TokenContainer?> GetAccessTokenAsync(string resourceId)
         {
             TokenContainer? container = null;
             if(this.AccessTokens.ContainsKey(resourceId))
@@ -32,33 +42,33 @@ namespace Blazorade.Id.Core.Services
                 }
             }
 
-            return ValueTask.FromResult<TokenContainer?>(container);
+            return Task.FromResult<TokenContainer?>(container);
         }
 
         /// <inheritdoc/>
-        public override ValueTask<TokenContainer?> GetIdentityTokenAsync()
+        public override Task<TokenContainer?> GetIdentityTokenAsync()
         {
             if(this.IdentityToken?.Expires > DateTime.UtcNow)
             {
-                return ValueTask.FromResult<TokenContainer?>(this.IdentityToken);
+                return Task.FromResult<TokenContainer?>(this.IdentityToken);
             }
 
-            return ValueTask.FromResult<TokenContainer?>(null);
+            return Task.FromResult<TokenContainer?>(null);
         }
 
         /// <inheritdoc/>
-        public override ValueTask<TokenContainer?> GetRefreshTokenAsync()
+        public override Task<TokenContainer?> GetRefreshTokenAsync()
         {
             if(null == this.RefreshToken?.Expires || this.RefreshToken?.Expires > DateTime.UtcNow)
             {
-                return ValueTask.FromResult<TokenContainer?>(this.RefreshToken);
+                return Task.FromResult<TokenContainer?>(this.RefreshToken);
             }
 
-            return ValueTask.FromResult<TokenContainer?>(null);
+            return Task.FromResult<TokenContainer?>(null);
         }
 
         /// <inheritdoc/>
-        public override ValueTask SetAccessTokenAsync(string resourceId, TokenContainer? token)
+        public override Task SetAccessTokenAsync(string resourceId, TokenContainer? token)
         {
             if(null != token)
             {
@@ -69,21 +79,21 @@ namespace Blazorade.Id.Core.Services
                 this.AccessTokens.Remove(resourceId);
             }
 
-            return ValueTask.CompletedTask;
+            return Task.CompletedTask;
         }
 
         /// <inheritdoc/>
-        public override ValueTask SetIdentityTokenAsync(TokenContainer? token)
+        public override Task SetIdentityTokenAsync(TokenContainer? token)
         {
             this.IdentityToken = token;
-            return ValueTask.CompletedTask;
+            return Task.CompletedTask;
         }
 
         /// <inheritdoc/>
-        public override ValueTask SetRefreshTokenAsync(TokenContainer? token)
+        public override Task SetRefreshTokenAsync(TokenContainer? token)
         {
             this.RefreshToken = token;
-            return ValueTask.CompletedTask;
+            return Task.CompletedTask;
         }
     }
 }

@@ -30,11 +30,6 @@ namespace Blazorade.Id.Core.Services
             this.CodeChallengeService = codeChallengeService;
         }
 
-        public EndpointUriBuilder(ICodeChallengeService codeChallengeService)
-        {
-            CodeChallengeService = codeChallengeService;
-        }
-
         private string EndpointUri;
         private ICodeChallengeService? CodeChallengeService;
 

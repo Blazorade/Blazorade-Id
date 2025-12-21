@@ -17,7 +17,7 @@ namespace Blazorade.Id.Core.Services
         /// Determines whether an item with the given key exists in the storage.
         /// </summary>
         /// <param name="key">The key to check.</param>
-        ValueTask<bool> ContainsKeyAsync(string key);
+        Task<bool> ContainsKeyAsync(string key);
 
         /// <summary>
         /// Returns an property from the key if it exists.
@@ -28,20 +28,20 @@ namespace Blazorade.Id.Core.Services
         /// Returns the property if it exists. If the property does not exist, the default value of the type MUST be returned.
         /// Implementations that need to know if a property exists or not should use <see cref="ContainsKeyAsync"/> method first.
         /// </returns>
-        ValueTask<T> GetPropertyAsync<T>(string key);
+        Task<T> GetPropertyAsync<T>(string key);
 
         /// <summary>
         /// Removes the property with the given key from the storage.
         /// </summary>
         /// <param name="key">The key of the property to remove.</param>
         /// <returns></returns>
-        ValueTask RemovePropertyAsync(string key);
+        Task RemovePropertyAsync(string key);
 
         /// <summary>
         /// Removes the properties matching the given keys.
         /// </summary>
         /// <param name="keys">The keys of the properties to remove.</param>
-        ValueTask RemovePropertiesAsync(IEnumerable<string> keys);
+        Task RemovePropertiesAsync(IEnumerable<string> keys);
 
         /// <summary>
         /// Stores a property in the storage.
@@ -49,7 +49,7 @@ namespace Blazorade.Id.Core.Services
         /// <typeparam name="T">The type of property to store.</typeparam>
         /// <param name="key">The key to store the property with.</param>
         /// <param name="value">The property to store.</param>
-        ValueTask SetPropertyAsync<T>(string key, T value);
+        Task SetPropertyAsync<T>(string key, T value);
     }
 
 }

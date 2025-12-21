@@ -4,9 +4,15 @@ Blazorade ID offers authentication and user identification services to all types
 
 ## Getting Started
 
-Blazorade ID is currently in beta development phases, and we are working on samples and documentation together with the actual implementation. See the samples on the [Github repository for Blazorade ID](https://github.com/Blazorade/Blazorade-Id) for more details.
+Get started with Blazorade Id by visiting the Getting Started page on the [Blazorade ID wiki](https://github.com/Blazorade/Blazorade-Id/wiki/Getting-Started). Also be sure to check out the sample applications included in the [Github repository for Blazorade ID](https://github.com/Blazorade/Blazorade-Id).
 
 ## Version Highlights
+
+### v1.0.0-rc.1
+
+Preparing for the first stable version. Even though Blazorade ID is designed to work with any OAuth/OIDC compliant identity provider, the first stable version will focus on Microsoft Entra ID and Microsoft Entra External ID.
+
+Read more about Blazorade ID on the [Blazorade ID Wiki](https://github.com/Blazorade/Blazorade-Id/wiki).
 
 ### v1.0.0-beta.x
 

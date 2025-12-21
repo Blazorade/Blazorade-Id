@@ -31,11 +31,8 @@ namespace Blazorade.Id.Services
         /// <inheritdoc/>
         public async Task StateHasChangedAsync()
         {
-            var principal = await this.CreatePrincipalAsync();
-            if(null != principal)
-            {
-                this.AuthStateProvider.SetAuthenticationState(Task.FromResult(new AuthenticationState(principal)));
-            }
+            var principal = await this.CreatePrincipalAsync() ?? new ClaimsPrincipal();
+            this.AuthStateProvider.SetAuthenticationState(Task.FromResult(new AuthenticationState(principal)));
         }
 
 

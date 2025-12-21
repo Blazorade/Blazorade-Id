@@ -20,27 +20,27 @@ namespace Blazorade.Id.Services
         private readonly ILocalStorageService Service;
 
         /// <inheritdoc/>
-        public override ValueTask<bool> ContainsKeyAsync(string key)
+        public override async Task<bool> ContainsKeyAsync(string key)
         {
-            return this.Service.ContainKeyAsync(key);
+            return await this.Service.ContainKeyAsync(key);
         }
 
         /// <inheritdoc/>
-        public async override ValueTask<T> GetPropertyAsync<T>(string key)
+        public async override Task<T> GetPropertyAsync<T>(string key)
         {
             return await this.Service.GetItemAsync<T>(key) ?? default!;
         }
 
         /// <inheritdoc/>
-        public override ValueTask RemovePropertyAsync(string key)
+        public override async Task RemovePropertyAsync(string key)
         {
-            return this.Service.RemoveItemAsync(key);
+            await this.Service.RemoveItemAsync(key);
         }
 
         /// <inheritdoc/>
-        public override ValueTask SetPropertyAsync<T>(string key, T value)
+        public override async Task SetPropertyAsync<T>(string key, T value)
         {
-            return this.Service.SetItemAsync(key, value);
+            await this.Service.SetItemAsync(key, value);
         }
     }
 }
