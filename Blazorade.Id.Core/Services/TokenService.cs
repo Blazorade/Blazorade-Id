@@ -65,6 +65,7 @@ namespace Blazorade.Id.Core.Services
             var result = new AccessTokenDictionary();
             options = await this.GetTokenOptionsAsync(options);
             ScopeDictionary sortedScopes = this.ScopeSorter.SortScopes(options.Scopes ?? []);
+            bool allowInteraction = options.Prompt != Prompt.None; // Any other prompt than None may potentially use interaction.
 
             foreach(var item in from x in sortedScopes where x.Value.ContainsResourceScopes() select x)
             {
@@ -100,7 +101,10 @@ namespace Blazorade.Id.Core.Services
                 {
                     // If the container is still null, we need to acquire it interactively. At this point, we will use
                     // all of the scopes requested by the caller, since we want to have the user consent to all of them.
-                    if(await this.AcquireTokensInteractiveAsync(options))
+                    // However, we will only do this if interaction is allowed by the prompt option. This is because we
+                    // might be enumerating multiple scopes, and we should use interaction only once. Otherwise we might
+                    // end up in troubles with multiple prompts to the user, or browsers blocking pop-ups etc.
+                    if (allowInteraction && await this.AcquireTokensInteractiveAsync(options))
                     {
                         container = await this.TokenStore.GetAccessTokenAsync(item.Key);
 
@@ -110,6 +114,8 @@ namespace Blazorade.Id.Core.Services
                         // of scopes we are processing for item.
                         options.Prompt = null;
                     }
+
+                    allowInteraction = false;
                 }
 
                 var token = container?.ParseToken();
