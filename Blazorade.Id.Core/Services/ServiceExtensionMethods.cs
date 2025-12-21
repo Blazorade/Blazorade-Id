@@ -20,14 +20,27 @@ namespace Blazorade.Id.Core.Services
         private const string NonceKey = "nonce";
 
 
-        /// <inheritdoc/>
+        /// <summary>
+        /// Creates an endpoint uri builder that points at the authorization endpoint.
+        /// </summary>
         public static async Task<EndpointUriBuilder> CreateAuthorizationUriBuilderAsync(this IEndpointService epService, ICodeChallengeService codeChallengeService)
         {
             var uri = await epService.GetAuthorizationEndpointAsync() ?? throw new Exception("Could not resolve URI for authorization endpoint.");
             return new EndpointUriBuilder(uri, codeChallengeService);
         }
 
-        /// <inheritdoc/>
+        /// <summary>
+        /// Creates an endpoint uri builder that points at the end session endpoint.
+        /// </summary>
+        public static async Task<EndpointUriBuilder> CreateEndSessionUriBuilderAsync(this IEndpointService epService)
+        {
+            var uri = await epService.GetEndSessionEndpointAsync() ?? throw new Exception("Could not resolve URI for end session endpoint.");
+            return new EndpointUriBuilder(uri);
+        }
+
+        /// <summary>
+        /// Creates a token endpoint uri builder.
+        /// </summary>
         public static async Task<TokenEndpointUriBuilder> CreateTokenRequestBuilderAsync(this IEndpointService epService)
         {
             var uri = await epService.GetTokenEndpointAsync() ?? throw new Exception("Could not resolve URI for token endpoint");

@@ -21,6 +21,15 @@ namespace Blazorade.Id.Core.Services
     public class EndpointUriBuilder : BuilderBase<string>
     {
         /// <summary>
+        /// Creates a new instance of the class.
+        /// </summary>
+        public EndpointUriBuilder(string endpointUri)
+        {
+            var uri = new Uri(endpointUri, UriKind.Absolute);
+            this.EndpointUri = uri.ToString();
+        }
+
+        /// <summary>
         /// Creates an instance of the class and specifies the base URI to start building on.
         /// </summary>
         public EndpointUriBuilder(string endpointUri, ICodeChallengeService codeChallengeService)
@@ -84,6 +93,20 @@ namespace Blazorade.Id.Core.Services
         }
 
         /// <summary>
+        /// Adds an ID token hint to the URI.
+        /// </summary>
+        /// <param name="idTokenHint"></param>
+        /// <returns></returns>
+        public EndpointUriBuilder WithIdTokenHint(string? idTokenHint)
+        {
+            if(idTokenHint?.Length > 0)
+            {
+                this.Parameters[IdTokenHintName] = idTokenHint;
+            }
+            return this;
+        }
+
+        /// <summary>
         /// Adds a login hint to the URI.
         /// </summary>
         public EndpointUriBuilder WithLoginHint(string? loginHint)
@@ -96,6 +119,9 @@ namespace Blazorade.Id.Core.Services
             return this;
         }
 
+        /// <summary>
+        /// Adds the given nonce to the URI.
+        /// </summary>
         public EndpointUriBuilder WithNonce(string? nonce)
         {
             if(nonce?.Length > 0)
