@@ -4,6 +4,7 @@
 @inject ITokenService TokenService
 @inject ILocalStorageService LocalStore
 @inject IAuthenticationStateNotifier AuthStateNotifier
+@inject ISignOutService SignOutService
 
 <PageTitle>Blazorade Id Sample Server App</PageTitle>
 
@@ -13,6 +14,7 @@
     <Authorized Context="auth">
         <h2>Logged in as: @auth.User.Identity?.Name</h2>
         <button @onclick="async () => await this.OnGetTokensAsync(prompt: Blazorade.Id.Core.Model.Prompt.Select_Account)">Switch Account</button>
+        <button @onclick="async () => await this.SignOutAsync()">Sign Out</button>
     </Authorized>
 </AuthorizeView>
 <div>
@@ -55,11 +57,20 @@
 }
 
 @code {
+
+
     private const string DefaultScopes = "openid profile email";
     private string? Scopes;
     private AccessTokenDictionary AccessTokens = new AccessTokenDictionary();
     private JwtSecurityToken? IdToken;
     private Prompt? Prompt;
+
+    private async Task SignOutAsync()
+    {
+        await this.SignOutService.SignOutAsync(new SignOutOptions { UseDefaultRedirectUri = true });
+        this.AccessTokens.Clear();
+        this.IdToken = null;
+    }
 
     protected async override Task OnAfterRenderAsync(bool firstRender)
     {
