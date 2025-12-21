@@ -24,12 +24,12 @@ namespace Blazorade.Id.Tests.Services
 
         public static TestCodeProcessor GetAuthCodeProcessor(this IServiceProvider provider)
         {
-            return (TestCodeProcessor)provider.GetRequiredService<IAuthCodeProcessor>();
+            return (TestCodeProcessor)provider.GetRequiredService<IAuthorizationCodeProcessor>();
         }
 
         public static TestCodeProvider GetAuthCodeProvider(this IServiceProvider provider)
         {
-            return (TestCodeProvider)provider.GetRequiredService<IAuthCodeProvider>();
+            return (TestCodeProvider)provider.GetRequiredService<IAuthorizationCodeProvider>();
         }
 
     }

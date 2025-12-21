@@ -73,38 +73,38 @@ namespace Blazorade.Id.Core.Configuration
         /// <summary>
         /// Adds the authorization code processor used in the application.
         /// </summary>
-        /// <typeparam name="TAuthCodeProcessor">The type of authorization code processor to use.</typeparam>
-        public BlazoradeIdBuilder AddAuthCodeProcessor<TAuthCodeProcessor>() where TAuthCodeProcessor : class, IAuthCodeProcessor
+        /// <typeparam name="TAuthorizationCodeProcessor">The type of authorization code processor to use.</typeparam>
+        public BlazoradeIdBuilder AddAuthorizationCodeProcessor<TAuthorizationCodeProcessor>() where TAuthorizationCodeProcessor : class, IAuthorizationCodeProcessor
         {
-            this.Services.AddScoped<IAuthCodeProcessor, TAuthCodeProcessor>();
+            this.Services.AddScoped<IAuthorizationCodeProcessor, TAuthorizationCodeProcessor>();
             return this;
         }
 
         /// <summary>
         /// Adds the authorization code processor used in the application.
         /// </summary>
-        public BlazoradeIdBuilder AddAuthCodeProcessor(Func<IServiceProvider, IAuthCodeProcessor> config)
+        public BlazoradeIdBuilder AddAuthorizationCodeProcessor(Func<IServiceProvider, IAuthorizationCodeProcessor> config)
         {
-            this.Services.AddScoped<IAuthCodeProcessor>(sp => config.Invoke(sp));
+            this.Services.AddScoped<IAuthorizationCodeProcessor>(sp => config.Invoke(sp));
             return this;
         }
 
         /// <summary>
         /// Adds the authorization code provider used in the application.
         /// </summary>
-        /// <typeparam name="TAuthCodeProvider">The type of authorization code provider to use.</typeparam>
-        public BlazoradeIdBuilder AddAuthCodeProvider<TAuthCodeProvider>() where TAuthCodeProvider : class, IAuthCodeProvider
+        /// <typeparam name="TAuthorizationCodeProvider">The type of authorization code provider to use.</typeparam>
+        public BlazoradeIdBuilder AddAuthorizationCodeProvider<TAuthorizationCodeProvider>() where TAuthorizationCodeProvider : class, IAuthorizationCodeProvider
         {
-            this.Services.AddScoped<IAuthCodeProvider, TAuthCodeProvider>();
+            this.Services.AddScoped<IAuthorizationCodeProvider, TAuthorizationCodeProvider>();
             return this;
         }
         
         /// <summary>
         /// Adds the authorization code provider used in the application.
         /// </summary>
-        public BlazoradeIdBuilder AddAuthCodeProvider(Func<IServiceProvider, IAuthCodeProvider> config)
+        public BlazoradeIdBuilder AddAuthorizationCodeProvider(Func<IServiceProvider, IAuthorizationCodeProvider> config)
         {
-            this.Services.AddScoped<IAuthCodeProvider>(sp => config.Invoke(sp));
+            this.Services.AddScoped<IAuthorizationCodeProvider>(sp => config.Invoke(sp));
             return this;
         }
 
@@ -243,7 +243,7 @@ namespace Blazorade.Id.Core.Configuration
                 .AddScoped<IEndpointService, EndpointService>()
                 .AddScoped<ICodeChallengeService, CodeChallengeService>()
                 .AddScoped<ITokenService, TokenService>()
-                .AddScoped<IAuthCodeProcessor, AuthCodeProcessor>()
+                .AddScoped<IAuthorizationCodeProcessor, AuthCodeProcessor>()
                 .AddScoped<IScopeSorter, ScopeSorter>()
                 .AddScoped<ITokenStore, InMemoryTokenStore>()
                 .AddScoped<IPropertyStore, InMemoryPropertyStore>()

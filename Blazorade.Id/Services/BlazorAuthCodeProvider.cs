@@ -14,13 +14,15 @@ using Blazorade.Core.Interop;
 using System.Reflection.Metadata;
 using System.Security.Cryptography;
 using Blazorade.Id.Core.Model;
+using System.Text.Json;
+using Blazorade.Id.Model;
 
 namespace Blazorade.Id.Services
 {
     /// <summary>
-    /// An <see cref="IAuthCodeProvider"/> implementation for use in Blazor Server and Blazor WebAssembly applications.
+    /// An <see cref="IAuthorizationCodeProvider"/> implementation for use in Blazor Server and Blazor WebAssembly applications.
     /// </summary>
-    public class BlazorAuthCodeProvider : IAuthCodeProvider
+    public class BlazorAuthCodeProvider : IAuthorizationCodeProvider
     {
         /// <summary>
         /// Creates a new instance of the class.
@@ -54,7 +56,7 @@ namespace Blazorade.Id.Services
         private const int AuthorizeTimeout = 300000;
 
         /// <inheritdoc/>
-        public async Task<string?> GetAuthorizationCodeAsync(GetTokenOptions options)
+        public async Task<AuthorizationCodeResult> GetAuthorizationCodeAsync(GetTokenOptions options)
         {
             var redirUrl = this.AuthOptions.RedirectUri?.Length > 0
                 ? this.AuthOptions.RedirectUri
@@ -81,6 +83,7 @@ namespace Blazorade.Id.Services
 
             if(options.Prompt.HasValue) uriBuilder.WithPrompt(options.Prompt.Value);
 
+            AuthorizationCodeFailure? failureReason = null;
             var uri = uriBuilder.Build();
             string responseUrl = string.Empty;
             string? code = null;
@@ -98,15 +101,27 @@ namespace Blazorade.Id.Services
             catch (FailureCallbackException ex)
             {
                 var msg = ex.Message;
-                var result = ex.Result;
+                var json = JsonSerializer.Serialize(ex.Result);
+                try
+                {
+                    var result = JsonSerializer.Deserialize<AuthorizationPopupFailure>(json, options: new JsonSerializerOptions { PropertyNameCaseInsensitive = true});
+                    failureReason = result?.Reason;
+                }
+                catch (Exception innerEx)
+                {
+                    var innerMsg = innerEx.Message;
+                    failureReason = AuthorizationCodeFailure.SystemFailure;
+                }
             }
             catch(InteropTimeoutException ex)
             {
                 var msg = ex.Message;
+                failureReason = AuthorizationCodeFailure.TimedOut;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 var msg = ex.Message;
+                failureReason = AuthorizationCodeFailure.TimedOut;
             }
 
             if(responseUrl?.Length > 0 && responseUrl.Contains('?'))
@@ -119,7 +134,11 @@ namespace Blazorade.Id.Services
                 }
             }
 
-            return code;
+            return new AuthorizationCodeResult
+            {
+                Code = code,
+                FailureReason = code?.Length > 0 ? null : failureReason
+            };
         }
 
 

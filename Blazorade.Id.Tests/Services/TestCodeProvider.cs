@@ -8,14 +8,17 @@ using System.Threading.Tasks;
 
 namespace Blazorade.Id.Tests.Services
 {
-    public class TestCodeProvider : IAuthCodeProvider
+    public class TestCodeProvider : IAuthorizationCodeProvider
     {
         public string? AuthCode { get; set; }
 
-        public async Task<string?> GetAuthorizationCodeAsync(GetTokenOptions options)
+        public async Task<AuthorizationCodeResult> GetAuthorizationCodeAsync(GetTokenOptions options)
         {
-            var code = this.AuthCode ?? $"{Guid.NewGuid()}";
-            return await Task.FromResult(code);
+            var result = new AuthorizationCodeResult
+            {
+                Code = this.AuthCode ?? $"{Guid.NewGuid()}"
+            };
+            return await Task.FromResult(result);
         }
     }
 }

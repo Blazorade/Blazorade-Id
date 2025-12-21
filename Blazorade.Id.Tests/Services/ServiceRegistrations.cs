@@ -16,8 +16,8 @@ namespace Blazorade.Id.Tests.Services
         public static IServiceProvider GetServiceProvider()
         {
             return new BlazoradeIdBuilder(new ServiceCollection())
-                .AddAuthCodeProcessor<TestCodeProcessor>()
-                .AddAuthCodeProvider<TestCodeProvider>()
+                .AddAuthorizationCodeProcessor<TestCodeProcessor>()
+                .AddAuthorizationCodeProvider<TestCodeProvider>()
                 .AddRedirectUriProvider<TestRedirectUriProvider>()
                 .AddTokenRefresher<TestTokenRefresher>()
                 .Services

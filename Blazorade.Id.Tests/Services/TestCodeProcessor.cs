@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Blazorade.Id.Tests.Services
 {
-    public class TestCodeProcessor : IAuthCodeProcessor
+    public class TestCodeProcessor : IAuthorizationCodeProcessor
     {
         public TestCodeProcessor(ITokenStore tokenStore, IScopeSorter scopeSorter)
         {

@@ -14,9 +14,9 @@ using System.Threading.Tasks;
 namespace Blazorade.Id.Core.Services
 {
     /// <summary>
-    /// The default implementation of the <see cref="IAuthCodeProcessor"/> service interface.
+    /// The default implementation of the <see cref="IAuthorizationCodeProcessor"/> service interface.
     /// </summary>
-    public class AuthCodeProcessor : IAuthCodeProcessor
+    public class AuthCodeProcessor : IAuthorizationCodeProcessor
     {
         /// <summary>
         /// Creates a new instance of the class.

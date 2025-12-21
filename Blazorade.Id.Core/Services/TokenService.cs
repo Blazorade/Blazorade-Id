@@ -29,8 +29,8 @@ namespace Blazorade.Id.Core.Services
             IOptions<AuthorityOptions> authOptions, 
             ITokenStore tokenStore,
             IPropertyStore propertyStore,
-            IAuthCodeProvider authCodeProvider,
-            IAuthCodeProcessor authCodeProcessor,
+            IAuthorizationCodeProvider authCodeProvider,
+            IAuthorizationCodeProcessor authCodeProcessor,
             IScopeSorter scopeSorter,
             ITokenRefresher tokenRefresher
         ) {
@@ -46,8 +46,8 @@ namespace Blazorade.Id.Core.Services
         private readonly IPropertyStore PropertyStore;
         private readonly ITokenStore TokenStore;
         private readonly AuthorityOptions AuthOptions;
-        private readonly IAuthCodeProvider AuthCodeProvider;
-        private readonly IAuthCodeProcessor AuthCodeProcessor;
+        private readonly IAuthorizationCodeProvider AuthCodeProvider;
+        private readonly IAuthorizationCodeProcessor AuthCodeProcessor;
         private readonly IScopeSorter ScopeSorter;
         private readonly ITokenRefresher TokenRefresher;
 
@@ -175,10 +175,10 @@ namespace Blazorade.Id.Core.Services
             // If the prompt option is None, we should not attempt to acquire tokens interactively.
             if (options.Prompt == Prompt.None) return false;
 
-            var code = await this.AuthCodeProvider.GetAuthorizationCodeAsync(options);
-            if(code?.Length > 0)
+            var codeResult = await this.AuthCodeProvider.GetAuthorizationCodeAsync(options);
+            if(codeResult?.Code?.Length > 0)
             {
-                return await this.AuthCodeProcessor.ProcessAuthorizationCodeAsync(code);
+                return await this.AuthCodeProcessor.ProcessAuthorizationCodeAsync(codeResult.Code);
             }
 
             return false;
