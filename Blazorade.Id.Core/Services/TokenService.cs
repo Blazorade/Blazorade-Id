@@ -32,7 +32,8 @@ namespace Blazorade.Id.Core.Services
             IAuthorizationCodeProvider authCodeProvider,
             IAuthorizationCodeProcessor authCodeProcessor,
             IScopeSorter scopeSorter,
-            ITokenRefresher tokenRefresher
+            ITokenRefresher tokenRefresher,
+            IAuthorizationCodeFailureNotifier authCodeFailureHandler
         ) {
             this.AuthOptions = authOptions.Value ?? throw new ArgumentNullException(nameof(authOptions));
             this.TokenStore = tokenStore ?? throw new ArgumentNullException(nameof(tokenStore));
@@ -41,6 +42,7 @@ namespace Blazorade.Id.Core.Services
             this.AuthCodeProcessor = authCodeProcessor ?? throw new ArgumentNullException(nameof(authCodeProcessor));
             this.ScopeSorter = scopeSorter ?? throw new ArgumentNullException(nameof(scopeSorter));
             this.TokenRefresher = tokenRefresher ?? throw new ArgumentNullException(nameof(tokenRefresher));
+            this.AuthCodeFailureHandler = authCodeFailureHandler ?? throw new ArgumentNullException(nameof(authCodeFailureHandler));
         }
 
         private readonly IPropertyStore PropertyStore;
@@ -50,6 +52,7 @@ namespace Blazorade.Id.Core.Services
         private readonly IAuthorizationCodeProcessor AuthCodeProcessor;
         private readonly IScopeSorter ScopeSorter;
         private readonly ITokenRefresher TokenRefresher;
+        private readonly IAuthorizationCodeFailureNotifier AuthCodeFailureHandler;
 
 
         /// <summary>
@@ -179,6 +182,10 @@ namespace Blazorade.Id.Core.Services
             if(codeResult?.Code?.Length > 0)
             {
                 return await this.AuthCodeProcessor.ProcessAuthorizationCodeAsync(codeResult.Code);
+            }
+            else if(null != codeResult?.FailureReason)
+            {
+                await this.AuthCodeFailureHandler.HandleFailureAsync(codeResult);
             }
 
             return false;

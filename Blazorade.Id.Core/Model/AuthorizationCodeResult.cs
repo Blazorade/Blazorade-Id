@@ -28,6 +28,6 @@ namespace Blazorade.Id.Core.Model
         /// <remarks>
         /// If <see cref="Code"/> is not <see langword="null"/>, this property must be <see langword="null"/>.
         /// </remarks>
-        public AuthorizationCodeFailure? FailureReason { get; set; }
+        public AuthorizationCodeFailureReason? FailureReason { get; set; }
     }
 }

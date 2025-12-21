@@ -83,7 +83,7 @@ namespace Blazorade.Id.Services
 
             if(options.Prompt.HasValue) uriBuilder.WithPrompt(options.Prompt.Value);
 
-            AuthorizationCodeFailure? failureReason = null;
+            AuthorizationCodeFailureReason? failureReason = null;
             var uri = uriBuilder.Build();
             string responseUrl = string.Empty;
             string? code = null;
@@ -110,18 +110,18 @@ namespace Blazorade.Id.Services
                 catch (Exception innerEx)
                 {
                     var innerMsg = innerEx.Message;
-                    failureReason = AuthorizationCodeFailure.SystemFailure;
+                    failureReason = AuthorizationCodeFailureReason.SystemFailure;
                 }
             }
             catch(InteropTimeoutException ex)
             {
                 var msg = ex.Message;
-                failureReason = AuthorizationCodeFailure.TimedOut;
+                failureReason = AuthorizationCodeFailureReason.TimedOut;
             }
             catch (Exception ex)
             {
                 var msg = ex.Message;
-                failureReason = AuthorizationCodeFailure.TimedOut;
+                failureReason = AuthorizationCodeFailureReason.TimedOut;
             }
 
             if(responseUrl?.Length > 0 && responseUrl.Contains('?'))

@@ -71,6 +71,25 @@ namespace Blazorade.Id.Core.Configuration
         }
 
         /// <summary>
+        /// Adds the authorization code failure notifier used in the application.
+        /// </summary>
+        /// <typeparam name="TAuthorizationCodeFailureNotifier">The type of authorization code failure notifier to use.</typeparam>
+        public BlazoradeIdBuilder AddAuthorizationCodeFailureNotifier<TAuthorizationCodeFailureNotifier>() where TAuthorizationCodeFailureNotifier : class, IAuthorizationCodeFailureNotifier
+        {
+            this.Services.AddScoped<IAuthorizationCodeFailureNotifier, TAuthorizationCodeFailureNotifier>();
+            return this;
+        }
+
+        /// <summary>
+        /// Adds the authorization code failure notifier used in the application.
+        /// </summary>
+        public BlazoradeIdBuilder AddAuthorizationCodeFailureNotifier(Func<IServiceProvider, IAuthorizationCodeFailureNotifier> config)
+        {
+            this.Services.AddScoped<IAuthorizationCodeFailureNotifier>(sp => config.Invoke(sp));
+            return this;
+        }
+
+        /// <summary>
         /// Adds the authorization code processor used in the application.
         /// </summary>
         /// <typeparam name="TAuthorizationCodeProcessor">The type of authorization code processor to use.</typeparam>
@@ -249,6 +268,7 @@ namespace Blazorade.Id.Core.Configuration
                 .AddScoped<IPropertyStore, InMemoryPropertyStore>()
                 .AddScoped<ITokenRefresher, TokenRefresher>()
                 .AddScoped<IHttpService, HttpService>()
+                .AddScoped<IAuthorizationCodeFailureNotifier, AuthorizationCodeFailureNotifier>()
                 .AddHttpClient()
 
                 .AddOptions<JsonSerializerOptions>()

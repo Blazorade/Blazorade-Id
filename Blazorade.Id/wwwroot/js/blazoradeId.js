@@ -37,6 +37,7 @@ export function openAuthorizationPopup(args) {
     }
 
     const popup = window.open(authorizeUrl, "authPopup", features);
+    //const popup = null;
 
     if (!popup) {
         invokeFailure({

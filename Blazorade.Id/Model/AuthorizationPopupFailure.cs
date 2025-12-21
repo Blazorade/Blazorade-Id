@@ -11,6 +11,6 @@ namespace Blazorade.Id.Model
     {
         public string Error { get; set; } = string.Empty;
 
-        public AuthorizationCodeFailure Reason { get; set; }
+        public AuthorizationCodeFailureReason Reason { get; set; }
     }
 }

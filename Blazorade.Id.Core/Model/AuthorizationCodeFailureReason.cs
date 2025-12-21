@@ -9,7 +9,7 @@ namespace Blazorade.Id.Core.Model
     /// <summary>
     /// Defines the possible failure reasons for an authorization code request.
     /// </summary>
-    public enum AuthorizationCodeFailure
+    public enum AuthorizationCodeFailureReason
     {
         /// <summary>
         /// The authorization code request was blocked. This could be due to popup blockers or similar.
