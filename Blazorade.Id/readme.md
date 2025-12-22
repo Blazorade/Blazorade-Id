@@ -13,6 +13,7 @@ Get started with Blazorade Id by visiting the Getting Started page on the [Blazo
 - Improved refresh token handling in token store implementations.
 - Implemented log out functionality through the ISignOutService.
 - Implemented a default sign-out service for Blazor applications.
+- Renamed property store and token store implementations to better reflect what storage they use.
 
 ### v1.0.0-rc.1
 
