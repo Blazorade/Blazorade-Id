@@ -1,9 +1,9 @@
-﻿using Blazorade.Id.Core.Services;
+﻿using Blazorade.Id.Services;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Blazorade.Id.Core.Model
+namespace Blazorade.Id.Model
 {
     /// <summary>
     /// Represents a code challenge value that is an authorization code flow with PKCE (Proof Key Code Exchange).

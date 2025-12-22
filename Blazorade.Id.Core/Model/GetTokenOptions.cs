@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Blazorade.Id.Core.Model
+namespace Blazorade.Id.Model
 {
     /// <summary>
     /// Defines a set of options that can be used when acquiring a token.

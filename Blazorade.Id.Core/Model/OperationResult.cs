@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Blazorade.Id.Core.Model
+namespace Blazorade.Id.Model
 {
     /// <summary>
     /// Represents a result of an operation.

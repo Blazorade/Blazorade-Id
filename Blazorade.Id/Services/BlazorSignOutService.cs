@@ -1,6 +1,5 @@
-﻿using Blazorade.Id.Core.Configuration;
-using Blazorade.Id.Core.Model;
-using Blazorade.Id.Core.Services;
+﻿using Blazorade.Id.Configuration;
+using Blazorade.Id.Model;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.Options;
 using System;

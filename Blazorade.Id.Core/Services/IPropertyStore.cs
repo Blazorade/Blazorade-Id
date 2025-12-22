@@ -1,11 +1,11 @@
-﻿using Blazorade.Id.Core.Model;
+﻿using Blazorade.Id.Model;
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Blazorade.Id.Core.Services
+namespace Blazorade.Id.Services
 {
 
     /// <summary>

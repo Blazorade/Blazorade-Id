@@ -1,5 +1,5 @@
-﻿using Blazorade.Id.Core.Configuration;
-using Blazorade.Id.Core.Model;
+﻿using Blazorade.Id.Configuration;
+using Blazorade.Id.Model;
 using Microsoft.Extensions.Primitives;
 using Microsoft.IdentityModel.Tokens;
 using System;
@@ -13,7 +13,7 @@ using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
-namespace Blazorade.Id.Core.Services
+namespace Blazorade.Id.Services
 {
     /// <summary>
     /// A builder that is used to build URIs to various endpoints.

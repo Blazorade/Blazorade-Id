@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Blazorade.Id.Core.Model
+namespace Blazorade.Id.Model
 {
     /// <summary>
     /// Defines an enumeration of token types.

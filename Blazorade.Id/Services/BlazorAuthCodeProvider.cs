@@ -1,6 +1,4 @@
-﻿using Blazorade.Id.Core.Configuration;
-using Blazorade.Id.Core.Services;
-using Microsoft.AspNetCore.Components;
+﻿using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.Options;
 using Microsoft.JSInterop;
 using System;
@@ -13,9 +11,9 @@ using Blazorade.Core.Components;
 using Blazorade.Core.Interop;
 using System.Reflection.Metadata;
 using System.Security.Cryptography;
-using Blazorade.Id.Core.Model;
 using System.Text.Json;
 using Blazorade.Id.Model;
+using Blazorade.Id.Configuration;
 
 namespace Blazorade.Id.Services
 {

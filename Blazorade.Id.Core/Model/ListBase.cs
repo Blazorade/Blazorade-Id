@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Blazorade.Id.Core.Model
+namespace Blazorade.Id.Model
 {
     /// <summary>
     /// A base implementation of the <see cref="IList{T}"/> interface.

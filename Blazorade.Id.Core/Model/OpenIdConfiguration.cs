@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Text.Json.Serialization;
 
-namespace Blazorade.Id.Core.Model
+namespace Blazorade.Id.Model
 {
     public class OpenIdConfiguration
     {

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Blazorade.Id.Core.Configuration
+namespace Blazorade.Id.Configuration
 {
     /// <summary>
     /// Defines options that define how to connect to a specific authority (identity provider).

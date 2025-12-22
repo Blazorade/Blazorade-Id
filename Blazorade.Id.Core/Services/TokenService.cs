@@ -1,5 +1,5 @@
-﻿using Blazorade.Id.Core.Configuration;
-using Blazorade.Id.Core.Model;
+﻿using Blazorade.Id.Configuration;
+using Blazorade.Id.Model;
 using Microsoft.Extensions.Options;
 using System;
 using System.Linq;
@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 using System.Xml.Serialization;
 using System.ComponentModel;
 
-namespace Blazorade.Id.Core.Services
+namespace Blazorade.Id.Services
 {
     /// <summary>
     /// A service implementation for working with tokens.

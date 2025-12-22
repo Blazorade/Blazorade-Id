@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Blazorade.Id.Core.Services
+namespace Blazorade.Id.Services
 {
 
     /// <summary>

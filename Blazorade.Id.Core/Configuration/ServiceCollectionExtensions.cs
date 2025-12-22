@@ -1,4 +1,4 @@
-﻿using Blazorade.Id.Core.Services;
+﻿using Blazorade.Id.Services;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
@@ -7,7 +7,7 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 
-namespace Blazorade.Id.Core.Configuration
+namespace Blazorade.Id.Configuration
 {
     /// <summary>
     /// Extension methods for registering Blazorade Id services in an <see cref="IServiceCollection"/>.

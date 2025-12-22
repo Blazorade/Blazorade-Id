@@ -1,11 +1,11 @@
-﻿using Blazorade.Id.Core.Configuration;
+﻿using Blazorade.Id.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Blazorade.Id.Core.Services
+namespace Blazorade.Id.Services
 {
     /// <summary>
     /// A request builder that is used to build requests to a token endpoint.

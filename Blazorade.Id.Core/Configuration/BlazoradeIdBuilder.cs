@@ -1,4 +1,4 @@
-﻿using Blazorade.Id.Core.Services;
+﻿using Blazorade.Id.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System;
@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Text.Json;
 
-namespace Blazorade.Id.Core.Configuration
+namespace Blazorade.Id.Configuration
 {
     /// <summary>
     /// A builder class that you use to further configure your application.

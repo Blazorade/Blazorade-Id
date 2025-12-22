@@ -1,5 +1,4 @@
-﻿using Blazorade.Id.Core.Model;
-using Blazorade.Id.Core.Services;
+﻿using Blazorade.Id.Model;
 using Blazored.SessionStorage;
 using System;
 using System.Collections.Generic;

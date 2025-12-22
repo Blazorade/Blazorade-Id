@@ -1,4 +1,4 @@
-﻿using Blazorade.Id.Core.Model;
+﻿using Blazorade.Id.Model;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Blazorade.Id.Core.Services
+namespace Blazorade.Id.Services
 {
     /// <summary>
     ///  A token store implementation that keeps tokens in memory.

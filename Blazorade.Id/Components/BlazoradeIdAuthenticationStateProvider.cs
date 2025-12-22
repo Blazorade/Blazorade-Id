@@ -1,5 +1,4 @@
-﻿using Blazorade.Id.Core.Services;
-using Microsoft.AspNetCore.Components.Authorization;
+﻿using Microsoft.AspNetCore.Components.Authorization;
 using System;
 using System.Collections.Generic;
 using System.Linq;

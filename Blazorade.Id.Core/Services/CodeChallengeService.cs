@@ -1,11 +1,11 @@
-﻿using Blazorade.Id.Core.Model;
+﻿using Blazorade.Id.Model;
 using System;
 using System.Collections.Generic;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 
-namespace Blazorade.Id.Core.Services
+namespace Blazorade.Id.Services
 {
     /// <summary>
     /// A service class that is used for creating code challenges for use with

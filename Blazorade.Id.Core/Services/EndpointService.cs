@@ -1,5 +1,5 @@
-﻿using Blazorade.Id.Core.Configuration;
-using Blazorade.Id.Core.Model;
+﻿using Blazorade.Id.Configuration;
+using Blazorade.Id.Model;
 using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
@@ -10,7 +10,7 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 
-namespace Blazorade.Id.Core.Services
+namespace Blazorade.Id.Services
 {
     /// <summary>
     /// A service implementation that is used to resolve various endpoints with.

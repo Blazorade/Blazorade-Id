@@ -1,11 +1,11 @@
-﻿using Blazorade.Id.Core.Model;
+﻿using Blazorade.Id.Model;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Blazorade.Id.Core.Services
+namespace Blazorade.Id.Services
 {
     /// <summary>
     /// A service contract for services that are used for creating code challenges for 

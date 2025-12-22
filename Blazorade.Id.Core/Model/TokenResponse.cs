@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Text.Json.Serialization;
 
-namespace Blazorade.Id.Core.Model
+namespace Blazorade.Id.Model
 {
     /// <summary>
     /// Represents a set of tokens received from the token endpoint.

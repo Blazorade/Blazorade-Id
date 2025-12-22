@@ -1,4 +1,4 @@
-﻿using Blazorade.Id.Core.Model;
+﻿using Blazorade.Id.Model;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Blazorade.Id.Core
+namespace Blazorade.Id
 {
     /// <summary>
     /// Defines methods for extending existing classes in Blazorade Id.

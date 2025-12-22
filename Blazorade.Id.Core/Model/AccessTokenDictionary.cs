@@ -4,9 +4,9 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Blazorade.Id.Core.Services;
+using Blazorade.Id.Services;
 
-namespace Blazorade.Id.Core.Model
+namespace Blazorade.Id.Model
 {
     /// <summary>
     /// Represents a set of access tokens that are grouped by the resource they are intended for and keyed by the

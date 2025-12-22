@@ -1,6 +1,5 @@
 ﻿using Blazorade.Id.Components;
-using Blazorade.Id.Core.Configuration;
-using Blazorade.Id.Core.Services;
+using Blazorade.Id.Configuration;
 using Blazorade.Id.Services;
 using Blazored.LocalStorage;
 using Blazored.SessionStorage;
