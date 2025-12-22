@@ -15,9 +15,7 @@ builder.Services
     .AddMudServices()
     .AddScoped<GraphClientService>()
     .AddBlazoradeIdWasmApplication()
-    //.AddTokenStore<BlazorSessionTokenStore>()
-    //.AddTokenStore<BlazorPersistentTokenStore>()
-    .AddPropertyStore<BlazorPersistentPropertyStore>()
+    .AddPropertyStore<BrowserLocalStoragePropertyStore>()
     .AddAuthority((sp, options) =>
     {
         var config = sp.GetRequiredService<IConfiguration>();
