@@ -41,10 +41,10 @@ namespace Blazorade.Id.Services
         /// <summary>
         /// Creates a token endpoint uri builder.
         /// </summary>
-        public static async Task<TokenEndpointUriBuilder> CreateTokenRequestBuilderAsync(this IEndpointService epService)
+        public static async Task<TokenEndpointRequestBuilder> CreateTokenRequestBuilderAsync(this IEndpointService epService)
         {
             var uri = await epService.GetTokenEndpointAsync() ?? throw new Exception("Could not resolve URI for token endpoint");
-            return new TokenEndpointUriBuilder(uri);
+            return new TokenEndpointRequestBuilder(uri);
         }
 
 
