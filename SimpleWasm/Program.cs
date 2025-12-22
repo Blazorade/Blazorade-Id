@@ -1,6 +1,3 @@
-using Blazorade.Id.Components.Pages;
-using Blazorade.Id.Core.Services;
-using Blazorade.Id.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;

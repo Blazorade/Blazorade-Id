@@ -1,4 +1,4 @@
-﻿@using Blazorade.Id.Core.Model
+﻿@using Blazorade.Id.Model
 
 @page "/"
 @inject ITokenService TokenService
@@ -13,7 +13,7 @@
 <AuthorizeView>
     <Authorized Context="auth">
         <h2>Logged in as: @auth.User.Identity?.Name</h2>
-        <button @onclick="async () => await this.OnGetTokensAsync(prompt: Blazorade.Id.Core.Model.Prompt.Select_Account)">Switch Account</button>
+        <button @onclick="async () => await this.OnGetTokensAsync(prompt: Blazorade.Id.Model.Prompt.Select_Account)">Switch Account</button>
         <button @onclick="async () => await this.SignOutAsync()">Sign Out</button>
     </Authorized>
 </AuthorizeView>
@@ -81,7 +81,7 @@
 
             var options = new GetTokenOptions
                 {
-                    Prompt = Blazorade.Id.Core.Model.Prompt.None,
+                    Prompt = Blazorade.Id.Model.Prompt.None,
                     Scopes = this.Scopes.Split(' ', StringSplitOptions.RemoveEmptyEntries)
                 };
 
@@ -112,6 +112,6 @@
 
         this.AccessTokens = await this.TokenService.GetAccessTokensAsync(getOptions);
 
-        this.IdToken = await this.TokenService.GetIdentityTokenAsync(new GetTokenOptions { Prompt = Blazorade.Id.Core.Model.Prompt.None, Scopes = getOptions.Scopes });
+        this.IdToken = await this.TokenService.GetIdentityTokenAsync(new GetTokenOptions { Prompt = Blazorade.Id.Model.Prompt.None, Scopes = getOptions.Scopes });
     }
 }
