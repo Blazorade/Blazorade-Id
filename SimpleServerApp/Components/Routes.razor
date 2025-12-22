@@ -1,5 +1,13 @@
-﻿
-<Router AppAssembly="typeof(Program).Assembly" AdditionalAssemblies="new System.Reflection.Assembly[] { typeof(OAuthCallback).Assembly }">
+﻿@using System.Reflection
+
+@code {
+    Assembly[] assemblies = new Assembly[]
+    {
+        typeof(OAuthCallback).Assembly
+    };
+}
+
+<Router AppAssembly="typeof(Program).Assembly" AdditionalAssemblies="assemblies">
     <Found Context="routeData">
         <RouteView RouteData="routeData" DefaultLayout="typeof(Layout.MainLayout)" />
     </Found>

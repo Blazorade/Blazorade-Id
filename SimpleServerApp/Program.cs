@@ -10,7 +10,6 @@ builder.Services.AddRazorComponents()
     ;
 
 builder.Services
-    //.AddBlazoradeCore()
     .AddBlazoradeIdServerApplication()
         .AddAuthority((sp, options) =>
         {
