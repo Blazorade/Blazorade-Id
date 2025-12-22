@@ -10,7 +10,7 @@ builder.Services.AddRazorComponents()
     ;
 
 builder.Services
-    .AddBlazoradeCore()
+    //.AddBlazoradeCore()
     .AddBlazoradeIdServerApplication()
         .AddAuthority((sp, options) =>
         {
@@ -21,19 +21,10 @@ builder.Services
 
     // By default, Blazorade ID uses in-memory token storage, which means tokens are lost when the page is refreshed.
     // If you want to persist tokens across page refreshes, you can use one of the token stores below.
-    //.AddTokenStore<BlazorSessionTokenStore>()
+    .AddTokenStore<BlazorSessionTokenStore>()
     //.AddTokenStore<BlazorPersistentTokenStore>()
     //.AddPropertyStore<BlazorSessionPropertyStore>()
     //.AddPropertyStore<BlazorPersistentPropertyStore>()
-    .AddTokenStore(sp =>
-    {
-        // This allows you to store refresh tokens in local storage, which means they persist across browser sessions.
-        // WARNING: Storing refresh tokens in local storage can expose them to XSS attacks. Only enable this
-        // if you understand the security risks. Refresh tokens are long-lived and can be used to obtain new access tokens
-        // and identity tokens.
-        var innerStore = sp.GetRequiredService<Blazored.LocalStorage.ILocalStorageService>();
-        return new BlazorPersistentTokenStore(innerStore) { AllowRefreshTokensInWebStorage = true };
-    })
     ;
 
 
