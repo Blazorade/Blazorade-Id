@@ -8,6 +8,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "MiscFiles", "MiscFiles", "{B5710DA4-60C9-4E33-9F6F-88F9E0B001E7}"
 	ProjectSection(SolutionItems) = preProject
 		.gitignore = .gitignore
+		README.md = README.md
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Blazorade.Id", "Blazorade.Id\Blazorade.Id.csproj", "{A0F5B3A2-EF27-4B3E-8648-685A6920473D}"
