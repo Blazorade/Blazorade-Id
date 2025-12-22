@@ -16,7 +16,7 @@ builder.Services
     .AddScoped<GraphClientService>()
     .AddBlazoradeIdWasmApplication()
     //.AddTokenStore<BlazorSessionTokenStore>()
-    .AddTokenStore<BlazorPersistentTokenStore>()
+    //.AddTokenStore<BlazorPersistentTokenStore>()
     .AddPropertyStore<BlazorPersistentPropertyStore>()
     .AddAuthority((sp, options) =>
     {
