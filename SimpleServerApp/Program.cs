@@ -20,7 +20,7 @@ builder.Services
 
     // By default, Blazorade ID uses in-memory token storage, which means tokens are lost when the page is refreshed.
     // If you want to persist tokens across page refreshes, you can use one of the token stores below.
-    .AddTokenStore<BlazorSessionTokenStore>()
+    //.AddTokenStore<BlazorSessionTokenStore>()
     //.AddTokenStore<BlazorPersistentTokenStore>()
     //.AddPropertyStore<BlazorSessionPropertyStore>()
     //.AddPropertyStore<BlazorPersistentPropertyStore>()
