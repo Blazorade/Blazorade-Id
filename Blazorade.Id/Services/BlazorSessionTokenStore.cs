@@ -34,6 +34,8 @@ namespace Blazorade.Id.Services
             {
                 await this.Service.RemoveItemAsync(key);
             }
+
+            await this.InMemoryStore.ClearAllAsync();
         }
 
         /// <inheritdoc/>
@@ -52,7 +54,14 @@ namespace Blazorade.Id.Services
         /// <inheritdoc/>
         public async override Task<TokenContainer?> GetRefreshTokenAsync()
         {
-            return await this.GetContainerAsync(TokenType.RefreshToken);
+            if (this.AllowRefreshTokensInWebStorage)
+            {
+                return await this.GetContainerAsync(TokenType.RefreshToken);
+            }
+            else
+            {
+                return await this.InMemoryStore.GetRefreshTokenAsync();
+            }
         }
 
         /// <inheritdoc/>
@@ -72,9 +81,17 @@ namespace Blazorade.Id.Services
         /// <inheritdoc/>
         public async override Task SetRefreshTokenAsync(TokenContainer? token)
         {
-            var key = this.GetKey(TokenType.RefreshToken);
-            await this.SetItemAsync(key, token);
+            if (this.AllowRefreshTokensInWebStorage)
+            {
+                var key = this.GetKey(TokenType.RefreshToken);
+                await this.SetItemAsync(key, token);
+            }
+            else
+            {
+                await this.InMemoryStore.SetRefreshTokenAsync(token);
+            }
         }
+
 
 
         private async ValueTask<TokenContainer?> GetContainerAsync(TokenType tokenType)

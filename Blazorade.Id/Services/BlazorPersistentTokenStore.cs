@@ -34,6 +34,8 @@ namespace Blazorade.Id.Services
             {
                 await this.Service.RemoveItemAsync(key);
             }
+
+            await this.InMemoryStore.ClearAllAsync();
         }
 
         /// <inheritdoc/>
