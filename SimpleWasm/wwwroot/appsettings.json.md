@@ -8,7 +8,7 @@ In order for you to run the sample app, you need to create an `appsettings.json`
 {
   "blazorade": {
     "id": {
-      "metadatauri": "{URI}",
+      "discoverydocumenturi": "{URI}",
       "clientid": "{string}",
       "scope": "{string}"
     }
@@ -16,7 +16,7 @@ In order for you to run the sample app, you need to create an `appsettings.json`
 }
 ```
 
-- `metadatauri`: This is the URI to the metadata endpoint of your identity provider. Replace `{URI}` with the actual URI. Blazorade ID will use this URI to automatically discover the authorization and token endpoints.
+- `discoverydocumenturi`: This is the URI to the discovery document of your identity provider. Replace `{URI}` with the actual URI. Blazorade ID will use this URI to automatically discover the authorization and token endpoints.
 - `clientid`: This is the client ID of your application registered with the identity provider. Replace `{string}` with your actual client ID.
 - `scope`: The default scope(s) used when acquiring access tokens in case you acquire access tokens without specifying the scopes to require. This setting is optional, and will default to `openid profile email` if not specified. Replace `{string}` with the appropriate scope for your application.
 
