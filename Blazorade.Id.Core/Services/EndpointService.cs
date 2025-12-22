@@ -33,7 +33,7 @@ namespace Blazorade.Id.Services
         /// <inheritdoc/>
         public async Task<string> GetAuthorizationEndpointAsync()
         {
-            return await this.GetEndpointFromOpenIdConfigurationAsync(this.Options.AuthorizationEndpoint, this.Options.MetadataUri, doc => doc.AuthorizationEndpointUri)
+            return await this.GetEndpointFromOpenIdConfigurationAsync(this.Options.AuthorizationEndpoint, this.Options.DiscoveryDocumentUri, doc => doc.AuthorizationEndpointUri)
                 ?? throw new NullReferenceException("Could not resolve URI for authorization endpoint.");
                 ;
         }
@@ -41,7 +41,7 @@ namespace Blazorade.Id.Services
         /// <inheritdoc/>
         public async Task<string> GetTokenEndpointAsync()
         {
-            return await this.GetEndpointFromOpenIdConfigurationAsync(this.Options.TokenEndpoint, this.Options.MetadataUri, doc => doc.TokenEndpointUri)
+            return await this.GetEndpointFromOpenIdConfigurationAsync(this.Options.TokenEndpoint, this.Options.DiscoveryDocumentUri, doc => doc.TokenEndpointUri)
                 ?? throw new NullReferenceException("Could not resolve URI for token endpoint.")
                 ;
         }
@@ -49,30 +49,30 @@ namespace Blazorade.Id.Services
         /// <inheritdoc/>
         public async Task<string?> GetEndSessionEndpointAsync()
         {
-            return await this.GetEndpointFromOpenIdConfigurationAsync(this.Options.EndSessionEndpoint, this.Options.MetadataUri, doc => doc.EndSessionEndpointUri);
+            return await this.GetEndpointFromOpenIdConfigurationAsync(this.Options.EndSessionEndpoint, this.Options.DiscoveryDocumentUri, doc => doc.EndSessionEndpointUri);
         }
 
         /// <inheritdoc/>
         public async Task<string?> GetUserInfoEndpointAsync()
         {
-            return await this.GetEndpointFromOpenIdConfigurationAsync(null, this.Options.MetadataUri, doc => doc.UserInfoEndpointUri);
+            return await this.GetEndpointFromOpenIdConfigurationAsync(null, this.Options.DiscoveryDocumentUri, doc => doc.UserInfoEndpointUri);
         }
 
         /// <inheritdoc/>
         public async Task<string?> GetDeviceAuthorizationEndpointAsync()
         {
-            return await this.GetEndpointFromOpenIdConfigurationAsync(null, this.Options.MetadataUri, doc => doc.DeviceAuthorizationEndpointUri);
+            return await this.GetEndpointFromOpenIdConfigurationAsync(null, this.Options.DiscoveryDocumentUri, doc => doc.DeviceAuthorizationEndpointUri);
         }
 
         /// <inheritdoc/>
         public async Task<string?> GetKerberosEndpointAsync()
         {
-            return await this.GetEndpointFromOpenIdConfigurationAsync(null, this.Options.MetadataUri, doc => doc.KerberosEndpointUri);
+            return await this.GetEndpointFromOpenIdConfigurationAsync(null, this.Options.DiscoveryDocumentUri, doc => doc.KerberosEndpointUri);
         }
 
 
 
-        private async Task<string?> GetEndpointFromOpenIdConfigurationAsync(string? endpointUri, string? metadataUri, Func<OpenIdConfiguration, string?> uriResolver)
+        private async Task<string?> GetEndpointFromOpenIdConfigurationAsync(string? endpointUri, string? discoveryDocumentUri, Func<OpenIdConfiguration, string?> uriResolver)
         {
             string? result = null;
 
@@ -80,9 +80,9 @@ namespace Blazorade.Id.Services
             {
                 result = endpointUri;
             }
-            else if(metadataUri?.Length > 0)
+            else if(discoveryDocumentUri?.Length > 0)
             {
-                var doc = await this.LoadOpenIdConfigurationAsync(metadataUri);
+                var doc = await this.LoadOpenIdConfigurationAsync(discoveryDocumentUri);
                 if(null != doc)
                 {
                     result = uriResolver(doc);
@@ -92,14 +92,14 @@ namespace Blazorade.Id.Services
             return result;
         }
 
-        private async Task<OpenIdConfiguration?> LoadOpenIdConfigurationAsync(string metadataUri)
+        private async Task<OpenIdConfiguration?> LoadOpenIdConfigurationAsync(string discoveryDocumentUri)
         {
             OpenIdConfiguration? metadata = null!;
 
             var request = new HttpRequestMessage
             {
                 Method = HttpMethod.Get,
-                RequestUri = new Uri(metadataUri)
+                RequestUri = new Uri(discoveryDocumentUri)
             };
             var response = await this.HttpService.SendRequestAsync(request);
             if (response.IsSuccessStatusCode)

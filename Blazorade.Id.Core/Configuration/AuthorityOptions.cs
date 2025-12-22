@@ -16,24 +16,24 @@ namespace Blazorade.Id.Configuration
         public string ClientId { get; set; } = string.Empty;
 
         /// <summary>
-        /// The full URI to the metadata JSON document for the authorization endpoint to use.
+        /// The full URI to the discovery document JSON for the Identity Provider endpoint to use.
         /// </summary>
         /// <remarks>
         /// <para>
-        /// The metadata document contains all endpoints that Blazorade ID need to work.
+        /// The discovery document contains all endpoints that Blazorade ID need to work.
         /// </para>
         /// <para>
-        /// If the metadata URI is not specified, you need to separately specify both
+        /// If the discovery document URI is not specified, you need to separately specify both
         /// <see cref="AuthorizationEndpoint"/> and <see cref="TokenEndpoint"/>. If you
         /// want to support signing out, you also need to configure <see cref="EndSessionEndpoint"/>.
         /// </para>
         /// <para>
-        /// If you specify the metadata URI, you can still "override" <see cref="AuthorizationEndpoint"/>,
+        /// If you specify the discovery document URI, you can still "override" <see cref="AuthorizationEndpoint"/>,
         /// <see cref="TokenEndpoint"/> or <see cref="EndSessionEndpoint"/> by specifying them
         /// separately.
         /// </para>
         /// </remarks>
-        public string? MetadataUri { get; set; }
+        public string? DiscoveryDocumentUri { get; set; }
 
         /// <summary>
         /// The authorization endpoint of your selected identity provider.
