@@ -10,6 +10,11 @@ Get started with Blazorade Id by visiting the Getting Started page on the [Blazo
 
 The versions of Blazorade ID Core always match the version numbers of the other Blazorade ID libraries. For details, see the *Used By* tab above.
 
+### v1.0.0-rc.2
+
+- Changed the default namespace for the `Blazorade.Id.Core` assembly from `Blazorade.Id.Core` to `Blazorade.Id` to align with other Blazorade ID libraries. Moved all defined types accordingly.
+- Renamed property `MetadataUri` to `DiscoveryDocumentUri` on the Blazorade.Id.Configuration.AuthorityOptions class to better reflect its purpose.
+
 ### v1.0.0-rc.1
 
 Preparing for the first stable version. Even though Blazorade ID is designed to work with any OAuth/OIDC compliant identity provider, the first stable version will focus on Microsoft Entra ID and Microsoft Entra External ID.

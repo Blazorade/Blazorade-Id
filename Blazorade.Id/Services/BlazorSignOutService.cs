@@ -41,17 +41,19 @@ namespace Blazorade.Id.Services
 
             var idToken = await this.TokenStore.GetIdentityTokenAsync();
 
-            var builder = await this.EndpointService.CreateEndSessionUriBuilderAsync();
-            builder
-                .WithIdTokenHint(idToken?.Token)
-                .WithClientId(this.AuthOptions.ClientId)
-                .WithPostLogoutRedirectUri(options.RedirectUri)
-                ;
-
             await this.TokenStore.ClearAllAsync();
             await this.AuthStateNotifier.StateHasChangedAsync();
 
-            this.NavMan.NavigateTo(builder.Build());
+            if (!options.SkipEndIdpSession)
+            {
+                var builder = await this.EndpointService.CreateEndSessionUriBuilderAsync();
+                builder
+                    .WithIdTokenHint(idToken?.Token)
+                    .WithClientId(this.AuthOptions.ClientId)
+                    .WithPostLogoutRedirectUri(options.RedirectUri);
+
+                this.NavMan.NavigateTo(builder.Build());
+            }
         }
     }
 }

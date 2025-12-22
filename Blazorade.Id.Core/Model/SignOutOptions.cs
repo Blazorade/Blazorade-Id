@@ -22,6 +22,12 @@ namespace Blazorade.Id.Model
         public string? RedirectUri { get; set; }
 
         /// <summary>
+        /// When you set this to <see langword="true"/>, the sign-out request to the identity 
+        /// provider's end session endpoint is skipped. Only token stores are cleared.
+        /// </summary>
+        public bool SkipEndIdpSession { get; set; }
+
+        /// <summary>
         /// If set to <see langword="true"/>, the base URI of the application is used as the redirect URI.
         /// </summary>
         public bool UseDefaultRedirectUri { get; set; }

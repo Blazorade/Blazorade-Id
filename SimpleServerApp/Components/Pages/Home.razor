@@ -67,7 +67,7 @@
 
     private async Task SignOutAsync()
     {
-        await this.SignOutService.SignOutAsync(new SignOutOptions { UseDefaultRedirectUri = true });
+        await this.SignOutService.SignOutAsync(new SignOutOptions { SkipEndIdpSession = true, UseDefaultRedirectUri = true });
         this.AccessTokens.Clear();
         this.IdToken = null;
     }

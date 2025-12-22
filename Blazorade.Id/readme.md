@@ -8,6 +8,12 @@ Get started with Blazorade Id by visiting the Getting Started page on the [Blazo
 
 ## Version Highlights
 
+### v1.0.0-rc.2
+
+- Improved refresh token handling in token store implementations.
+- Implemented log out functionality through the ISignOutService.
+- Implemented a default sign-out service for Blazor applications.
+
 ### v1.0.0-rc.1
 
 Preparing for the first stable version. Even though Blazorade ID is designed to work with any OAuth/OIDC compliant identity provider, the first stable version will focus on Microsoft Entra ID and Microsoft Entra External ID.
