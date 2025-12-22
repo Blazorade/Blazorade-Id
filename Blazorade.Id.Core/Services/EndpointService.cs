@@ -72,7 +72,7 @@ namespace Blazorade.Id.Services
 
 
 
-        private async Task<string?> GetEndpointFromOpenIdConfigurationAsync(string? endpointUri, string? discoveryDocumentUri, Func<OpenIdConfiguration, string?> uriResolver)
+        private async Task<string?> GetEndpointFromOpenIdConfigurationAsync(string? endpointUri, string? discoveryDocumentUri, Func<OpenIdDiscoveryDocument, string?> uriResolver)
         {
             string? result = null;
 
@@ -92,9 +92,9 @@ namespace Blazorade.Id.Services
             return result;
         }
 
-        private async Task<OpenIdConfiguration?> LoadOpenIdConfigurationAsync(string discoveryDocumentUri)
+        private async Task<OpenIdDiscoveryDocument?> LoadOpenIdConfigurationAsync(string discoveryDocumentUri)
         {
-            OpenIdConfiguration? metadata = null!;
+            OpenIdDiscoveryDocument? metadata = null!;
 
             var request = new HttpRequestMessage
             {
@@ -106,7 +106,7 @@ namespace Blazorade.Id.Services
             {
                 using (var strm = await response.Content.ReadAsStreamAsync())
                 {
-                    metadata = await JsonSerializer.DeserializeAsync<OpenIdConfiguration>(await response.Content.ReadAsStreamAsync());
+                    metadata = await JsonSerializer.DeserializeAsync<OpenIdDiscoveryDocument>(await response.Content.ReadAsStreamAsync());
                 }
             }
 

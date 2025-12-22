@@ -5,7 +5,10 @@ using System.Text.Json.Serialization;
 
 namespace Blazorade.Id.Model
 {
-    public class OpenIdConfiguration
+    /// <summary>
+    /// Represents an OpenID Connect discovery document.
+    /// </summary>
+    public class OpenIdDiscoveryDocument
     {
         /// <summary>
         /// The authorization endpoint URI.
