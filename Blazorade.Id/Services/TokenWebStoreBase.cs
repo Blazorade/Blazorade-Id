@@ -34,7 +34,10 @@ namespace Blazorade.Id.Services
         /// <summary>
         /// An in-memory token store used for storing tokens that should not be stored in web storage.
         /// </summary>
-        protected InMemoryTokenStore InMemoryStore { get; } = new InMemoryTokenStore();
+        /// <remarks>
+        /// This store will always refresh tokens, since it is the fallback for token stores.
+        /// </remarks>
+        protected InMemoryTokenStore InMemoryStore { get; } = new InMemoryTokenStore { StoreRefreshTokens = true };
 
     }
 }

@@ -92,7 +92,10 @@ namespace Blazorade.Id.Services
         /// <inheritdoc/>
         public override Task SetRefreshTokenAsync(TokenContainer? token)
         {
-            this.RefreshToken = token;
+            if(this.StoreRefreshTokens)
+            {
+                this.RefreshToken = token;
+            }
             return Task.CompletedTask;
         }
     }

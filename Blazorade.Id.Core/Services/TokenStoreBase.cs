@@ -15,6 +15,9 @@ namespace Blazorade.Id.Services
     {
 
         /// <inheritdoc/>
+        public bool StoreRefreshTokens { get; set; }
+
+        /// <inheritdoc/>
         public abstract Task ClearAllAsync();
 
         /// <inheritdoc/>

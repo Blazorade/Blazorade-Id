@@ -59,7 +59,7 @@ namespace Blazorade.Id.Services
         /// <inheritdoc/>
         public async Task<bool> ProcessAuthorizationCodeAsync(string code)
         {
-            bool result = false;
+            string? refreshToken = null;
             string nonce = await this.PropertyStore.GetNonceAsync() ?? throw new NullReferenceException("Could not resolve nonce for the current authorization flow. Cannot use authorization code to acquire tokens without it.");
             string scope = await this.PropertyStore.GetScopeAsync() ?? throw new NullReferenceException("Could not resolve scope for the current authorization flow. Cannot use authorization code to acquire tokens without it.");
             string codeVerifier = await this.PropertyStore.GetCodeVerifierAsync() ?? throw new NullReferenceException("Could not resolve code verifier for the current authorization flow. Cannot use authorization code to acquire tokens without it.");
@@ -74,9 +74,12 @@ namespace Blazorade.Id.Services
             // First, we exchange the auth code for the initial set of tokens. In this exchange, we are
             // only interested in the refresh token. We will then use that refresh token to acquire both
             // access tokens and identity tokens using the token refresher service.
-            result = await this.ExchangeAuthCodeAsync(code, this.AuthOptions.ClientId, codeVerifier, redirUri);
-            if(result)
+            refreshToken = await this.ExchangeAuthCodeAsync(code, this.AuthOptions.ClientId, codeVerifier, redirUri);
+            if(refreshToken?.Length > 0)
             {
+                // We only ask the token refresher to refresh tokens if we know that a refresh token has been stored.
+                // If StoreRefreshToken is false, we do not store the refresh token acquired during the auth code exchange.
+                // Instead, we store whatever access token and identity token that we get from the auth code exchange.
                 var sortedScopes = this.ScopeSorter.SortScopes(scope?.Split(' ', StringSplitOptions.RemoveEmptyEntries) ?? []);
                 if (sortedScopes.Count > 0)
                 {
@@ -84,16 +87,20 @@ namespace Blazorade.Id.Services
                     {
                         await this.TokenRefresher.RefreshTokensAsync(new TokenRefreshOptions
                         {
+                            RefreshToken = refreshToken,
                             Scopes = item.Value
                         });
                     }
                 }
             }
 
-            return result;
+            return refreshToken?.Length > 0;
         }
 
-        private async Task<bool> ExchangeAuthCodeAsync(string code, string clientId, string codeVerifier, string redirUri)
+        /// <summary>
+        /// Exchanges the given auth code for tokens. Returns the refresh token if the exchange was successful.
+        /// </summary>
+        private async Task<string?> ExchangeAuthCodeAsync(string code, string clientId, string codeVerifier, string redirUri)
         {
             var now = DateTime.UtcNow;
             TokenResponse? tokenResponse = null;
@@ -106,6 +113,7 @@ namespace Blazorade.Id.Services
                 .WithRedirectUri(redirUri)
                 .Build();
 
+            string? refreshToken = null;
             try
             {
                 using (var response = await this.HttpService.SendRequestAsync(tokenRequest))
@@ -118,11 +126,12 @@ namespace Blazorade.Id.Services
                         {
                             tokenResponse.ExpiresAtUtc = now.AddSeconds(tokenResponse.ExpiresIn);
 
-                            if(tokenResponse.RefreshToken?.Length > 0)
+                            if (tokenResponse.RefreshToken?.Length > 0)
                             {
                                 await this.TokenStore.SetRefreshTokenAsync(tokenResponse.RefreshToken);
-                                return true;
                             }
+
+                            refreshToken = tokenResponse?.RefreshToken;
                         }
                     }
                     else
@@ -136,7 +145,7 @@ namespace Blazorade.Id.Services
                 Console.WriteLine($"Error while exchanging authorization code: {ex.Message}");
             }
 
-            return false;
+            return refreshToken;
         }
     }
 }

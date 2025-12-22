@@ -13,6 +13,14 @@ namespace Blazorade.Id.Services
     /// </summary>
     public interface ITokenStore
     {
+        /// <summary>
+        /// Defines whether a token store is allowed to store refresh tokens at all.
+        /// </summary>
+        /// <remarks>
+        /// The default value <see langword="false"/> indicates that refresh tokens may NOT
+        /// be stored by the token store implementation.
+        /// </remarks>
+        bool StoreRefreshTokens { get; set; }
 
         /// <summary>
         /// Clears all tokens from the token store.

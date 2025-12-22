@@ -80,14 +80,17 @@ namespace Blazorade.Id.Services
         /// <inheritdoc/>
         public async override Task SetRefreshTokenAsync(TokenContainer? token)
         {
-            if (this.AllowRefreshTokensInWebStorage)
+            if(this.StoreRefreshTokens)
             {
-                var key = this.GetKey(TokenType.RefreshToken);
-                await this.SetItemAsync(key, token);
-            }
-            else
-            {
-                await this.InMemoryStore.SetRefreshTokenAsync(token);
+                if (this.AllowRefreshTokensInWebStorage)
+                {
+                    var key = this.GetKey(TokenType.RefreshToken);
+                    await this.SetItemAsync(key, token);
+                }
+                else
+                {
+                    await this.InMemoryStore.SetRefreshTokenAsync(token);
+                }
             }
         }
 

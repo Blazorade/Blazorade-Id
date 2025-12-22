@@ -50,7 +50,14 @@ namespace Blazorade.Id.Services
         public async Task<bool> RefreshTokensAsync(TokenRefreshOptions options)
         {
             bool result = false;
-            var refreshToken = await this.TokenStore.GetRefreshTokenAsync();
+
+            // If the refresh token has been set in the options, then we MUST use that one.
+            // If not specified, we try to read it from the token store.
+            var refreshToken = options.RefreshToken?.Length > 0 
+                ? new TokenContainer(options.RefreshToken) : 
+                null 
+                ?? await this.TokenStore.GetRefreshTokenAsync();
+
             if(refreshToken?.Token?.Length > 0)
             {
                 result = true;
