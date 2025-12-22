@@ -7,11 +7,13 @@ using System.Threading.Tasks;
 
 namespace Blazorade.Id.Services
 {
-    /// <inheritdoc/>
-    public class BlazorPersistentPropertyStore : PropertyStoreBase
+    /// <summary>
+    /// A property store implementation that stores properties in the browser's local storage.
+    /// </summary>
+    public class BrowserLocalStoragePropertyStore : PropertyStoreBase
     {
         /// <inheritdoc/>
-        public BlazorPersistentPropertyStore(ILocalStorageService service)
+        public BrowserLocalStoragePropertyStore(ILocalStorageService service)
         {
             this.Service = service ?? throw new ArgumentNullException(nameof(service));
         }

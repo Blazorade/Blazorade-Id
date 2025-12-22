@@ -1,8 +1,8 @@
 ﻿using Blazorade.Id.Model;
-using Blazored.LocalStorage;
+using Blazored.SessionStorage;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -10,26 +10,26 @@ using System.Threading.Tasks;
 namespace Blazorade.Id.Services
 {
     /// <summary>
-    /// A token store that uses the browser local storage to persist tokens across sessions.
+    /// A token store that stores tokens in the browser's session storage.
     /// </summary>
-    public class BlazorPersistentTokenStore : TokenWebStoreBase
+    public class BrowserSessionStorageTokenStore : TokenWebStoreBase
     {
         /// <summary>
-        /// Creates a new instance of the <see cref="BlazorPersistentTokenStore"/> class.
+        /// Creates a new instance of the <see cref="BrowserSessionStorageTokenStore"/> class.
         /// </summary>
-        public BlazorPersistentTokenStore(ILocalStorageService service)
+        public BrowserSessionStorageTokenStore(ISessionStorageService service)
         {
             this.Service = service ?? throw new ArgumentNullException(nameof(service));
         }
 
-        private ILocalStorageService Service;
+        private readonly ISessionStorageService Service;
 
         /// <inheritdoc/>
         public override async Task ClearAllAsync()
         {
             var keyPrefix = this.GetKeyPrefix();
             var keys = await this.Service.KeysAsync();
-            foreach(var key in from x in keys where x.StartsWith(keyPrefix) select x)
+            foreach (var key in from x in keys where x.StartsWith(keyPrefix) select x)
             {
                 await this.Service.RemoveItemAsync(key);
             }
@@ -53,7 +53,7 @@ namespace Blazorade.Id.Services
         /// <inheritdoc/>
         public async override Task<TokenContainer?> GetRefreshTokenAsync()
         {
-            if(this.AllowRefreshTokensInWebStorage)
+            if (this.AllowRefreshTokensInWebStorage)
             {
                 return await this.GetContainerAsync(TokenType.RefreshToken);
             }
@@ -104,11 +104,11 @@ namespace Blazorade.Id.Services
 
         private async Task SetItemAsync(string key, TokenContainer? token)
         {
-            if(null != token)
+            if (null != token)
             {
                 await this.Service.SetItemAsync(key, token);
             }
-            else if(await this.Service.ContainKeyAsync(key))
+            else if (await this.Service.ContainKeyAsync(key))
             {
                 await this.Service.RemoveItemAsync(key);
             }

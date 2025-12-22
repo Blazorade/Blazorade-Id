@@ -8,12 +8,12 @@ using System.Threading.Tasks;
 namespace Blazorade.Id.Services
 {
     /// <summary>
-    /// A property storage implementation that uses Blazored.SessionStorage as the underlying storage mechanism.
+    /// A property store implementation that stores properties in the browser's session storage.
     /// </summary>
-    public class BlazorSessionPropertyStore : PropertyStoreBase
+    public class BrowserSessionStoragePropertyStore : PropertyStoreBase
     {
         /// <inheritdoc/>
-        public BlazorSessionPropertyStore(ISessionStorageService service)
+        public BrowserSessionStoragePropertyStore(ISessionStorageService service)
         {
             this.Service = service ?? throw new ArgumentNullException(nameof(service));
         }

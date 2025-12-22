@@ -70,7 +70,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 .AddBlazoredLocalStorage()
                 .AddScoped<IRedirectUriProvider, BlazorRedirectUriProvider>()
                 .AddScoped<IAuthorizationCodeProvider, BlazorAuthCodeProvider>()
-                .AddScoped<IPropertyStore, BlazorSessionPropertyStore>()
+                .AddScoped<IPropertyStore, BrowserSessionStoragePropertyStore>()
                 .AddScoped<IAuthenticationStateNotifier, BlazorAuthenticationStateNotifier>()
                 .AddScoped<BlazoradeIdScriptService>()
                 .AddScoped<ISignOutService, BlazorSignOutService>()
