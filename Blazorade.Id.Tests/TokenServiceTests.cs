@@ -1,7 +1,6 @@
-﻿using Blazorade.Id.Core;
-using Blazorade.Id.Core.Configuration;
-using Blazorade.Id.Core.Model;
-using Blazorade.Id.Core.Services;
+﻿using Blazorade.Id.Configuration;
+using Blazorade.Id.Model;
+using Blazorade.Id.Services;
 using Blazorade.Id.Tests.Services;
 using Microsoft.Testing.Platform.Services;
 using System;

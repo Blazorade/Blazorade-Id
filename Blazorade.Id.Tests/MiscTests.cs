@@ -1,6 +1,5 @@
 using Blazorade.Id;
-using Blazorade.Id.Core.Configuration;
-using Blazorade.Id.Core.Services;
+using Blazorade.Id.Configuration;
 using Blazorade.Id.Services;
 
 namespace Blazorade.Id.Tests

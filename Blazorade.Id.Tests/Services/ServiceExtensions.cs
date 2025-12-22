@@ -1,4 +1,4 @@
-﻿using Blazorade.Id.Core.Services;
+﻿using Blazorade.Id.Services;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;

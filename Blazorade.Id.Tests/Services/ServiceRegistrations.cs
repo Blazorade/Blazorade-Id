@@ -1,5 +1,4 @@
-﻿using Blazorade.Id.Core.Configuration;
-using Blazorade.Id.Core.Services;
+﻿using Blazorade.Id.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;

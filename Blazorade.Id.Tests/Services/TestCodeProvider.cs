@@ -1,5 +1,5 @@
-﻿using Blazorade.Id.Core.Model;
-using Blazorade.Id.Core.Services;
+﻿using Blazorade.Id.Model;
+using Blazorade.Id.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
