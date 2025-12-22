@@ -1,11 +1,9 @@
 ﻿using Azure.Core;
-using Blazorade.Id.Core.Configuration;
-using Blazorade.Id.Core.Services;
-using Blazorade.Id.Core.Model;
+using Blazorade.Id.Services;
+using Blazorade.Id.Model;
 using Microsoft.Graph;
 using Microsoft.Graph.Applications;
 using Microsoft.Graph.Models;
-using Blazorade.Id.Core;
 
 namespace AppRoleAdmin.Services
 {
