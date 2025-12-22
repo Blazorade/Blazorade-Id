@@ -16,6 +16,9 @@
         <button @onclick="async () => await this.OnGetTokensAsync(prompt: Blazorade.Id.Model.Prompt.Select_Account)">Switch Account</button>
         <button @onclick="async () => await this.SignOutAsync()">Sign Out</button>
     </Authorized>
+    <NotAuthorized>
+
+    </NotAuthorized>
 </AuthorizeView>
 <div>
     <label for="scopesField">Scopes</label>
