@@ -112,6 +112,6 @@
 
         this.AccessTokens = await this.TokenService.GetAccessTokensAsync(getOptions);
 
-        this.IdToken = await this.TokenService.GetIdentityTokenAsync(new GetTokenOptions { Scopes = getOptions.Scopes });
+        this.IdToken = await this.TokenService.GetIdentityTokenAsync(new GetTokenOptions { Prompt = Blazorade.Id.Core.Model.Prompt.None, Scopes = getOptions.Scopes });
     }
 }
