@@ -14,7 +14,7 @@ namespace Blazorade.Id.Services
     /// The main responsibility of an endpoint service is to provide URIs for various
     /// endpoints used during the authentication and authorization process. These URIs
     /// can either be statically configured in the configuration for the application,or
-    /// resolved from the OpenID Connect metadata document exposed by the authority,
+    /// resolved from the OpenID Connect discovery document published by the authority,
     /// which is also configured in the configuration for the application.
     /// </para>
     /// <para>
