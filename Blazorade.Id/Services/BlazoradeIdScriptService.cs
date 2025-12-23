@@ -8,8 +8,14 @@ using System.Threading.Tasks;
 
 namespace Blazorade.Id.Services
 {
+    /// <summary>
+    /// A service that manages interop with the Blazorade ID JavaScript file.
+    /// </summary>
     public class BlazoradeIdScriptService
     {
+        /// <summary>
+        /// Creates a new instance of the class.
+        /// </summary>
         public BlazoradeIdScriptService(IJSRuntime jsRuntime)
         {
             this.JsRuntime = jsRuntime ?? throw new ArgumentNullException(nameof(jsRuntime));
