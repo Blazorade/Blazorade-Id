@@ -10,6 +10,10 @@ Get started with Blazorade Id by visiting the Getting Started page on the [Blazo
 
 The versions of Blazorade ID Core always match the version numbers of the other Blazorade ID libraries. For details, see the *Used By* tab above.
 
+### v1.0.0-rc.3
+
+- Added `IHttpRequestFactory` service interface to create HTTP requests for resources protected by access tokens managed by Blazorade ID.
+
 ### v1.0.0-rc.2
 
 - Changed the default namespace for the `Blazorade.Id.Core` assembly from `Blazorade.Id.Core` to `Blazorade.Id` to align with other Blazorade ID libraries. Moved all defined types accordingly.

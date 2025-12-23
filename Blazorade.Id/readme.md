@@ -8,6 +8,10 @@ Get started with Blazorade Id by visiting the Getting Started page on the [Blazo
 
 ## Version Highlights
 
+### v1.0.0-rc.3
+
+- Added `IHttpRequestFactory` service interface to create HTTP requests for resources protected by access tokens managed by Blazorade ID.
+
 ### v1.0.0-rc.2
 
 - Improved refresh token handling in token store implementations.
