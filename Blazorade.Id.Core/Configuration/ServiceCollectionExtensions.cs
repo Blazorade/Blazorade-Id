@@ -32,6 +32,7 @@ namespace Blazorade.Id.Configuration
                 .AddScoped<IHttpService, HttpService>()
                 .AddScoped<IAuthorizationCodeFailureNotifier, AuthorizationCodeFailureNotifier>()
                 .AddScoped<ISignOutService, SignOutService>()
+                .AddScoped<IHttpRequestFactory, HttpRequestFactory>()
                 .AddHttpClient()
 
                 .AddOptions<JsonSerializerOptions>()
