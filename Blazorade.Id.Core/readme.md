@@ -4,7 +4,7 @@ Blazorade ID Core is the library that contains core functionality and type defin
 
 ## Getting Started
 
-Get started with Blazorade Id by visiting the Getting Started page on the [Blazorade ID wiki](https://github.com/Blazorade/Blazorade-Id/wiki/Getting-Started). Also be sure to check out the sample applications included in the [Github repository for Blazorade ID](https://github.com/Blazorade/Blazorade-Id).
+Get started with Blazorade Id by visiting the Getting Started page on the [Blazorade ID wiki](https://github.com/Blazorade/Blazorade-Id/wiki/GettingStarted). Also be sure to check out the sample applications included in the [Github repository for Blazorade ID](https://github.com/Blazorade/Blazorade-Id).
 
 ## Version Highlights
 
