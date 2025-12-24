@@ -10,7 +10,7 @@ Get started with Blazorade Id by visiting the Getting Started page on the [Blazo
 
 ### v1.0.0-rc.4
 
-- Replaced BlazorSignOutService with BlazorAuthenticationService that combines sign-in and sign-out functionality into a single service implementation.
+- Replaced `BlazorSignOutService` with `BlazorAuthenticationService` that combines sign-in and sign-out functionality into a single service implementation.
 
 ### v1.0.0-rc.3
 

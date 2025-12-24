@@ -12,8 +12,8 @@ The versions of Blazorade ID Core always match the version numbers of the other 
 
 ### v1.0.0-rc.4
 
-- Replaced ISignOutService with IAuthenticationService that combines sign-in and sign-out functionality into a single service interface.
-- Added a default AuthenticationService implementation.
+- Replaced `ISignOutService` with `IAuthenticationService` that combines sign-in and sign-out functionality into a single service interface.
+- Added a default `AuthenticationService` implementation.
 
 ### v1.0.0-rc.3
 
