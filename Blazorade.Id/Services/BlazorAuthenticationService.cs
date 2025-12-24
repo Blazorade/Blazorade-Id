@@ -46,8 +46,8 @@ namespace Blazorade.Id.Services
         /// <inheritdoc/>
         public async override Task SignOutAsync(SignOutOptions? options = null)
         {
-            options = options ?? new SignOutOptions();
-            options.RedirectUri = options.RedirectUri ?? (options.UseDefaultRedirectUri ? this.NavMan.Uri : null);
+            options = options ?? new SignOutOptions { UseDefaultRedirectUri = true };
+            options.RedirectUri = options.RedirectUri ?? (options.UseDefaultRedirectUri ? this.NavMan.BaseUri : null);
 
             var idToken = await this.TokenStore.GetIdentityTokenAsync();
 

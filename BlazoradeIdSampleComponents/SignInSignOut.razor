@@ -1,0 +1,64 @@
+﻿@page "/sign-in-sign-out"
+
+@inject IAuthenticationService authService
+@inject IAuthorizationCodeFailureNotifier authCodeFailures
+
+<h1>Sign In / Sign Out</h1>
+
+@if (this.popupClosed)
+{
+    <p>You closed the popup before the authentication process was completed.</p>
+}
+@if (this.popupBlocked)
+{
+    <p>Your browser apparently blocked the authentication popup.</p>
+}
+
+<AuthorizeView>
+    <Authorized Context="auth">
+        <h2>@auth.User.Identity?.Name</h2>
+        <button @onclick="async () => await this.authService.SignInAsync(new SignInOptions { Prompt = Prompt.Select_Account })">Change user</button>
+        <button @onclick="async () => await this.authService.SignOutAsync(new SignOutOptions { SkipEndIdpSession = true })">Sign out</button>
+        <button @onclick="async () => await this.authService.SignOutAsync()">Sign out and end session</button>
+
+        <ul>
+            @foreach(var claim in auth.User.Claims)
+            {
+                <li><b>@claim.Type</b>: @claim.Value</li>
+            }
+        </ul>
+    </Authorized>
+    <NotAuthorized>
+        <button @onclick="async () => await this.authService.SignInAsync()">Sign in</button>
+    </NotAuthorized>
+</AuthorizeView>
+
+@code {
+    bool popupClosed = false;
+    bool popupBlocked = false;
+
+    protected override void OnParametersSet()
+    {
+        base.OnParametersSet();
+
+        this.authCodeFailures.Failed += OnAuthFailure!;
+    }
+
+    private void OnAuthFailure(object sender, AuthorizationCodeResult result)
+    {
+        this.popupClosed = result.FailureReason == AuthorizationCodeFailureReason.CancelledByUser;
+        this.popupBlocked = result.FailureReason == AuthorizationCodeFailureReason.Blocked;
+
+        _ = this.ClearNotificationsAsync();
+    }
+
+    private async Task ClearNotificationsAsync()
+    {
+        await Task.Delay(3000);
+
+        this.popupBlocked = false;
+        this.popupClosed = false;
+
+        this.StateHasChanged();
+    }
+}
