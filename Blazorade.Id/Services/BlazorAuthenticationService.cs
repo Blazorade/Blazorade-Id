@@ -5,21 +5,29 @@ using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace Blazorade.Id.Services
 {
     /// <summary>
-    /// Sign-out service for Blazor applications.
+    /// Authentication service for Blazor applications.
     /// </summary>
-    public class BlazorSignOutService : ISignOutService
+    public class BlazorAuthenticationService : AuthenticationService
     {
         /// <summary>
-        /// Creates a new instance of the <see cref="BlazorSignOutService"/> class.
+        /// Creates a new instance of the class.
         /// </summary>
-        public BlazorSignOutService(ITokenStore tokenStore, IAuthenticationStateNotifier authStateNotifier, IEndpointService endpointService, NavigationManager navMan, IOptions<AuthorityOptions> authOptions)
+        public BlazorAuthenticationService(
+            ITokenService tokenService,
+            ITokenStore tokenStore, 
+            IAuthenticationStateNotifier authStateNotifier, 
+            IEndpointService endpointService, 
+            NavigationManager navMan, 
+            IOptions<AuthorityOptions> authOptions) : base(tokenService, tokenStore, authStateNotifier)
         {
+            this.TokenService = tokenService ?? throw new ArgumentNullException(nameof(tokenService));
             this.TokenStore = tokenStore ?? throw new ArgumentNullException(nameof(tokenStore));
             this.AuthStateNotifier = authStateNotifier ?? throw new ArgumentNullException(nameof(authStateNotifier));
             this.EndpointService = endpointService ?? throw new ArgumentNullException(nameof(endpointService));
@@ -27,14 +35,16 @@ namespace Blazorade.Id.Services
             this.AuthOptions = authOptions?.Value ?? throw new ArgumentNullException(nameof(authOptions));
         }
 
+        private readonly ITokenService TokenService;
         private readonly ITokenStore TokenStore;
         private readonly IAuthenticationStateNotifier AuthStateNotifier;
         private readonly IEndpointService EndpointService;
         private readonly NavigationManager NavMan;
         private readonly AuthorityOptions AuthOptions;
 
+
         /// <inheritdoc/>
-        public async Task SignOutAsync(SignOutOptions? options = null)
+        public async override Task SignOutAsync(SignOutOptions? options = null)
         {
             options = options ?? new SignOutOptions();
             options.RedirectUri = options.RedirectUri ?? (options.UseDefaultRedirectUri ? this.NavMan.Uri : null);

@@ -4,7 +4,7 @@
 @inject ITokenService TokenService
 @inject ILocalStorageService LocalStore
 @inject IAuthenticationStateNotifier AuthStateNotifier
-@inject ISignOutService SignOutService
+@inject IAuthenticationService AuthService
 
 <PageTitle>Blazorade Id Sample Server App</PageTitle>
 
@@ -70,7 +70,7 @@
 
     private async Task SignOutAsync()
     {
-        await this.SignOutService.SignOutAsync(new SignOutOptions { SkipEndIdpSession = true, UseDefaultRedirectUri = true });
+        await this.AuthService.SignOutAsync(new SignOutOptions { SkipEndIdpSession = true, UseDefaultRedirectUri = true });
         this.AccessTokens.Clear();
         this.IdToken = null;
     }

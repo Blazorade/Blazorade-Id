@@ -73,8 +73,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 .AddScoped<IPropertyStore, BrowserSessionStoragePropertyStore>()
                 .AddScoped<IAuthenticationStateNotifier, BlazorAuthenticationStateNotifier>()
                 .AddScoped<BlazoradeIdScriptService>()
-                .AddScoped<ISignOutService, BlazorSignOutService>()
-
+                .AddScoped<IAuthenticationService, BlazorAuthenticationService>()
                 ;
         }
 

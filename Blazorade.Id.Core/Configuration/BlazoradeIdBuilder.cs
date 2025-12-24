@@ -41,6 +41,41 @@ namespace Blazorade.Id.Configuration
         }
 
         /// <summary>
+        /// Adds the authentication service used in the application.
+        /// </summary>
+        /// <typeparam name="TAuthenticationService">The type of authentication service to use.</typeparam>
+        public BlazoradeIdBuilder AddAuthenticationService<TAuthenticationService>() where TAuthenticationService : class, IAuthenticationService
+        {
+            this.Services.AddScoped<IAuthenticationService, TAuthenticationService>();
+            return this;
+        }
+
+        /// <summary>
+        /// Adds the authentication service used in the application with the option to configure
+        /// the service after it has been created.
+        /// </summary>
+        /// <typeparam name="TAuthenticationService">The type of authentication service to use.</typeparam>
+        public BlazoradeIdBuilder AddAuthenticationService<TAuthenticationService>(Action<IServiceProvider, TAuthenticationService> config) where TAuthenticationService : class, IAuthenticationService
+        {
+            this.Services.AddScoped<IAuthenticationService, TAuthenticationService>(sp =>
+            {
+                var svc = ActivatorUtilities.CreateInstance<TAuthenticationService>(sp);
+                config(sp, svc);
+                return svc;
+            });
+            return this;
+        }
+
+        /// <summary>
+        /// Adds the authentication service used in the application.
+        /// </summary>
+        public BlazoradeIdBuilder AddAuthenticationService(Func<IServiceProvider, IAuthenticationService> config)
+        {
+            this.Services.AddScoped<IAuthenticationService>(sp => config.Invoke(sp));
+            return this;
+        }
+
+        /// <summary>
         /// Adds the authentication state notifier used in the application.
         /// </summary>
         /// <typeparam name="TAuthenticationStateNotifier">The type of authentication state notifier to use.</typeparam>
@@ -327,40 +362,6 @@ namespace Blazorade.Id.Configuration
         public BlazoradeIdBuilder AddScopeSorter(Func<IServiceProvider, IScopeSorter> config)
         {
             this.Services.AddScoped<IScopeSorter>(sp => config.Invoke(sp));
-            return this;
-        }
-
-        /// <summary>
-        /// Adds the sign-out service to use in the application.
-        /// </summary>
-        /// <typeparam name="TSignOutService">The type of sign-out service.</typeparam>
-        public BlazoradeIdBuilder AddSignOutService<TSignOutService>() where TSignOutService : class, ISignOutService
-        {
-            this.Services.AddScoped<ISignOutService, TSignOutService>();
-            return this;
-        }
-
-        /// <summary>
-        /// Adds the sign-out service specified in <typeparamref name="TSignOutService"/> to the service collection,
-        /// and provides you with the option to set properties on the sign-out service after it has been created.
-        /// </summary>
-        public BlazoradeIdBuilder AddSignOutService<TSignOutService>(Action<IServiceProvider, TSignOutService> config) where TSignOutService : class, ISignOutService
-        {
-            this.Services.AddScoped<ISignOutService, TSignOutService>(sp =>
-            {
-                var svc = ActivatorUtilities.CreateInstance<TSignOutService>(sp);
-                config(sp, svc);
-                return svc;
-            });
-            return this;
-        }
-
-        /// <summary>
-        /// Adds the sign-out service to use in the application.
-        /// </summary>
-        public BlazoradeIdBuilder AddSignOutService(Func<IServiceProvider, ISignOutService> config)
-        {
-            this.Services.AddScoped<ISignOutService>(sp => config.Invoke(sp));
             return this;
         }
 

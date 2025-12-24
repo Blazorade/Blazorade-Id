@@ -31,7 +31,7 @@ namespace Blazorade.Id.Configuration
                 .AddScoped<ITokenRefresher, TokenRefresher>()
                 .AddScoped<IHttpService, HttpService>()
                 .AddScoped<IAuthorizationCodeFailureNotifier, AuthorizationCodeFailureNotifier>()
-                .AddScoped<ISignOutService, SignOutService>()
+                .AddScoped<IAuthenticationService, AuthenticationService>()
                 .AddScoped<IHttpRequestFactory, HttpRequestFactory>()
                 .AddHttpClient()
 
