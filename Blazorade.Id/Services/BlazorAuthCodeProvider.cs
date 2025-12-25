@@ -54,7 +54,7 @@ namespace Blazorade.Id.Services
         private const int AuthorizeTimeout = 300000;
 
         /// <inheritdoc/>
-        public async Task<AuthorizationCodeResult> GetAuthorizationCodeAsync(GetTokenOptions options)
+        public async Task<AuthorizationCodeResult> GetAuthorizationCodeAsync(GetTokenOptions options, CancellationToken cancellationToken = default)
         {
             var redirUrl = this.AuthOptions.RedirectUri?.Length > 0
                 ? this.AuthOptions.RedirectUri

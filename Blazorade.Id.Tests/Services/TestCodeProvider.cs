@@ -12,7 +12,7 @@ namespace Blazorade.Id.Tests.Services
     {
         public string? AuthCode { get; set; }
 
-        public async Task<AuthorizationCodeResult> GetAuthorizationCodeAsync(GetTokenOptions options)
+        public async Task<AuthorizationCodeResult> GetAuthorizationCodeAsync(GetTokenOptions options, CancellationToken cancellationToken = default)
         {
             var result = new AuthorizationCodeResult
             {

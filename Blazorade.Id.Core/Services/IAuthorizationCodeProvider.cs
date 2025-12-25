@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Blazorade.Id.Services
@@ -20,6 +21,8 @@ namespace Blazorade.Id.Services
         /// Asynchronously initiates an authorization request and retrieves an authorization 
         /// code using the specified options.
         /// </summary>
-        Task<AuthorizationCodeResult> GetAuthorizationCodeAsync(GetTokenOptions options);
+        /// <param name="options">The options to use for the authorization request.</param>
+        /// <param name="cancellationToken">A cancellation token that can be used to cancel the operation.</param>
+        Task<AuthorizationCodeResult> GetAuthorizationCodeAsync(GetTokenOptions options, CancellationToken cancellationToken = default);
     }
 }
