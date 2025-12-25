@@ -10,9 +10,10 @@ Get started with Blazorade Id by visiting the Getting Started page on the [Blazo
 
 The versions of Blazorade ID Core always match the version numbers of the other Blazorade ID libraries. For details, see the *Used By* tab above.
 
-### v1.0.0-rc.5
+### v1.0.0-rc.6
 
 - Added `CancellationToken` parameters to several asynchronous methods in service interface definitions.
+- Added a separate `IRefreshTokenStore` service interface for separately managing refresh tokens. Changed service implementations accoordingly.
 
 ### v1.0.0-rc.4
 

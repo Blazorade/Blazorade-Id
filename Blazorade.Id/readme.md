@@ -8,9 +8,10 @@ Get started with Blazorade Id by visiting the Getting Started page on the [Blazo
 
 ## Version Highlights
 
-### v1.0.0-rc.5
+### v1.0.0-rc.6
 
 - Implemented updated service interfaces where methods now have `CancellationToken` parameters to support cancellation of asynchronous operations.
+- Changed token store implementations to separate refresh token management into its own `IRefreshTokenStore` service interface.
 
 ### v1.0.0-rc.4
 
