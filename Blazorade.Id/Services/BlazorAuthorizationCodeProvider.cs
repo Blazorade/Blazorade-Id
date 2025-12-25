@@ -20,12 +20,12 @@ namespace Blazorade.Id.Services
     /// <summary>
     /// An <see cref="IAuthorizationCodeProvider"/> implementation for use in Blazor Server and Blazor WebAssembly applications.
     /// </summary>
-    public class BlazorAuthCodeProvider : IAuthorizationCodeProvider
+    public class BlazorAuthorizationCodeProvider : IAuthorizationCodeProvider
     {
         /// <summary>
         /// Creates a new instance of the class.
         /// </summary>
-        public BlazorAuthCodeProvider(
+        public BlazorAuthorizationCodeProvider(
             IEndpointService endpointService, 
             ICodeChallengeService codeChallengeService,
             IPropertyStore propertyStore,

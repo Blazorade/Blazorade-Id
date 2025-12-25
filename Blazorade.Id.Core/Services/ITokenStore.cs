@@ -19,13 +19,13 @@ namespace Blazorade.Id.Services
         Task ClearAsync();
 
         /// <summary>
-        /// Returns the access token stored in the token store if it is available and if it is still valid.
+        /// Returns the access token stored in the token store if it is available.
         /// </summary>
         /// <param name="resourceId">The identifier of the resource the access token is intended for.</param>
         Task<TokenContainer?> GetAccessTokenAsync(string resourceId);
 
         /// <summary>
-        /// Returns the identity token stored in the token store if it is available and if it is still valid.
+        /// Returns the identity token stored in the token store if it is available.
         /// </summary>
         Task<TokenContainer?> GetIdentityTokenAsync();
 

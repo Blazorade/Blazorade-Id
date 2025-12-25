@@ -38,12 +38,6 @@ namespace Blazorade.Id.Services
         Task RemovePropertyAsync(string key);
 
         /// <summary>
-        /// Removes the properties matching the given keys.
-        /// </summary>
-        /// <param name="keys">The keys of the properties to remove.</param>
-        Task RemovePropertiesAsync(IEnumerable<string> keys);
-
-        /// <summary>
         /// Stores a property in the storage.
         /// </summary>
         /// <typeparam name="T">The type of property to store.</typeparam>

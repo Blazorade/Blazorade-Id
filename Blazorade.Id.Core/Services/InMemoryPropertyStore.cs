@@ -9,18 +9,18 @@ namespace Blazorade.Id.Services
     /// <summary>
     /// A property store implementation that stores properties in memory.
     /// </summary>
-    public class InMemoryPropertyStore : PropertyStoreBase
+    public class InMemoryPropertyStore : IPropertyStore
     {
         private Dictionary<string, object> Properties = new Dictionary<string, object>();
 
         /// <inheritdoc/>
-        public override Task<bool> ContainsKeyAsync(string key)
+        public Task<bool> ContainsKeyAsync(string key)
         {
             return Task.FromResult<bool>(this.Properties.ContainsKey(key));
         }
 
         /// <inheritdoc/>
-        public async override Task<T> GetPropertyAsync<T>(string key)
+        public async Task<T> GetPropertyAsync<T>(string key)
         {
             if (await this.ContainsKeyAsync(key))
             {
@@ -30,14 +30,14 @@ namespace Blazorade.Id.Services
         }
 
         /// <inheritdoc/>
-        public override Task RemovePropertyAsync(string key)
+        public Task RemovePropertyAsync(string key)
         {
             this.Properties.Remove(key);
             return Task.CompletedTask;
         }
 
         /// <inheritdoc/>
-        public override Task SetPropertyAsync<T>(string key, T value)
+        public Task SetPropertyAsync<T>(string key, T value)
         {
             this.Properties[key] = value!;
             return Task.CompletedTask;
