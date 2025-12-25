@@ -7,6 +7,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Blazorade.Id.Services
@@ -47,7 +48,7 @@ namespace Blazorade.Id.Services
         private readonly AuthorityOptions AuthOptions;
 
         /// <inheritdoc/>
-        public async Task<bool> RefreshTokensAsync(TokenRefreshOptions options)
+        public async Task<bool> RefreshTokensAsync(TokenRefreshOptions options, CancellationToken cancellationToken = default)
         {
             bool result = false;
 
@@ -62,7 +63,7 @@ namespace Blazorade.Id.Services
             {
                 result = true;
                 var redirUri = this.AuthOptions.RedirectUri ?? this.RedirUriProvider.GetRedirectUri().ToString();
-                var sortedScopes = await this.ScopeSorter.SortScopesAsync(options.Scopes);
+                var sortedScopes = await this.ScopeSorter.SortScopesAsync(options.Scopes, cancellationToken);
                 foreach (var item in sortedScopes)
                 {
                     var builder = await this.EndpointService.CreateTokenRequestBuilderAsync();
@@ -76,11 +77,11 @@ namespace Blazorade.Id.Services
                     try
                     {
                         var now = DateTime.UtcNow;
-                        using (var response = await this.HttpService.SendRequestAsync(request))
+                        using (var response = await this.HttpService.SendRequestAsync(request, cancellationToken))
                         {
                             if (response.IsSuccessStatusCode)
                             {
-                                var content = await response.Content.ReadAsStringAsync();
+                                var content = await response.Content.ReadAsStringAsync(cancellationToken);
                                 var tokenResponse = System.Text.Json.JsonSerializer.Deserialize<TokenResponse>(content);
                                 if (null != tokenResponse)
                                 {

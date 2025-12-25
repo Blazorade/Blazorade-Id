@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Blazorade.Id.Services
@@ -16,7 +17,8 @@ namespace Blazorade.Id.Services
         /// Sends the specified HTTP request asynchronously and returns the response.
         /// </summary>
         /// <param name="request">The request to send.</param>
+        /// <param name="cancellationToken">A cancellation token that can be used to cancel the operation.</param>
         /// <returns>The HTTP response message.</returns>
-        Task<HttpResponseMessage> SendRequestAsync(HttpRequestMessage request);
+        Task<HttpResponseMessage> SendRequestAsync(HttpRequestMessage request, CancellationToken cancellationToken = default);
     }
 }

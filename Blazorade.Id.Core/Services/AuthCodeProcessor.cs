@@ -117,7 +117,7 @@ namespace Blazorade.Id.Services
             string? refreshToken = null;
             try
             {
-                using (var response = await this.HttpService.SendRequestAsync(tokenRequest))
+                using (var response = await this.HttpService.SendRequestAsync(tokenRequest, cancellationToken))
                 {
                     var content = await response.Content.ReadAsStringAsync(cancellationToken);
                     if(response.IsSuccessStatusCode)

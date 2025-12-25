@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Blazorade.Id.Services
@@ -28,10 +29,10 @@ namespace Blazorade.Id.Services
         private readonly IHttpClientFactory HttpClientFactory;
 
         /// <inheritdoc/>
-        public async Task<HttpResponseMessage> SendRequestAsync(HttpRequestMessage request)
+        public async Task<HttpResponseMessage> SendRequestAsync(HttpRequestMessage request, CancellationToken cancellationToken = default)
         {
             var client = this.HttpClientFactory.CreateClient();
-            return await client.SendAsync(request);
+            return await client.SendAsync(request, cancellationToken);
         }
     }
 }
