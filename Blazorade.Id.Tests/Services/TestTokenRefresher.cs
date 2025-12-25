@@ -25,7 +25,7 @@ namespace Blazorade.Id.Tests.Services
 
 
         public DateTimeOffset? Expiration { get; set; }
-        public TokenContainer? RefreshToken { get; set; }
+        public string? RefreshToken { get; set; }
 
         public async Task<bool> RefreshTokensAsync(TokenRefreshOptions options, CancellationToken cancellationToken = default)
         {

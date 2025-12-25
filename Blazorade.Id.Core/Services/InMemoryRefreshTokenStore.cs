@@ -12,7 +12,7 @@ namespace Blazorade.Id.Services
     /// </summary>
     public class InMemoryRefreshTokenStore : IRefreshTokenStore
     {
-        private TokenContainer? RefreshToken = null;
+        private string? RefreshToken = null;
 
         /// <inheritdoc/>
         public Task ClearAsync()
@@ -22,13 +22,13 @@ namespace Blazorade.Id.Services
         }
 
         /// <inheritdoc/>
-        public Task<TokenContainer?> GetRefreshTokenAsync()
+        public Task<string?> GetRefreshTokenAsync()
         {
             return Task.FromResult(this.RefreshToken);
         }
 
         /// <inheritdoc/>
-        public Task SetRefreshTokenAsync(TokenContainer? token)
+        public Task SetRefreshTokenAsync(string? token)
         {
             this.RefreshToken = token;
             return Task.CompletedTask;

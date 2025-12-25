@@ -19,13 +19,13 @@ namespace Blazorade.Id.Services
         }
 
         /// <inheritdoc/>
-        public Task<TokenContainer?> GetRefreshTokenAsync()
+        public Task<string?> GetRefreshTokenAsync()
         {
-            return Task.FromResult<TokenContainer?>(null);
+            return Task.FromResult<string?>(null);
         }
 
         /// <inheritdoc/>
-        public Task SetRefreshTokenAsync(TokenContainer? token)
+        public Task SetRefreshTokenAsync(string? token)
         {
             return Task.CompletedTask;
         }

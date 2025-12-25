@@ -77,7 +77,7 @@ namespace Blazorade.Id.Tests
         public async Task GetAccessTokens003()
         {
             this.TokenRefresher.Expiration = DateTimeOffset.UtcNow.AddHours(-1);
-            this.TokenRefresher.RefreshToken = new TokenContainer("preliminary-refresh-token");
+            this.TokenRefresher.RefreshToken = "preliminary-refresh-token";
             await this.TokenRefresher.RefreshTokensAsync(new TokenRefreshOptions { Scopes = ["openid"] });
 
             this.TokenRefresher.RefreshToken = null;

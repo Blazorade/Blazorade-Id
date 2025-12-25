@@ -199,17 +199,6 @@ namespace Blazorade.Id.Services
         }
 
         /// <summary>
-        /// Stores the given refresh token in the token store.
-        /// </summary>
-        /// <returns>Returns the container holding the refresh token.</returns>
-        public static async Task<TokenContainer?> SetRefreshTokenAsync(this IRefreshTokenStore store, string token)
-        {
-            var container = new TokenContainer(token);
-            await store.SetRefreshTokenAsync(container);
-            return container;
-        }
-
-        /// <summary>
         /// Sets the scope that was used when starting the current login process.
         /// </summary>
         public static async Task SetScopeAsync(this IPropertyStore storage, string? scope)

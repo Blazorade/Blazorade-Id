@@ -14,7 +14,7 @@ namespace Blazorade.Id.Tests.Services
         {
             this.TokenStore = tokenStore ?? throw new ArgumentNullException(nameof(tokenStore));
             this.TokenRefresher = new TestTokenRefresher(this.TokenStore, refreshTokenStore, scopeSorter);
-            this.TokenRefresher.RefreshToken = new TokenContainer("refresh-token-from-code-processor");
+            this.TokenRefresher.RefreshToken = "refresh-token-from-code-processor";
         }
 
         private readonly ITokenStore TokenStore;
