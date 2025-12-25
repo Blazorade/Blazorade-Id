@@ -25,7 +25,7 @@ namespace Blazorade.Id.Services
         private readonly ISessionStorageService Service;
 
         /// <inheritdoc/>
-        public override async Task ClearAllAsync()
+        public override async Task ClearAsync()
         {
             var keyPrefix = this.GetKeyPrefix();
             var keys = await this.Service.KeysAsync();
@@ -33,8 +33,6 @@ namespace Blazorade.Id.Services
             {
                 await this.Service.RemoveItemAsync(key);
             }
-
-            await this.InMemoryStore.ClearAllAsync();
         }
 
         /// <inheritdoc/>
@@ -51,19 +49,6 @@ namespace Blazorade.Id.Services
         }
 
         /// <inheritdoc/>
-        public async override Task<TokenContainer?> GetRefreshTokenAsync()
-        {
-            if (this.AllowRefreshTokensInWebStorage)
-            {
-                return await this.GetContainerAsync(TokenType.RefreshToken);
-            }
-            else
-            {
-                return await this.InMemoryStore.GetRefreshTokenAsync();
-            }
-        }
-
-        /// <inheritdoc/>
         public async override Task SetAccessTokenAsync(string resourceId, TokenContainer? token)
         {
             var key = this.GetKey(TokenType.AccessToken, suffix: resourceId);
@@ -75,23 +60,6 @@ namespace Blazorade.Id.Services
         {
             var key = this.GetKey(TokenType.IdentityToken);
             await this.SetItemAsync(key, token);
-        }
-
-        /// <inheritdoc/>
-        public async override Task SetRefreshTokenAsync(TokenContainer? token)
-        {
-            if(this.StoreRefreshTokens)
-            {
-                if (this.AllowRefreshTokensInWebStorage)
-                {
-                    var key = this.GetKey(TokenType.RefreshToken);
-                    await this.SetItemAsync(key, token);
-                }
-                else
-                {
-                    await this.InMemoryStore.SetRefreshTokenAsync(token);
-                }
-            }
         }
 
 

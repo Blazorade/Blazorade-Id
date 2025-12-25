@@ -23,6 +23,7 @@ namespace Blazorade.Id.Services
         public TokenRefresher(
             IScopeSorter scopeSorter,
             ITokenStore tokenStore,
+            IRefreshTokenStore refreshTokenStore,
             IRedirectUriProvider redirectUriProvider,
             IEndpointService endpointService,
             IHttpService httpService,
@@ -32,6 +33,7 @@ namespace Blazorade.Id.Services
         {
             this.ScopeSorter = scopeSorter ?? throw new ArgumentNullException(nameof(scopeSorter));
             this.TokenStore = tokenStore ?? throw new ArgumentNullException(nameof(tokenStore));
+            this.RefreshTokenStore = refreshTokenStore ?? throw new ArgumentNullException(nameof(refreshTokenStore));
             this.RedirUriProvider = redirectUriProvider ?? throw new ArgumentNullException(nameof(redirectUriProvider));
             this.EndpointService = endpointService ?? throw new ArgumentNullException(nameof(endpointService));
             this.HttpService = httpService ?? throw new ArgumentNullException(nameof(httpService));
@@ -41,6 +43,7 @@ namespace Blazorade.Id.Services
 
         private readonly IScopeSorter ScopeSorter;
         private readonly ITokenStore TokenStore;
+        private readonly IRefreshTokenStore RefreshTokenStore;
         private readonly IRedirectUriProvider RedirUriProvider;
         private readonly IEndpointService EndpointService;
         private readonly IHttpService HttpService;
@@ -57,7 +60,7 @@ namespace Blazorade.Id.Services
             var refreshToken = options.RefreshToken?.Length > 0 
                 ? new TokenContainer(options.RefreshToken) : 
                 null 
-                ?? await this.TokenStore.GetRefreshTokenAsync();
+                ?? await this.RefreshTokenStore.GetRefreshTokenAsync();
 
             if(refreshToken?.Token?.Length > 0)
             {
@@ -88,7 +91,7 @@ namespace Blazorade.Id.Services
                                     tokenResponse.ExpiresAtUtc = now.AddSeconds(tokenResponse.ExpiresIn);
                                     if(tokenResponse.RefreshToken?.Length > 0)
                                     {
-                                        await this.TokenStore.SetRefreshTokenAsync(new TokenContainer
+                                        await this.RefreshTokenStore.SetRefreshTokenAsync(new TokenContainer
                                         {
                                             Token = tokenResponse.RefreshToken
                                         });

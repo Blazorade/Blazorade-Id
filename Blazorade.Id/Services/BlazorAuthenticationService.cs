@@ -21,14 +21,16 @@ namespace Blazorade.Id.Services
         /// </summary>
         public BlazorAuthenticationService(
             ITokenService tokenService,
+            IRefreshTokenStore refreshTokenStore,
             ITokenStore tokenStore, 
             IAuthenticationStateNotifier authStateNotifier, 
             IEndpointService endpointService, 
             NavigationManager navMan, 
-            IOptions<AuthorityOptions> authOptions) : base(tokenService, tokenStore, authStateNotifier)
+            IOptions<AuthorityOptions> authOptions) : base(tokenService, tokenStore, refreshTokenStore, authStateNotifier)
         {
             this.TokenService = tokenService ?? throw new ArgumentNullException(nameof(tokenService));
             this.TokenStore = tokenStore ?? throw new ArgumentNullException(nameof(tokenStore));
+            this.RefreshTokenStore = refreshTokenStore ?? throw new ArgumentNullException(nameof(refreshTokenStore));
             this.AuthStateNotifier = authStateNotifier ?? throw new ArgumentNullException(nameof(authStateNotifier));
             this.EndpointService = endpointService ?? throw new ArgumentNullException(nameof(endpointService));
             this.NavMan = navMan ?? throw new ArgumentNullException(nameof(navMan));
@@ -37,6 +39,7 @@ namespace Blazorade.Id.Services
 
         private readonly ITokenService TokenService;
         private readonly ITokenStore TokenStore;
+        private readonly IRefreshTokenStore RefreshTokenStore;
         private readonly IAuthenticationStateNotifier AuthStateNotifier;
         private readonly IEndpointService EndpointService;
         private readonly NavigationManager NavMan;
@@ -51,7 +54,8 @@ namespace Blazorade.Id.Services
 
             var idToken = await this.TokenStore.GetIdentityTokenAsync();
 
-            await this.TokenStore.ClearAllAsync();
+            await this.RefreshTokenStore.ClearAsync();
+            await this.TokenStore.ClearAsync();
             await this.AuthStateNotifier.StateHasChangedAsync();
 
             if (!options.SkipEndIdpSession)

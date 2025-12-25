@@ -14,11 +14,9 @@ namespace Blazorade.Id.Services
     public abstract class TokenStoreBase : ITokenStore
     {
 
-        /// <inheritdoc/>
-        public bool StoreRefreshTokens { get; set; }
 
         /// <inheritdoc/>
-        public abstract Task ClearAllAsync();
+        public abstract Task ClearAsync();
 
         /// <inheritdoc/>
         public abstract Task<TokenContainer?> GetAccessTokenAsync(string resourceId);
@@ -27,16 +25,10 @@ namespace Blazorade.Id.Services
         public abstract Task<TokenContainer?> GetIdentityTokenAsync();
 
         /// <inheritdoc/>
-        public abstract Task<TokenContainer?> GetRefreshTokenAsync();
-
-        /// <inheritdoc/>
         public abstract Task SetAccessTokenAsync(string resourceId, TokenContainer? token);
 
         /// <inheritdoc/>
         public abstract Task SetIdentityTokenAsync(TokenContainer? token);
-
-        /// <inheritdoc/>
-        public abstract Task SetRefreshTokenAsync(TokenContainer? token);
 
 
 

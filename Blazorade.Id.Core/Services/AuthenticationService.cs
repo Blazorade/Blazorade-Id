@@ -17,15 +17,17 @@ namespace Blazorade.Id.Services
         /// <summary>
         /// Creates a new instance of the class.
         /// </summary>
-        public AuthenticationService(ITokenService tokenService, ITokenStore tokenStore, IAuthenticationStateNotifier authenticationStateNotifier)
+        public AuthenticationService(ITokenService tokenService, ITokenStore tokenStore, IRefreshTokenStore refreshTokenStore, IAuthenticationStateNotifier authenticationStateNotifier)
         {
             this.TokenService = tokenService ?? throw new ArgumentNullException(nameof(tokenService));
             this.TokenStore = tokenStore ?? throw new ArgumentNullException(nameof(tokenStore));
+            this.RefreshTokenStore = refreshTokenStore ?? throw new ArgumentNullException(nameof(refreshTokenStore));
             this.AuthenticationStateNotifier = authenticationStateNotifier ?? throw new ArgumentNullException(nameof(authenticationStateNotifier));
         }
 
         private readonly ITokenService TokenService;
         private readonly ITokenStore TokenStore;
+        private readonly IRefreshTokenStore RefreshTokenStore;
         private readonly IAuthenticationStateNotifier AuthenticationStateNotifier;
 
         /// <inheritdoc/>
@@ -47,7 +49,8 @@ namespace Blazorade.Id.Services
         /// <inheritdoc/>
         public virtual async Task SignOutAsync(SignOutOptions? options = null, CancellationToken cancellationToken = default)
         {
-            await this.TokenStore.ClearAllAsync();
+            await this.RefreshTokenStore.ClearAsync();
+            await this.TokenStore.ClearAsync();
             await this.AuthenticationStateNotifier.StateHasChangedAsync();
         }
     }

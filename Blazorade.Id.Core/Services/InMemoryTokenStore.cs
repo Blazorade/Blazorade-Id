@@ -19,7 +19,7 @@ namespace Blazorade.Id.Services
         private TokenContainer? RefreshToken;
 
         /// <inheritdoc/>
-        public override Task ClearAllAsync()
+        public override Task ClearAsync()
         {
             this.AccessTokens.Clear();
             this.IdentityToken = null;
@@ -57,17 +57,6 @@ namespace Blazorade.Id.Services
         }
 
         /// <inheritdoc/>
-        public override Task<TokenContainer?> GetRefreshTokenAsync()
-        {
-            if(null == this.RefreshToken?.Expires || this.RefreshToken?.Expires > DateTime.UtcNow)
-            {
-                return Task.FromResult<TokenContainer?>(this.RefreshToken);
-            }
-
-            return Task.FromResult<TokenContainer?>(null);
-        }
-
-        /// <inheritdoc/>
         public override Task SetAccessTokenAsync(string resourceId, TokenContainer? token)
         {
             if(null != token)
@@ -89,14 +78,5 @@ namespace Blazorade.Id.Services
             return Task.CompletedTask;
         }
 
-        /// <inheritdoc/>
-        public override Task SetRefreshTokenAsync(TokenContainer? token)
-        {
-            if(this.StoreRefreshTokens)
-            {
-                this.RefreshToken = token;
-            }
-            return Task.CompletedTask;
-        }
     }
 }

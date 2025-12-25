@@ -26,6 +26,7 @@ namespace Blazorade.Id.Tests
         private TestCodeProcessor CodeProcessor = null!;
         private TestCodeProvider CodeProvider = null!;
         private ITokenStore TokenStore = null!;
+        private IRefreshTokenStore RefreshTokenStore = null!;
 
         [TestInitialize]
         public void TestInitialize()
@@ -36,13 +37,14 @@ namespace Blazorade.Id.Tests
             this.CodeProcessor = this.Provider.GetAuthCodeProcessor();
             this.CodeProvider = this.Provider.GetAuthCodeProvider();
             this.TokenStore = this.Provider.GetRequiredService<ITokenStore>();
+            this.RefreshTokenStore = this.Provider.GetRequiredService<IRefreshTokenStore>();
         }
 
 
         [TestMethod]
         public async Task GetAccessTokens001()
         {
-            await this.TokenStore.SetRefreshTokenAsync("refresh-token");
+            await this.RefreshTokenStore.SetRefreshTokenAsync("refresh-token");
             this.TokenRefresher.Expiration = DateTimeOffset.UtcNow.AddHours(1);
             var ats = await this.TokenService.GetAccessTokensAsync(new GetTokenOptions { Scopes = new[] { "openid", "profile", "email", "urn:blazorade:id/user_impersonation" } });
             Assert.IsNotNull(ats);
@@ -79,7 +81,7 @@ namespace Blazorade.Id.Tests
             await this.TokenRefresher.RefreshTokensAsync(new TokenRefreshOptions { Scopes = ["openid"] });
 
             this.TokenRefresher.RefreshToken = null;
-            await this.TokenStore.SetRefreshTokenAsync(null);
+            await this.RefreshTokenStore.SetRefreshTokenAsync(null);
             this.CodeProcessor.ScopesToProcess = ["openid"];
 
             var ats = await this.TokenService.GetAccessTokensAsync();

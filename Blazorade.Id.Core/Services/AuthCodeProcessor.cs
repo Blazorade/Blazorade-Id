@@ -24,7 +24,8 @@ namespace Blazorade.Id.Services
         /// </summary>
         public AuthCodeProcessor(
             IPropertyStore propertyStore, 
-            ITokenStore tokenStore, 
+            ITokenStore tokenStore,
+            IRefreshTokenStore refreshTokenStore,
             IEndpointService endpointService, 
             IHttpService httpService,
             IAuthenticationStateNotifier authStateNotifier,
@@ -36,6 +37,7 @@ namespace Blazorade.Id.Services
         ) {
             this.PropertyStore = propertyStore ?? throw new ArgumentNullException(nameof(propertyStore));
             this.TokenStore = tokenStore ?? throw new ArgumentNullException(nameof(tokenStore));
+            this.RefreshTokenStore = refreshTokenStore ?? throw new ArgumentNullException(nameof(refreshTokenStore));
             this.EndpointService = endpointService ?? throw new ArgumentNullException(nameof(endpointService));
             this.HttpService = httpService ?? throw new ArgumentNullException(nameof(httpService));
             this.AuthStateNotifier = authStateNotifier ?? throw new ArgumentNullException(nameof(authStateNotifier));
@@ -48,6 +50,7 @@ namespace Blazorade.Id.Services
 
         private readonly IPropertyStore PropertyStore;
         private readonly ITokenStore TokenStore;
+        private readonly IRefreshTokenStore RefreshTokenStore;
         private readonly IEndpointService EndpointService;
         private readonly IHttpService HttpService;
         private readonly IAuthenticationStateNotifier AuthStateNotifier;
@@ -129,7 +132,7 @@ namespace Blazorade.Id.Services
 
                             if (tokenResponse.RefreshToken?.Length > 0)
                             {
-                                await this.TokenStore.SetRefreshTokenAsync(tokenResponse.RefreshToken);
+                                await this.RefreshTokenStore.SetRefreshTokenAsync(tokenResponse.RefreshToken);
                             }
 
                             refreshToken = tokenResponse?.RefreshToken;

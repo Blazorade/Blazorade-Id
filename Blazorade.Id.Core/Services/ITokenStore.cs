@@ -14,18 +14,9 @@ namespace Blazorade.Id.Services
     public interface ITokenStore
     {
         /// <summary>
-        /// Defines whether a token store is allowed to store refresh tokens at all.
-        /// </summary>
-        /// <remarks>
-        /// The default value <see langword="false"/> indicates that refresh tokens may NOT
-        /// be stored by the token store implementation.
-        /// </remarks>
-        bool StoreRefreshTokens { get; set; }
-
-        /// <summary>
         /// Clears all tokens from the token store.
         /// </summary>
-        Task ClearAllAsync();
+        Task ClearAsync();
 
         /// <summary>
         /// Returns the access token stored in the token store if it is available and if it is still valid.
@@ -37,11 +28,6 @@ namespace Blazorade.Id.Services
         /// Returns the identity token stored in the token store if it is available and if it is still valid.
         /// </summary>
         Task<TokenContainer?> GetIdentityTokenAsync();
-
-        /// <summary>
-        /// Returns the refresh token stored in the token store if it is available.
-        /// </summary>
-        Task<TokenContainer?> GetRefreshTokenAsync();
 
         /// <summary>
         /// Stores the given access token container in the token store.
@@ -56,10 +42,5 @@ namespace Blazorade.Id.Services
         /// <param name="token">The token container to store. If set to <see langword="null"/>, the implementation can either store the null value or remove it completely.</param>
         Task SetIdentityTokenAsync(TokenContainer? token);
 
-        /// <summary>
-        /// Stores the given refresh token container in the token store.
-        /// </summary>
-        /// <param name="token">The token container to store. If set to <see langword="null"/>, the implementation can either store the null value or remove it completely.</param>
-        Task SetRefreshTokenAsync(TokenContainer? token);
     }
 }

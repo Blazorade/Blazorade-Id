@@ -202,7 +202,7 @@ namespace Blazorade.Id.Services
         /// Stores the given refresh token in the token store.
         /// </summary>
         /// <returns>Returns the container holding the refresh token.</returns>
-        public static async Task<TokenContainer?> SetRefreshTokenAsync(this ITokenStore store, string token)
+        public static async Task<TokenContainer?> SetRefreshTokenAsync(this IRefreshTokenStore store, string token)
         {
             var container = new TokenContainer(token);
             await store.SetRefreshTokenAsync(container);
