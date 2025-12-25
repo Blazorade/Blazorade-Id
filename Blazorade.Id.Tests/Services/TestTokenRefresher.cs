@@ -25,12 +25,12 @@ namespace Blazorade.Id.Tests.Services
         public DateTimeOffset? Expiration { get; set; }
         public TokenContainer? RefreshToken { get; set; }
 
-        public async Task<bool> RefreshTokensAsync(TokenRefreshOptions options)
+        public async Task<bool> RefreshTokensAsync(TokenRefreshOptions options, CancellationToken cancellationToken = default)
         {
             var refreshToken = this.RefreshToken ?? await this.TokenStore.GetRefreshTokenAsync();
             if (null == refreshToken) return false;
 
-            var sorted = await this.ScopeSorter.SortScopesAsync(options.Scopes);
+            var sorted = await this.ScopeSorter.SortScopesAsync(options.Scopes, cancellationToken);
             foreach(var item in sorted)
             {
                 var claims = new List<Claim>()

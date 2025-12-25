@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Blazorade.Id.Services
@@ -19,7 +20,8 @@ namespace Blazorade.Id.Services
         /// Refreshes tokens using the given options.
         /// </summary>
         /// <param name="options">The options to use when refreshing tokens.</param>
+        /// <param name="cancellationToken">A cancellation token to cancel the operation.</param>
         /// <returns>Returns <see langword="true"/> if the refresh was successful. <see langword="false"/> otherwise.</returns>
-        Task<bool> RefreshTokensAsync(TokenRefreshOptions options);
+        Task<bool> RefreshTokensAsync(TokenRefreshOptions options, CancellationToken cancellationToken = default);
     }
 }
