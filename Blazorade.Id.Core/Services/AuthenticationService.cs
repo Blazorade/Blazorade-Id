@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Blazorade.Id.Services
@@ -28,7 +29,7 @@ namespace Blazorade.Id.Services
         private readonly IAuthenticationStateNotifier AuthenticationStateNotifier;
 
         /// <inheritdoc/>
-        public virtual async Task<ClaimsPrincipal?> SignInAsync(SignInOptions? options = null)
+        public virtual async Task<ClaimsPrincipal?> SignInAsync(SignInOptions? options = null, CancellationToken cancellationToken = default)
         {
             ClaimsPrincipal? principal = null;
             options = options ?? new SignInOptions();
@@ -44,7 +45,7 @@ namespace Blazorade.Id.Services
         }
 
         /// <inheritdoc/>
-        public virtual async Task SignOutAsync(SignOutOptions? options = null)
+        public virtual async Task SignOutAsync(SignOutOptions? options = null, CancellationToken cancellationToken = default)
         {
             await this.TokenStore.ClearAllAsync();
             await this.AuthenticationStateNotifier.StateHasChangedAsync();

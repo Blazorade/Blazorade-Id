@@ -12,10 +12,10 @@ namespace Blazorade.Id.Tests
     {
 
         [TestMethod]
-        public void SortScopes01()
+        public async Task SortScopes01()
         {
             var sorter = new ScopeSorter();
-            var sorted = sorter.SortScopes(new[] 
+            var sorted = await sorter.SortScopesAsync(new[] 
             { 
                 "openid", 
                 "profile", 
@@ -36,11 +36,11 @@ namespace Blazorade.Id.Tests
         }
 
         [TestMethod]
-        public void SortScopes02()
+        public async Task SortScopes02()
         {
             string[] source = ["api://foo-bar/stuff.do", "https://api.mycompany.com/read"];
             var sorter = new ScopeSorter();
-            var sorted = sorter.SortScopes(source);
+            var sorted = await sorter.SortScopesAsync(source);
 
             Assert.HasCount(2, sorted);
             foreach(var key in sorted.Keys)

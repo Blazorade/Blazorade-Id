@@ -44,7 +44,7 @@ namespace Blazorade.Id.Services
 
 
         /// <inheritdoc/>
-        public async override Task SignOutAsync(SignOutOptions? options = null)
+        public async override Task SignOutAsync(SignOutOptions? options = null, CancellationToken cancellationToken = default)
         {
             options = options ?? new SignOutOptions { UseDefaultRedirectUri = true };
             options.RedirectUri = options.RedirectUri ?? (options.UseDefaultRedirectUri ? this.NavMan.BaseUri : null);

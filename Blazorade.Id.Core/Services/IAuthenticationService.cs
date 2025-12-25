@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Blazorade.Id.Services
@@ -20,12 +21,14 @@ namespace Blazorade.Id.Services
         /// If an identity token is not available and cannot be acquired, this method returns <see langword="null"/>.
         /// </remarks>
         /// <param name="options">Options for the sign-in process.</param>
-        Task<ClaimsPrincipal?> SignInAsync(SignInOptions? options = null);
+        /// <param name="cancellationToken">A token to cancel the operation.</param>
+        Task<ClaimsPrincipal?> SignInAsync(SignInOptions? options = null, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Signs the user out.
         /// </summary>
         /// <param name="options">Options for the sign-out process.</param>
-        Task SignOutAsync(SignOutOptions? options = null);
+        /// <param name="cancellationToken">A token to cancel the operation.</param>
+        Task SignOutAsync(SignOutOptions? options = null, CancellationToken cancellationToken = default);
     }
 }

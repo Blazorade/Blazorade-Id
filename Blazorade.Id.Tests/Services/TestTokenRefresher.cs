@@ -30,7 +30,7 @@ namespace Blazorade.Id.Tests.Services
             var refreshToken = this.RefreshToken ?? await this.TokenStore.GetRefreshTokenAsync();
             if (null == refreshToken) return false;
 
-            var sorted = this.ScopeSorter.SortScopes(options.Scopes);
+            var sorted = await this.ScopeSorter.SortScopesAsync(options.Scopes);
             foreach(var item in sorted)
             {
                 var claims = new List<Claim>()
