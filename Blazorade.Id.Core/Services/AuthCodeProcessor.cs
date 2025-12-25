@@ -80,7 +80,7 @@ namespace Blazorade.Id.Services
                 // We only ask the token refresher to refresh tokens if we know that a refresh token has been stored.
                 // If StoreRefreshToken is false, we do not store the refresh token acquired during the auth code exchange.
                 // Instead, we store whatever access token and identity token that we get from the auth code exchange.
-                var sortedScopes = this.ScopeSorter.SortScopes(scope?.Split(' ', StringSplitOptions.RemoveEmptyEntries) ?? []);
+                var sortedScopes = await this.ScopeSorter.SortScopesAsync(scope?.Split(' ', StringSplitOptions.RemoveEmptyEntries) ?? []);
                 if (sortedScopes.Count > 0)
                 {
                     foreach (var item in sortedScopes)

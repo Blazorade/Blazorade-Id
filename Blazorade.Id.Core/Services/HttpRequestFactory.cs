@@ -31,7 +31,7 @@ namespace Blazorade.Id.Services
         {
             JwtSecurityToken? token = null;
             HttpRequestMessage? request = null;
-            var sorted = this.ScopeSorter.SortScopes(scopes);
+            var sorted = await this.ScopeSorter.SortScopesAsync(scopes);
 
             if(sorted.Count > 0)
             {

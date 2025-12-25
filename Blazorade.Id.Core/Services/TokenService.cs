@@ -67,7 +67,7 @@ namespace Blazorade.Id.Services
         {
             var result = new AccessTokenDictionary();
             options = await this.GetTokenOptionsAsync(options);
-            ScopeDictionary sortedScopes = this.ScopeSorter.SortScopes(options.Scopes ?? []);
+            ScopeDictionary sortedScopes = await this.ScopeSorter.SortScopesAsync(options.Scopes ?? []);
             bool allowInteraction = options.Prompt != Prompt.None; // Any other prompt than None may potentially use interaction.
 
             foreach(var item in from x in sortedScopes where x.Value.ContainsResourceScopes() select x)

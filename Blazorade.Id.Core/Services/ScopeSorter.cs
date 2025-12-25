@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Blazorade.Id.Services
@@ -21,7 +22,7 @@ namespace Blazorade.Id.Services
         public string MicrosoftGraphResourceId = "https://graph.microsoft.com";
 
         /// <inheritdoc/>
-        public ScopeDictionary SortScopes(IEnumerable<string> scopes)
+        public Task<ScopeDictionary> SortScopesAsync(IEnumerable<string> scopes, CancellationToken cancellationToken = default)
         {
             var result = new ScopeDictionary();
 
@@ -49,7 +50,7 @@ namespace Blazorade.Id.Services
                 addScope(resource, scope);
             }
 
-            return result;
+            return Task.FromResult(result);
         }
     }
 }

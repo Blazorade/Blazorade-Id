@@ -62,7 +62,7 @@ namespace Blazorade.Id.Services
             {
                 result = true;
                 var redirUri = this.AuthOptions.RedirectUri ?? this.RedirUriProvider.GetRedirectUri().ToString();
-                var sortedScopes = this.ScopeSorter.SortScopes(options.Scopes);
+                var sortedScopes = await this.ScopeSorter.SortScopesAsync(options.Scopes);
                 foreach (var item in sortedScopes)
                 {
                     var builder = await this.EndpointService.CreateTokenRequestBuilderAsync();

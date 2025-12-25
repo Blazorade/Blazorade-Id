@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Blazorade.Id.Services
@@ -21,6 +22,7 @@ namespace Blazorade.Id.Services
         /// Responseible for sorting the provided scopes into groups representing the target resources they belong to.
         /// </summary>
         /// <param name="scopes">The scopes to sort.</param>
+        /// <param name="cancellationToken">A cancellation token that can be used to cancel the operation.</param>
         /// <returns>
         /// Returns a dictionary where the identifier for the target resource is the key, and the list of scopes
         /// belonging to that resource is the value.
@@ -30,6 +32,6 @@ namespace Blazorade.Id.Services
         /// external data sources to assist in the sorting process. The sorting should be done based on static
         /// information only.
         /// </remarks>
-        ScopeDictionary SortScopes(IEnumerable<string> scopes);
+        Task<ScopeDictionary> SortScopesAsync(IEnumerable<string> scopes, CancellationToken cancellationToken = default);
     }
 }
