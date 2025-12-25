@@ -17,12 +17,12 @@ namespace Blazorade.Id.Services
     /// <summary>
     /// The default implementation of the <see cref="IAuthorizationCodeProcessor"/> service interface.
     /// </summary>
-    public class AuthCodeProcessor : IAuthorizationCodeProcessor
+    public class AuthorizationCodeProcessor : IAuthorizationCodeProcessor
     {
         /// <summary>
         /// Creates a new instance of the class.
         /// </summary>
-        public AuthCodeProcessor(
+        public AuthorizationCodeProcessor(
             IPropertyStore propertyStore, 
             ITokenStore tokenStore,
             IRefreshTokenStore refreshTokenStore,
