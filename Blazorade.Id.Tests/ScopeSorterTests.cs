@@ -32,7 +32,7 @@ namespace Blazorade.Id.Tests
             Assert.HasCount(1, scps);
             var scp = scps.Single();
 
-            Assert.AreEqual("urn:blazorade:id/user_impersonation", scp);
+            Assert.AreEqual("urn:blazorade:id/user_impersonation", scp.Value);
         }
 
         [TestMethod]
@@ -47,8 +47,8 @@ namespace Blazorade.Id.Tests
             {
                 var scopes = sorted[key];
                 Assert.HasCount(1, scopes);
-                source.Contains(scopes.Single());
-                Assert.StartsWith(key, scopes.Single());
+                source.Contains(scopes.Single().Value);
+                Assert.StartsWith(key, scopes.Single().Value);
             }
         }
     }

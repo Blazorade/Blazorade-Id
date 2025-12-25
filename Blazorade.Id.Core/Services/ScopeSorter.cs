@@ -26,7 +26,7 @@ namespace Blazorade.Id.Services
         {
             var result = new ScopeDictionary();
 
-            Action<string, string> addScope = (resource, scope) =>
+            Action<string, Scope> addScope = (resource, scope) =>
             {
                 if (!result.ContainsKey(resource))
                 {
@@ -37,17 +37,19 @@ namespace Blazorade.Id.Services
 
             foreach (var scope in scopes)
             {
+                Scope scp;
                 string resource;
                 if(scope.Contains('/'))
                 {
                     resource = scope.Substring(0, scope.LastIndexOf('/'));
+                    scp = new Scope(scope);
                 }
                 else
                 {
                     resource = MicrosoftGraphResourceId;
                 }
 
-                addScope(resource, scope);
+                addScope(resource, new Scope(scope));
             }
 
             return Task.FromResult(result);

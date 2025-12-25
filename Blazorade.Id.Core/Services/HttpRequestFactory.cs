@@ -36,7 +36,7 @@ namespace Blazorade.Id.Services
 
             if(sorted.Count > 0)
             {
-                var tokens = await this.TokenService.GetAccessTokensAsync(new Model.GetTokenOptions { Scopes = sorted.First().Value }, cancellationToken);
+                var tokens = await this.TokenService.GetAccessTokensAsync(new Model.GetTokenOptions { Scopes = sorted.First().Value.Values() }, cancellationToken);
                 token = tokens.Count > 0 ? tokens.First().Value : null;
             }
 

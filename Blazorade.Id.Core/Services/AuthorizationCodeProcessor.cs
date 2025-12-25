@@ -92,7 +92,7 @@ namespace Blazorade.Id.Services
                         await this.TokenRefresher.RefreshTokensAsync(new TokenRefreshOptions
                         {
                             RefreshToken = refreshToken,
-                            Scopes = item.Value
+                            Scopes = item.Value.Values()
                         });
                     }
                 }

@@ -21,7 +21,7 @@ namespace Blazorade.Id.Model
         /// <param name="scopes">The scopes to check. All of these scopes must be present in the container.</param>
         public static bool ContainsScopes(this TokenContainer? container, params string[] scopes)
         {
-            return null != container?.Scopes && scopes.All(s => container.Scopes.Contains(s));
+            return null != container?.Scopes && scopes.All(s => container.Scopes.Select(x => x.Value).Contains(s));
         }
 
         /// <summary>

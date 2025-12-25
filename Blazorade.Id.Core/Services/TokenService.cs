@@ -84,7 +84,7 @@ namespace Blazorade.Id.Services
                     container = await this.TokenStore.GetAccessTokenAsync(item.Key);
                 }
 
-                if (!this.IsTokenContainerValid(container, item.Value) && !options.Prompt.RequiresInteraction())
+                if (!this.IsTokenContainerValid(container, item.Value.Values()) && !options.Prompt.RequiresInteraction())
                 {
                     // The container is in some way not valid for the current request. There was either no container found,
                     // it was expired, or it did not contain all the scopes that were requested.
@@ -155,7 +155,7 @@ namespace Blazorade.Id.Services
 
             // Because we're interested in just the identity token, we pick the scopes that are
             // associated with Open ID.
-            var openIdScopes = from x in options.Scopes ?? [] where ScopeList.OpenIdScopes.Contains(x) select x;
+            var openIdScopes = from x in options.Scopes ?? [] where ScopeList.OpenIdScopes.Select(x => x.Value).Contains(x) select x;
 
             if (!this.IsTokenContainerValid(container, openIdScopes) && !options.Prompt.RequiresInteraction())
             {

@@ -10,7 +10,7 @@ namespace Blazorade.Id.Model
     /// <summary>
     /// Represents a list of scope values.
     /// </summary>
-    public class ScopeList : ListBase<string>
+    public class ScopeList : ListBase<Scope>
     {
         /// <summary>
         /// Creates a new instance of the class.
@@ -18,23 +18,34 @@ namespace Blazorade.Id.Model
         public ScopeList() : base() { }
 
         /// <summary>
+        /// Creates a new instance of the class.
+        /// </summary>
+        public ScopeList(IEnumerable<string> scopes)
+        {
+            foreach(var scope in scopes)
+            {
+                this.Add(new Scope(scope));
+            }
+        }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="ScopeList"/> class that contains elements copied from the
         /// specified collection.
         /// </summary>
         /// <param name="collection">The collection whose elements are copied to the new list. Cannot be <see langword="null"/>.</param>
-        public ScopeList(IEnumerable<string> collection) : base(collection) { }
+        public ScopeList(IEnumerable<Scope> collection) : base(collection) { }
 
         /// <summary>
         /// A collection of standardized identity scopes as defined by OpenID Connect.
         /// </summary>
-        public static IEnumerable<string> OpenIdScopes = new string[]
+        public static IEnumerable<Scope> OpenIdScopes = new Scope[]
         {
-            "openid",
-            "profile",
-            "email",
-            "address",
-            "phone",
-            "offline_access"
+            new Scope("openid"),
+            new Scope("profile"),
+            new Scope("email"),
+            new Scope("address", ScopeClassification.Sensitive),
+            new Scope("phone", ScopeClassification.Sensitive),
+            new Scope("offline_access", ScopeClassification.Elevated)
         };
 
         /// <summary>
@@ -66,6 +77,14 @@ namespace Blazorade.Id.Model
         public override string ToString()
         {
             return string.Join(' ', this);
+        }
+
+        /// <summary>
+        /// Returns the values of teh scopes in the list.
+        /// </summary>
+        public IEnumerable<string> Values()
+        {
+            return from x in this select x.Value;
         }
     }
 }

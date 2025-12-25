@@ -47,7 +47,7 @@ namespace Blazorade.Id.Model
         /// <summary>
         /// The scopes associated with the token, if any.
         /// </summary>
-        public IEnumerable<string>? Scopes { get; set; }
+        public IEnumerable<Scope>? Scopes { get; set; }
 
 
 
