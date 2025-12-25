@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Blazorade.Id.Services
@@ -29,10 +30,11 @@ namespace Blazorade.Id.Services
         /// access token specified as the bearer token in the produced HTTP request.
         /// </para>
         /// </param>
+        /// <param name="cancellationToken">A cancellation token that can be used to cancel the operation.</param>
         /// <returns>
         /// The method returns either the <see cref="HttpRequestMessage"/> created from the specified parameters,
         /// or <see langword="null"/> if a suitable access token could not be resolved.
         /// </returns>
-        Task<HttpRequestMessage?> CreateRequestAsync(string requestUri, HttpMethod method, IEnumerable<string> scopes);
+        Task<HttpRequestMessage?> CreateRequestAsync(string requestUri, HttpMethod method, IEnumerable<string> scopes, CancellationToken cancellationToken = default);
     }
 }

@@ -4,6 +4,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Blazorade.Id.Services
@@ -27,11 +28,11 @@ namespace Blazorade.Id.Services
         private readonly IScopeSorter ScopeSorter;
 
         /// <inheritdoc/>
-        public async Task<HttpRequestMessage?> CreateRequestAsync(string requestUri, HttpMethod method, IEnumerable<string> scopes)
+        public async Task<HttpRequestMessage?> CreateRequestAsync(string requestUri, HttpMethod method, IEnumerable<string> scopes, CancellationToken cancellationToken = default)
         {
             JwtSecurityToken? token = null;
             HttpRequestMessage? request = null;
-            var sorted = await this.ScopeSorter.SortScopesAsync(scopes);
+            var sorted = await this.ScopeSorter.SortScopesAsync(scopes, cancellationToken);
 
             if(sorted.Count > 0)
             {
