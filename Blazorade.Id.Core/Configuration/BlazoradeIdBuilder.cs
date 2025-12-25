@@ -324,6 +324,40 @@ namespace Blazorade.Id.Configuration
         }
 
         /// <summary>
+        /// Adds the refresh token store used in the application.
+        /// </summary>
+        /// <typeparam name="TRefreshTokenStore">The type of refresh token store to use.</typeparam>
+        public BlazoradeIdBuilder AddRefreshTokenStore<TRefreshTokenStore>() where TRefreshTokenStore : class, IRefreshTokenStore
+        {
+            this.Services.AddScoped<IRefreshTokenStore, TRefreshTokenStore>();
+            return this;
+        }
+
+        /// <summary>
+        /// Adds the refresh token store specified in <typeparamref name="TRefreshTokenStore"/> to the service collection,
+        /// and provides you with the option to set properties on the refresh token store after it has been created.
+        /// </summary>
+        public BlazoradeIdBuilder AddRefreshTokenStore<TRefreshTokenStore>(Action<IServiceProvider, TRefreshTokenStore> config) where TRefreshTokenStore : class, IRefreshTokenStore
+        {
+            this.Services.AddScoped<IRefreshTokenStore, TRefreshTokenStore>(sp =>
+            {
+                var svc = ActivatorUtilities.CreateInstance<TRefreshTokenStore>(sp);
+                config(sp, svc);
+                return svc;
+            });
+            return this;
+        }
+
+        /// <summary>
+        /// Adds the refresh token store used in the application.
+        /// </summary>
+        public bool AddRefreshTokenStore(Func<IServiceProvider, IRefreshTokenStore> config)
+        {
+            this.Services.AddScoped<IRefreshTokenStore>(sp => config.Invoke(sp));
+            return true;
+        }
+
+        /// <summary>
         /// Adds the scope sorter used in the application.
         /// </summary>
         /// <typeparam name="TScopeSorter">The type of scope sorter to use.</typeparam>

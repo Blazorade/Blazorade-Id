@@ -72,7 +72,7 @@ namespace Blazorade.Id.Services
                         .WithRedirectUri(redirUri)
                         .WithClientId(this.AuthOptions.ClientId)
                         .WithRefreshToken(refreshToken)
-                        .WithScope(string.Join(' ', item.Value))
+                        .WithScope(string.Join(' ', from x in item.Value select x.Value))
                         .Build();
 
                     try

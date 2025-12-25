@@ -56,7 +56,7 @@ namespace Blazorade.Id.Model
         /// </remarks>
         public bool ContainsOpenIdScopes()
         {
-            return this.Any(s => OpenIdScopes.Contains(s));
+            return this.Any(s => OpenIdScopes.Any(x => x.Value == s.Value));
         }
 
         /// <summary>
@@ -68,7 +68,7 @@ namespace Blazorade.Id.Model
         /// </remarks>
         public bool ContainsResourceScopes()
         {
-            return this.Any(x => !OpenIdScopes.Contains(x));
+            return this.Any(s => !OpenIdScopes.Any(x => x.Value == s.Value));
         }
 
         /// <summary>
