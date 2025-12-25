@@ -2,17 +2,18 @@
 using Blazorade.Id.Model;
 using Microsoft.Extensions.Options;
 using System;
-using System.Linq;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
 using System.Net.Http;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
-using System.ComponentModel;
 
 namespace Blazorade.Id.Services
 {
@@ -59,11 +60,12 @@ namespace Blazorade.Id.Services
         /// Returns the access token for the current signed in user.
         /// </summary>
         /// <param name="options">The options for getting the access token.</param>
+        /// <param name="cancellationToken">A cancellation token to cancel the operation.</param>
         /// <remarks>
         /// This service will attempt to refresh the access token in case the previously stored token
         /// has expired, but a refresh token is available.
         /// </remarks>
-        public async Task<AccessTokenDictionary> GetAccessTokensAsync(GetTokenOptions? options = null)
+        public async Task<AccessTokenDictionary> GetAccessTokensAsync(GetTokenOptions? options = null, CancellationToken cancellationToken = default)
         {
             var result = new AccessTokenDictionary();
             options = await this.GetTokenOptionsAsync(options);
@@ -135,11 +137,12 @@ namespace Blazorade.Id.Services
         /// Returns the identity token for the current signed in user.
         /// </summary>
         /// <param name="options">The options for getting the identity token.</param>
+        /// <param name="cancellationToken">A cancellation token to cancel the operation.</param>
         /// <remarks>
         /// This service will attempt to refresh the identity token in case the previously stored token
         /// has expired, but a refresh token is available.
         /// </remarks>
-        public async Task<JwtSecurityToken?> GetIdentityTokenAsync(GetTokenOptions? options = null)
+        public async Task<JwtSecurityToken?> GetIdentityTokenAsync(GetTokenOptions? options = null, CancellationToken cancellationToken = default)
         {
             options = await this.GetTokenOptionsAsync(options);
             TokenContainer? container = null;

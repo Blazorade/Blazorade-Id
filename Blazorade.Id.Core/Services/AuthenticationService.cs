@@ -34,7 +34,7 @@ namespace Blazorade.Id.Services
             ClaimsPrincipal? principal = null;
             options = options ?? new SignInOptions();
             
-            var idToken = await this.TokenService.GetIdentityTokenAsync(options: options.ToGetTokenOptions());
+            var idToken = await this.TokenService.GetIdentityTokenAsync(options: options.ToGetTokenOptions(), cancellationToken);
             if(null != idToken)
             {
                 principal = new ClaimsPrincipal(new ClaimsIdentity(idToken.Claims));
