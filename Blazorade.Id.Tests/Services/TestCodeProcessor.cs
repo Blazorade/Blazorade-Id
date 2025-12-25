@@ -22,7 +22,7 @@ namespace Blazorade.Id.Tests.Services
 
         public string[] ScopesToProcess { get; set; } = [];
 
-        public async Task<bool> ProcessAuthorizationCodeAsync(string code)
+        public async Task<bool> ProcessAuthorizationCodeAsync(string code, CancellationToken cancellationToken = default)
         {
             await this.TokenRefresher.RefreshTokensAsync(new TokenRefreshOptions
             {

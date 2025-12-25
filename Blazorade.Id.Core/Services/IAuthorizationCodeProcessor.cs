@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Blazorade.Id.Services
@@ -18,7 +19,8 @@ namespace Blazorade.Id.Services
         /// whether the processing was successful.
         /// </summary>
         /// <param name="code">The authorization code to process.</param>
+        /// <param name="cancellationToken">A cancellation token that can be used to cancel the operation.</param>
         /// <returns>Returns either <see langword="true"/> or <see langword="false"/>.</returns>
-        Task<bool> ProcessAuthorizationCodeAsync(string code);
+        Task<bool> ProcessAuthorizationCodeAsync(string code, CancellationToken cancellationToken = default);
     }
 }

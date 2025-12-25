@@ -9,6 +9,7 @@ using System.Net.Http;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Blazorade.Id.Services
@@ -57,7 +58,7 @@ namespace Blazorade.Id.Services
         private readonly ITokenRefresher TokenRefresher;
 
         /// <inheritdoc/>
-        public async Task<bool> ProcessAuthorizationCodeAsync(string code)
+        public async Task<bool> ProcessAuthorizationCodeAsync(string code, CancellationToken cancellationToken = default)
         {
             string? refreshToken = null;
             string nonce = await this.PropertyStore.GetNonceAsync() ?? throw new NullReferenceException("Could not resolve nonce for the current authorization flow. Cannot use authorization code to acquire tokens without it.");
@@ -74,13 +75,13 @@ namespace Blazorade.Id.Services
             // First, we exchange the auth code for the initial set of tokens. In this exchange, we are
             // only interested in the refresh token. We will then use that refresh token to acquire both
             // access tokens and identity tokens using the token refresher service.
-            refreshToken = await this.ExchangeAuthCodeAsync(code, this.AuthOptions.ClientId, codeVerifier, redirUri);
+            refreshToken = await this.ExchangeAuthCodeAsync(code, this.AuthOptions.ClientId, codeVerifier, redirUri, cancellationToken);
             if(refreshToken?.Length > 0)
             {
                 // We only ask the token refresher to refresh tokens if we know that a refresh token has been stored.
                 // If StoreRefreshToken is false, we do not store the refresh token acquired during the auth code exchange.
                 // Instead, we store whatever access token and identity token that we get from the auth code exchange.
-                var sortedScopes = await this.ScopeSorter.SortScopesAsync(scope?.Split(' ', StringSplitOptions.RemoveEmptyEntries) ?? []);
+                var sortedScopes = await this.ScopeSorter.SortScopesAsync(scope?.Split(' ', StringSplitOptions.RemoveEmptyEntries) ?? [], cancellationToken);
                 if (sortedScopes.Count > 0)
                 {
                     foreach (var item in sortedScopes)
@@ -100,7 +101,7 @@ namespace Blazorade.Id.Services
         /// <summary>
         /// Exchanges the given auth code for tokens. Returns the refresh token if the exchange was successful.
         /// </summary>
-        private async Task<string?> ExchangeAuthCodeAsync(string code, string clientId, string codeVerifier, string redirUri)
+        private async Task<string?> ExchangeAuthCodeAsync(string code, string clientId, string codeVerifier, string redirUri, CancellationToken cancellationToken = default)
         {
             var now = DateTime.UtcNow;
             TokenResponse? tokenResponse = null;
@@ -118,7 +119,7 @@ namespace Blazorade.Id.Services
             {
                 using (var response = await this.HttpService.SendRequestAsync(tokenRequest))
                 {
-                    var content = await response.Content.ReadAsStringAsync();
+                    var content = await response.Content.ReadAsStringAsync(cancellationToken);
                     if(response.IsSuccessStatusCode)
                     {
                         tokenResponse = JsonSerializer.Deserialize<TokenResponse>(content, options: this.JsonOptions);
