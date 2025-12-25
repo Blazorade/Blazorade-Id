@@ -8,6 +8,10 @@ Get started with Blazorade Id by visiting the Getting Started page on the [Blazo
 
 ## Version Highlights
 
+### v1.0.0-rc.5
+
+- Implemented updated service interfaces where methods now have `CancellationToken` parameters to support cancellation of asynchronous operations.
+
 ### v1.0.0-rc.4
 
 - Replaced `BlazorSignOutService` with `BlazorAuthenticationService` that combines sign-in and sign-out functionality into a single service implementation.
