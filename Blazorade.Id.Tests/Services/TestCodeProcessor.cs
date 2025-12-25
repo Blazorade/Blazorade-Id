@@ -10,10 +10,10 @@ namespace Blazorade.Id.Tests.Services
 {
     public class TestCodeProcessor : IAuthorizationCodeProcessor
     {
-        public TestCodeProcessor(ITokenStore tokenStore, IRefreshTokenStore refreshTokenStore, IScopeSorter scopeSorter)
+        public TestCodeProcessor(ITokenStore tokenStore, IRefreshTokenStore refreshTokenStore, IScopeAnalyzer scopeAnalyzer)
         {
             this.TokenStore = tokenStore ?? throw new ArgumentNullException(nameof(tokenStore));
-            this.TokenRefresher = new TestTokenRefresher(this.TokenStore, refreshTokenStore, scopeSorter);
+            this.TokenRefresher = new TestTokenRefresher(this.TokenStore, refreshTokenStore, scopeAnalyzer);
             this.TokenRefresher.RefreshToken = "refresh-token-from-code-processor";
         }
 

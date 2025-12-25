@@ -358,28 +358,28 @@ namespace Blazorade.Id.Configuration
         }
 
         /// <summary>
-        /// Adds the scope sorter used in the application.
+        /// Adds the scope analyzer used in the application.
         /// </summary>
-        /// <typeparam name="TScopeSorter">The type of scope sorter to use.</typeparam>
+        /// <typeparam name="TScopeAnalyzer">The type of scope analyzer to use.</typeparam>
         /// <remarks>
-        /// A default scope sorter is provided and registered by Blazorade Id, but you can implement
-        /// your own scope sorter by implementing the <see cref="IScopeSorter"/> interface.
+        /// A default scope analyzer is provided and registered by Blazorade Id, but you can implement
+        /// your own scope analyzer by implementing the <see cref="IScopeAnalyzer"/> interface.
         /// </remarks>
-        public BlazoradeIdBuilder AddScopeSorter<TScopeSorter>() where TScopeSorter : class, IScopeSorter
+        public BlazoradeIdBuilder AddScopeAnalyzer<TScopeAnalyzer>() where TScopeAnalyzer : class, IScopeAnalyzer
         {
-            this.Services.AddScoped<IScopeSorter, TScopeSorter>();
+            this.Services.AddScoped<IScopeAnalyzer, TScopeAnalyzer>();
             return this;
         }
 
         /// <summary>
-        /// Adds the scope sorter specified in <typeparamref name="TScopeSorter"/> to the service collection,
-        /// and provides you with the option to set properties on the scope sorter after it has been created.
+        /// Adds the scope analyzer specified in <typeparamref name="TScopeAnalyzer"/> to the service collection,
+        /// and provides you with the option to set properties on the scope analyzer after it has been created.
         /// </summary>
-        public BlazoradeIdBuilder AddScopeSorter<TScopeSorter>(Action<IServiceProvider, TScopeSorter> config) where TScopeSorter : class, IScopeSorter
+        public BlazoradeIdBuilder AddScopeAnalyzer<TScopeAnalyzer>(Action<IServiceProvider, TScopeAnalyzer> config) where TScopeAnalyzer : class, IScopeAnalyzer
         {
-            this.Services.AddScoped<IScopeSorter, TScopeSorter>(sp =>
+            this.Services.AddScoped<IScopeAnalyzer, TScopeAnalyzer>(sp =>
             {
-                var svc = ActivatorUtilities.CreateInstance<TScopeSorter>(sp);
+                var svc = ActivatorUtilities.CreateInstance<TScopeAnalyzer>(sp);
                 config(sp, svc);
                 return svc;
             });
@@ -387,15 +387,15 @@ namespace Blazorade.Id.Configuration
         }
 
         /// <summary>
-        /// Adds the scope sorter used in the application.
+        /// Adds the scope analyzer used in the application.
         /// </summary>
         /// <remarks>
-        /// A default scope sorter is provided and registered by Blazorade Id, but you can implement
-        /// your own scope sorter by implementing the <see cref="IScopeSorter"/> interface.
+        /// A default scope analyzer is provided and registered by Blazorade Id, but you can implement
+        /// your own scope analyzer by implementing the <see cref="IScopeAnalyzer"/> interface.
         /// </remarks>
-        public BlazoradeIdBuilder AddScopeSorter(Func<IServiceProvider, IScopeSorter> config)
+        public BlazoradeIdBuilder AddScopeAnalyzer(Func<IServiceProvider, IScopeAnalyzer> config)
         {
-            this.Services.AddScoped<IScopeSorter>(sp => config.Invoke(sp));
+            this.Services.AddScoped<IScopeAnalyzer>(sp => config.Invoke(sp));
             return this;
         }
 

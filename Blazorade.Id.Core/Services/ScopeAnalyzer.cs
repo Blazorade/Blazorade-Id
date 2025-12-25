@@ -9,12 +9,9 @@ using System.Threading.Tasks;
 namespace Blazorade.Id.Services
 {
     /// <summary>
-    /// Provides a default implementation for sorting and grouping scopes.
+    /// Provides a default implementation for sorting, grouping and analyzing scopes.
     /// </summary>
-    /// <remarks>
-    /// 
-    /// </remarks>
-    public class ScopeSorter : IScopeSorter
+    public class ScopeAnalyzer : IScopeAnalyzer
     {
         /// <summary>
         /// The default resource identifier for scopes associated with Microsoft Graph.
@@ -22,7 +19,7 @@ namespace Blazorade.Id.Services
         public string MicrosoftGraphResourceId = "https://graph.microsoft.com";
 
         /// <inheritdoc/>
-        public Task<ScopeDictionary> SortScopesAsync(IEnumerable<string> scopes, CancellationToken cancellationToken = default)
+        public Task<ScopeDictionary> AnalyzeScopesAsync(IEnumerable<string> scopes, CancellationToken cancellationToken = default)
         {
             var result = new ScopeDictionary();
 
@@ -47,9 +44,10 @@ namespace Blazorade.Id.Services
                 else
                 {
                     resource = MicrosoftGraphResourceId;
+                    scp = new Scope(scope, scope.EndsWith(".All") ? ScopeClassification.Elevated : ScopeClassification.Default);
                 }
 
-                addScope(resource, new Scope(scope));
+                addScope(resource, scp);
             }
 
             return Task.FromResult(result);

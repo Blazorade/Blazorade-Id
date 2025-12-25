@@ -26,7 +26,7 @@ namespace Blazorade.Id.Configuration
                 .AddScoped<ITokenService, TokenService>()
                 .AddScoped<IRefreshTokenStore, NullRefreshTokenStore>()
                 .AddScoped<IAuthorizationCodeProcessor, AuthorizationCodeProcessor>()
-                .AddScoped<IScopeSorter, ScopeSorter>()
+                .AddScoped<IScopeAnalyzer, ScopeAnalyzer>()
                 .AddScoped<ITokenStore, InMemoryTokenStore>()
                 .AddScoped<IPropertyStore, InMemoryPropertyStore>()
                 .AddScoped<ITokenRefresher, TokenRefresher>()

@@ -32,7 +32,7 @@ namespace Blazorade.Id.Services
             IOptions<JsonSerializerOptions> jsonOptions,
             IOptions<AuthorityOptions> authOptions,
             IRedirectUriProvider redirUriProvider,
-            IScopeSorter scopeSorter,
+            IScopeAnalyzer scopeAnalyzer,
             ITokenRefresher tokenRefresher
         ) {
             this.PropertyStore = propertyStore ?? throw new ArgumentNullException(nameof(propertyStore));
@@ -44,7 +44,7 @@ namespace Blazorade.Id.Services
             this.JsonOptions = jsonOptions?.Value ?? throw new ArgumentNullException(nameof(jsonOptions));
             this.AuthOptions = authOptions?.Value ?? throw new ArgumentNullException(nameof(authOptions));
             this.RedirUriProvider = redirUriProvider ?? throw new ArgumentNullException(nameof(redirUriProvider));
-            this.ScopeSorter = scopeSorter ?? throw new ArgumentNullException(nameof(scopeSorter));
+            this.ScopeAnalyzer = scopeAnalyzer ?? throw new ArgumentNullException(nameof(scopeAnalyzer));
             this.TokenRefresher = tokenRefresher ?? throw new ArgumentNullException(nameof(tokenRefresher));
         }
 
@@ -57,7 +57,7 @@ namespace Blazorade.Id.Services
         private readonly JsonSerializerOptions JsonOptions;
         private readonly AuthorityOptions AuthOptions;
         private readonly IRedirectUriProvider RedirUriProvider;
-        private readonly IScopeSorter ScopeSorter;
+        private readonly IScopeAnalyzer ScopeAnalyzer;
         private readonly ITokenRefresher TokenRefresher;
 
         /// <inheritdoc/>
@@ -84,10 +84,10 @@ namespace Blazorade.Id.Services
                 // We only ask the token refresher to refresh tokens if we know that a refresh token has been stored.
                 // If StoreRefreshToken is false, we do not store the refresh token acquired during the auth code exchange.
                 // Instead, we store whatever access token and identity token that we get from the auth code exchange.
-                var sortedScopes = await this.ScopeSorter.SortScopesAsync(scope?.Split(' ', StringSplitOptions.RemoveEmptyEntries) ?? [], cancellationToken);
-                if (sortedScopes.Count > 0)
+                var analyzedScopes = await this.ScopeAnalyzer.AnalyzeScopesAsync(scope?.Split(' ', StringSplitOptions.RemoveEmptyEntries) ?? [], cancellationToken);
+                if (analyzedScopes.Count > 0)
                 {
-                    foreach (var item in sortedScopes)
+                    foreach (var item in analyzedScopes)
                     {
                         await this.TokenRefresher.RefreshTokensAsync(new TokenRefreshOptions
                         {

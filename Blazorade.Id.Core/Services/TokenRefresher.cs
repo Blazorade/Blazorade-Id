@@ -21,7 +21,7 @@ namespace Blazorade.Id.Services
         /// Creates a new instance of the class.
         /// </summary>
         public TokenRefresher(
-            IScopeSorter scopeSorter,
+            IScopeAnalyzer scopeAnalyzer,
             ITokenStore tokenStore,
             IRefreshTokenStore refreshTokenStore,
             IRedirectUriProvider redirectUriProvider,
@@ -31,7 +31,7 @@ namespace Blazorade.Id.Services
             IOptions<AuthorityOptions> authOptions
         )
         {
-            this.ScopeSorter = scopeSorter ?? throw new ArgumentNullException(nameof(scopeSorter));
+            this.ScopeAnalyzer = scopeAnalyzer ?? throw new ArgumentNullException(nameof(scopeAnalyzer));
             this.TokenStore = tokenStore ?? throw new ArgumentNullException(nameof(tokenStore));
             this.RefreshTokenStore = refreshTokenStore ?? throw new ArgumentNullException(nameof(refreshTokenStore));
             this.RedirUriProvider = redirectUriProvider ?? throw new ArgumentNullException(nameof(redirectUriProvider));
@@ -41,7 +41,7 @@ namespace Blazorade.Id.Services
             this.AuthOptions = authOptions?.Value ?? throw new ArgumentNullException(nameof(authOptions));
         }
 
-        private readonly IScopeSorter ScopeSorter;
+        private readonly IScopeAnalyzer ScopeAnalyzer;
         private readonly ITokenStore TokenStore;
         private readonly IRefreshTokenStore RefreshTokenStore;
         private readonly IRedirectUriProvider RedirUriProvider;
@@ -64,8 +64,8 @@ namespace Blazorade.Id.Services
             {
                 result = true;
                 var redirUri = this.AuthOptions.RedirectUri ?? this.RedirUriProvider.GetRedirectUri().ToString();
-                var sortedScopes = await this.ScopeSorter.SortScopesAsync(options.Scopes, cancellationToken);
-                foreach (var item in sortedScopes)
+                var analyzedScopes = await this.ScopeAnalyzer.AnalyzeScopesAsync(options.Scopes, cancellationToken);
+                foreach (var item in analyzedScopes)
                 {
                     var builder = await this.EndpointService.CreateTokenRequestBuilderAsync();
                     var request = builder

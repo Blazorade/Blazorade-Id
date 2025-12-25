@@ -14,8 +14,8 @@ namespace Blazorade.Id.Tests
         [TestMethod]
         public async Task SortScopes01()
         {
-            var sorter = new ScopeSorter();
-            var sorted = await sorter.SortScopesAsync(new[] 
+            var sorter = new ScopeAnalyzer();
+            var analyzed = await sorter.AnalyzeScopesAsync(new[] 
             { 
                 "openid", 
                 "profile", 
@@ -25,8 +25,8 @@ namespace Blazorade.Id.Tests
                 "urn:blazorade:id/user_impersonation"
             });
 
-            Assert.HasCount(2, sorted);
-            var scps = sorted["urn:blazorade:id"];
+            Assert.HasCount(2, analyzed);
+            var scps = analyzed["urn:blazorade:id"];
 
             Assert.IsNotNull(scps);
             Assert.HasCount(1, scps);
@@ -39,13 +39,13 @@ namespace Blazorade.Id.Tests
         public async Task SortScopes02()
         {
             string[] source = ["api://foo-bar/stuff.do", "https://api.mycompany.com/read"];
-            var sorter = new ScopeSorter();
-            var sorted = await sorter.SortScopesAsync(source);
+            var sorter = new ScopeAnalyzer();
+            var analyzed = await sorter.AnalyzeScopesAsync(source);
 
-            Assert.HasCount(2, sorted);
-            foreach(var key in sorted.Keys)
+            Assert.HasCount(2, analyzed);
+            foreach(var key in analyzed.Keys)
             {
-                var scopes = sorted[key];
+                var scopes = analyzed[key];
                 Assert.HasCount(1, scopes);
                 source.Contains(scopes.Single().Value);
                 Assert.StartsWith(key, scopes.Single().Value);

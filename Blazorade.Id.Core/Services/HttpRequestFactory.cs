@@ -18,25 +18,24 @@ namespace Blazorade.Id.Services
         /// <summary>
         /// Creates a new instance of the class.
         /// </summary>
-        public HttpRequestFactory(ITokenService tokenService, IScopeSorter scopeSorter)
+        public HttpRequestFactory(ITokenService tokenService, IScopeAnalyzer scopeAnalyzer)
         {
             this.TokenService = tokenService ?? throw new ArgumentNullException(nameof(tokenService));
-            this.ScopeSorter = scopeSorter ?? throw new ArgumentNullException(nameof(scopeSorter));
+            this.ScopeAnalyzer = scopeAnalyzer ?? throw new ArgumentNullException(nameof(scopeAnalyzer));
         }
 
         private readonly ITokenService TokenService;
-        private readonly IScopeSorter ScopeSorter;
-
+        private readonly IScopeAnalyzer ScopeAnalyzer;
         /// <inheritdoc/>
         public async Task<HttpRequestMessage?> CreateRequestAsync(string requestUri, HttpMethod method, IEnumerable<string> scopes, CancellationToken cancellationToken = default)
         {
             JwtSecurityToken? token = null;
             HttpRequestMessage? request = null;
-            var sorted = await this.ScopeSorter.SortScopesAsync(scopes, cancellationToken);
+            var analyzed = await this.ScopeAnalyzer.AnalyzeScopesAsync(scopes, cancellationToken);
 
-            if(sorted.Count > 0)
+            if(analyzed.Count > 0)
             {
-                var tokens = await this.TokenService.GetAccessTokensAsync(new Model.GetTokenOptions { Scopes = sorted.First().Value.Values() }, cancellationToken);
+                var tokens = await this.TokenService.GetAccessTokensAsync(new Model.GetTokenOptions { Scopes = analyzed.First().Value.Values() }, cancellationToken);
                 token = tokens.Count > 0 ? tokens.First().Value : null;
             }
 

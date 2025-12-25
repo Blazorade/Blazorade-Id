@@ -32,7 +32,7 @@ namespace Blazorade.Id.Services
             IPropertyStore propertyStore,
             IAuthorizationCodeProvider authCodeProvider,
             IAuthorizationCodeProcessor authCodeProcessor,
-            IScopeSorter scopeSorter,
+            IScopeAnalyzer scopeAnalyzer,
             ITokenRefresher tokenRefresher,
             IAuthorizationCodeFailureNotifier authCodeFailureHandler
         ) {
@@ -41,7 +41,7 @@ namespace Blazorade.Id.Services
             this.PropertyStore = propertyStore ?? throw new ArgumentNullException(nameof(propertyStore));
             this.AuthCodeProvider = authCodeProvider ?? throw new ArgumentNullException(nameof(authCodeProvider));
             this.AuthCodeProcessor = authCodeProcessor ?? throw new ArgumentNullException(nameof(authCodeProcessor));
-            this.ScopeSorter = scopeSorter ?? throw new ArgumentNullException(nameof(scopeSorter));
+            this.ScopeAnalyzer = scopeAnalyzer ?? throw new ArgumentNullException(nameof(scopeAnalyzer));
             this.TokenRefresher = tokenRefresher ?? throw new ArgumentNullException(nameof(tokenRefresher));
             this.AuthCodeFailureHandler = authCodeFailureHandler ?? throw new ArgumentNullException(nameof(authCodeFailureHandler));
         }
@@ -51,7 +51,7 @@ namespace Blazorade.Id.Services
         private readonly AuthorityOptions AuthOptions;
         private readonly IAuthorizationCodeProvider AuthCodeProvider;
         private readonly IAuthorizationCodeProcessor AuthCodeProcessor;
-        private readonly IScopeSorter ScopeSorter;
+        private readonly IScopeAnalyzer ScopeAnalyzer;
         private readonly ITokenRefresher TokenRefresher;
         private readonly IAuthorizationCodeFailureNotifier AuthCodeFailureHandler;
 
@@ -69,10 +69,10 @@ namespace Blazorade.Id.Services
         {
             var result = new AccessTokenDictionary();
             options = await this.GetTokenOptionsAsync(options);
-            ScopeDictionary sortedScopes = await this.ScopeSorter.SortScopesAsync(options.Scopes ?? []);
+            ScopeDictionary analyzedScopes = await this.ScopeAnalyzer.AnalyzeScopesAsync(options.Scopes ?? []);
             bool allowInteraction = options.Prompt != Prompt.None; // Any other prompt than None may potentially use interaction.
 
-            foreach(var item in from x in sortedScopes where x.Value.ContainsResourceScopes() select x)
+            foreach(var item in from x in analyzedScopes where x.Value.ContainsResourceScopes() select x)
             {
                 // Since we are getting access tokens, we only enumerate those scopes that are
                 // associated with resources. A group with only Open ID scopes will be skipped.

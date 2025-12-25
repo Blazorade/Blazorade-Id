@@ -9,7 +9,7 @@ namespace Blazorade.Id.Model
     /// <summary>
     /// Represents scopes that are grouped by the resource they are inteded for and keyed by the 
     /// identifier of that resource. The dictionary is produced by an implementation of the 
-    /// <see cref="Services.IScopeSorter"/> service interface.
+    /// <see cref="Services.IScopeAnalyzer"/> service interface.
     /// </summary>
     public class ScopeDictionary : DictionaryBase<string, ScopeList>
     {

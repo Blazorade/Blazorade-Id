@@ -12,16 +12,16 @@ namespace Blazorade.Id.Tests.Services
 {
     public class TestTokenRefresher : ITokenRefresher
     {
-        public TestTokenRefresher(ITokenStore tokenStore, IRefreshTokenStore refreshTokenStore, IScopeSorter scopeSorter)
+        public TestTokenRefresher(ITokenStore tokenStore, IRefreshTokenStore refreshTokenStore, IScopeAnalyzer scopeAnalyzer)
         {
             this.TokenStore = tokenStore ?? throw new ArgumentNullException(nameof(tokenStore));
             this.RefreshTokenStore = refreshTokenStore ?? throw new ArgumentNullException(nameof(refreshTokenStore));
-            this.ScopeSorter = scopeSorter ?? throw new ArgumentNullException(nameof(scopeSorter));
+            this.ScopeAnalyzer = scopeAnalyzer ?? throw new ArgumentNullException(nameof(scopeAnalyzer));
         }
 
         private readonly ITokenStore TokenStore;
         private readonly IRefreshTokenStore RefreshTokenStore;
-        private readonly IScopeSorter ScopeSorter;
+        private readonly IScopeAnalyzer ScopeAnalyzer;
 
 
         public DateTimeOffset? Expiration { get; set; }
@@ -32,7 +32,7 @@ namespace Blazorade.Id.Tests.Services
             var refreshToken = this.RefreshToken ?? await this.RefreshTokenStore.GetRefreshTokenAsync();
             if (null == refreshToken) return false;
 
-            var sorted = await this.ScopeSorter.SortScopesAsync(options.Scopes, cancellationToken);
+            var sorted = await this.ScopeAnalyzer.AnalyzeScopesAsync(options.Scopes, cancellationToken);
             foreach(var item in sorted)
             {
                 var claims = new List<Claim>()
