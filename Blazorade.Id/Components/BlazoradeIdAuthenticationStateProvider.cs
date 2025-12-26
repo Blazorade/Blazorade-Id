@@ -1,5 +1,4 @@
-﻿using Blazorade.Id.Core.Services;
-using Microsoft.AspNetCore.Components.Authorization;
+﻿using Microsoft.AspNetCore.Components.Authorization;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,7 +9,7 @@ using System.Threading.Tasks;
 namespace Blazorade.Id.Components
 {
     /// <summary>
-    /// The authentication state provider configured for Blazor ID.
+    /// The authentication state provider configured for Blazorade ID.
     /// </summary>
     /// <remarks>
     /// The responsibility of this service is to notify ASP.NET Core of changes

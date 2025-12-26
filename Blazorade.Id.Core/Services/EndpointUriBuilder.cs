@@ -1,5 +1,5 @@
-﻿using Blazorade.Id.Core.Configuration;
-using Blazorade.Id.Core.Services;
+﻿using Blazorade.Id.Configuration;
+using Blazorade.Id.Model;
 using Microsoft.Extensions.Primitives;
 using Microsoft.IdentityModel.Tokens;
 using System;
@@ -13,7 +13,7 @@ using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
-namespace Blazorade.Id.Core.Services
+namespace Blazorade.Id.Services
 {
     /// <summary>
     /// A builder that is used to build URIs to various endpoints.
@@ -21,18 +21,26 @@ namespace Blazorade.Id.Core.Services
     public class EndpointUriBuilder : BuilderBase<string>
     {
         /// <summary>
-        /// Creates an instance of the class and specifies the base URI to start building on.
+        /// Creates a new instance of the class.
         /// </summary>
-        /// <param name="endpointUri">The endpoint URI to start building on. This must be an absolute URI.</param>
-        public EndpointUriBuilder(string endpointUri, CodeChallengeService codeChallenge)
+        public EndpointUriBuilder(string endpointUri)
         {
             var uri = new Uri(endpointUri, UriKind.Absolute);
             this.EndpointUri = uri.ToString();
-            this.CodeChallenge = codeChallenge;
+        }
+
+        /// <summary>
+        /// Creates an instance of the class and specifies the base URI to start building on.
+        /// </summary>
+        public EndpointUriBuilder(string endpointUri, ICodeChallengeService codeChallengeService)
+        {
+            var uri = new Uri(endpointUri, UriKind.Absolute);
+            this.EndpointUri = uri.ToString();
+            this.CodeChallengeService = codeChallengeService;
         }
 
         private string EndpointUri;
-        private CodeChallengeService CodeChallenge;
+        private ICodeChallengeService? CodeChallengeService;
 
 
 
@@ -69,14 +77,32 @@ namespace Blazorade.Id.Core.Services
         /// </remarks>
         public EndpointUriBuilder WithCodeChallenge(string? codeVerifier)
         {
-
-            if(codeVerifier?.Length > 0)
+            if(null == this.CodeChallengeService)
             {
-                var challenge = this.CodeChallenge.CreateCodeChallenge(codeVerifier ?? "");
+                throw new InvalidOperationException("Cannot create code challenge when no code challenge service has been provided.");
+            }
+
+            if (codeVerifier?.Length > 0)
+            {
+                var challenge = this.CodeChallengeService.CreateCodeChallenge(codeVerifier);
                 this.Parameters[CodeChallengeName] = challenge.ChallengeValue;
                 this.Parameters[CodeChallengeMethodName] = challenge.ChallengeMethod;
             }
 
+            return this;
+        }
+
+        /// <summary>
+        /// Adds an ID token hint to the URI.
+        /// </summary>
+        /// <param name="idTokenHint"></param>
+        /// <returns></returns>
+        public EndpointUriBuilder WithIdTokenHint(string? idTokenHint)
+        {
+            if(idTokenHint?.Length > 0)
+            {
+                this.Parameters[IdTokenHintName] = idTokenHint;
+            }
             return this;
         }
 
@@ -93,6 +119,9 @@ namespace Blazorade.Id.Core.Services
             return this;
         }
 
+        /// <summary>
+        /// Adds the given nonce to the URI.
+        /// </summary>
         public EndpointUriBuilder WithNonce(string? nonce)
         {
             if(nonce?.Length > 0)

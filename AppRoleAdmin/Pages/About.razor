@@ -1,0 +1,49 @@
+﻿@page "/about"
+
+<PageTitle>About App Role Admin</PageTitle>
+<MudText Typo="Typo.h1">About App Role Admin</MudText>
+
+<MudText Typo="Typo.body1">
+    The App Role Admin sample application demonstrates how to use Blazorade Id to acquire Microsoft Graph
+    access tokens on demand and perform end to end management of application roles in Microsoft Entra ID.
+    The application is intentionally focused on the tasks that the Entra portal handles poorly.
+    It gives administrators a direct, streamlined interface for working with app roles without
+    navigating through multiple disconnected UI surfaces.
+</MudText>
+<MudText Typo="Typo.body1">
+
+    This sample does not bypass or relax Entra permissions. It only enables functionality that the signed 
+    in user is already authorized to perform. If the user lacks the necessary delegated Graph permissions, 
+    the application exposes nothing beyond authentication.
+</MudText>
+
+<MudText Typo="Typo.h2">Key Capabilities</MudText>
+<ul>
+    <li>List all applications in the tenant that define one or more app roles</li>
+    <li>View the full role definitions for a selected application</li>
+    <li>Add new app roles, update existing roles, or remove unused roles</li>
+    <li>Resolve the resource service principal corresponding to the selected application</li>
+    <li>List existing group assignments for each app role</li>
+    <li>Assign app roles to security groups</li>
+    <li>Remove role assignments from security groups</li>
+    <li>Acquire and refresh Microsoft Graph tokens automatically using Blazorade Id’s on demand flow</li>
+</ul>
+
+    <MudText Typo="Typo.h2">Why This Sample Exists</MudText>
+<MudText Typo="Typo.body1">
+    Administrators often need to define app roles for custom applications and assign those roles to security 
+    groups to control downstream access. While the Entra portal technically supports these tasks, it splits 
+    them across multiple disconnected interfaces, making the workflow slow and error prone. This sample shows 
+    how Blazorade Id can support delegated Microsoft Graph operations from a Blazor WebAssembly application and 
+    delivers a focused UI that makes app role administration significantly more efficient.
+</MudText>
+
+        <MudText Typo="Typo.h2">Required Delegated Microsoft Graph Permissions</MudText>
+<MudText Typo="Typo.body1">
+    In order to run this sample app, you need to configure it with the following delegated Microsoft Graph permissions:
+</MudText>
+<ul>
+    <li>Application.ReadWrite.All</li>
+    <li>AppRoleAssignment.ReadWrite.All</li>
+    <li>Directory.Read.All</li>
+</ul>

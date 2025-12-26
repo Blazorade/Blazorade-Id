@@ -1,0 +1,88 @@
+﻿@using Microsoft.Graph.Models
+@inject GraphClientService GraphClient
+
+@if(null != this.AppRole)
+{
+    <MudPaper Elevation="0" Class="pa-2 mb-8 mt-4">
+        <MudForm>
+            <MudTextField T="string" Label="Value" Immediate="true" @bind-Value="this.Value" @bind-Value:after="this.UpdateAppRoleFromFields"></MudTextField>
+            <MudTextField T="string" Label="Display Name" Immediate="true" @bind-Value="this.DisplayName" @bind-Value:after="this.UpdateAppRoleFromFields" Class="mt-4"></MudTextField>
+            <MudTextField T="string" Label="Description" Immediate="true" @bind-Value="this.Description" Lines="3" @bind-Value:after="this.UpdateAppRoleFromFields" Class="mt-4"></MudTextField>
+
+            <MudText Typo="Typo.h6" Class="mt-8">Member Types</MudText>
+            <MudStack Row="true">
+                <MudCheckBox @bind-Value="this.AllowMembersUsers" @bind-Value:after="this.UpdateAppRoleFromFields" Label="Users / Groups"></MudCheckBox>
+                <MudCheckBox @bind-Value="this.AllowMembersApplications" @bind-Value:after="this.UpdateAppRoleFromFields" Label="Applications"></MudCheckBox>
+            </MudStack>
+        </MudForm>
+    </MudPaper>
+}
+
+@code {
+    [Parameter]
+    public AppRole? AppRole { get; set; } = new AppRole();
+
+    private bool _IsAppRoleValid;
+    [Parameter]
+    public bool IsAppRoleValid { get; set; } = false;
+
+    [Parameter]
+    public EventCallback<bool> IsAppRoleValidChanged { get; set; }
+
+    private string? Value;
+    private string? DisplayName;
+    private string? Description;
+    private bool AllowMembersUsers = true;
+    private bool AllowMembersApplications = false;
+
+
+
+    protected async override Task OnParametersSetAsync()
+    {
+        await base.OnParametersSetAsync();
+        if(null != this.AppRole)
+        {
+            this.Value = this.AppRole.Value;
+            this.DisplayName = this.AppRole.DisplayName;
+            this.Description = this.AppRole.Description;
+
+            this.AllowMembersUsers = this.AppRole.AllowedMemberTypes?.Contains("User") ?? false;
+            this.AllowMembersApplications = this.AppRole.AllowedMemberTypes?.Contains("Application") ?? false;
+        }
+
+    }
+
+    private async Task UpdateAppRoleFromFields()
+    {
+        if(null != this.AppRole)
+        {
+            this.AppRole.Value = this.Value;
+            this.AppRole.DisplayName = this.DisplayName;
+            this.AppRole.Description = this.Description;
+
+            this.AppRole.AllowedMemberTypes = new List<string>();
+            if(this.AllowMembersUsers)
+            {
+                this.AppRole.AllowedMemberTypes.Add("User");
+            }
+            if(this.AllowMembersApplications)
+            {
+                this.AppRole.AllowedMemberTypes.Add("Application");
+            }
+        }
+
+        var isValid = this.DisplayName?.Length > 0
+            && this.Value?.Length > 0
+            && this.Description?.Length > 0
+            && (this.AllowMembersUsers || this.AllowMembersApplications)
+            ;
+
+        if (isValid != this.IsAppRoleValid)
+        {
+            this.IsAppRoleValid = isValid;
+            await this.IsAppRoleValidChanged.InvokeAsync(this.IsAppRoleValid);
+        }
+
+        Console.WriteLine($"AppRoleEditor: Value={this.Value}, DisplayName={this.DisplayName}, Description={this.Description}, Users: {this.AllowMembersUsers}, Applications: {this.AllowMembersApplications}, IsAppRoleValid: {this.IsAppRoleValid}");
+    }
+}

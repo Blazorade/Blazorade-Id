@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Blazorade.Id.Core.Services
+namespace Blazorade.Id.Services
 {
 
     /// <summary>
@@ -39,6 +39,8 @@ namespace Blazorade.Id.Core.Services
 
         protected const string GrantTypeValueCode = "authorization_code";
         protected const string GrantTypeValueRefreshToken = "refresh_token";
+
+        protected const string IdTokenHintName = "id_token_hint";
 
         protected Dictionary<string, string> Parameters { get; private set; } = new Dictionary<string, string>();
 

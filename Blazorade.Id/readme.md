@@ -4,9 +4,43 @@ Blazorade ID offers authentication and user identification services to all types
 
 ## Getting Started
 
-Blazorade ID is currently in alpha development phases, and we are working on samples and documentation together with the actual implementation. See the samples on the [Github repository for Blazorade ID](https://github.com/Blazorade/Blazorade-Id) for more details.
+Get started with Blazorade Id by visiting the Getting Started page on the [Blazorade ID wiki](https://github.com/Blazorade/Blazorade-Id/wiki/GettingStarted). Also be sure to check out the sample applications included in the [Github repository for Blazorade ID](https://github.com/Blazorade/Blazorade-Id).
 
 ## Version Highlights
+
+### v1.0.0
+
+Initial stable release of Blazorade ID.
+
+### v1.0.0-rc.6
+
+- Implemented updated service interfaces where methods now have `CancellationToken` parameters to support cancellation of asynchronous operations.
+- Changed token store implementations to separate refresh token management into its own `IRefreshTokenStore` service interface.
+
+### v1.0.0-rc.4
+
+- Replaced `BlazorSignOutService` with `BlazorAuthenticationService` that combines sign-in and sign-out functionality into a single service implementation.
+
+### v1.0.0-rc.3
+
+- Added `IHttpRequestFactory` service interface to create HTTP requests for resources protected by access tokens managed by Blazorade ID.
+
+### v1.0.0-rc.2
+
+- Improved refresh token handling in token store implementations.
+- Implemented log out functionality through the ISignOutService.
+- Implemented a default sign-out service for Blazor applications.
+- Renamed property store and token store implementations to better reflect what storage they use.
+
+### v1.0.0-rc.1
+
+Preparing for the first stable version. Even though Blazorade ID is designed to work with any OAuth/OIDC compliant identity provider, the first stable version will focus on Microsoft Entra ID and Microsoft Entra External ID.
+
+Read more about Blazorade ID on the [Blazorade ID Wiki](https://github.com/Blazorade/Blazorade-Id/wiki).
+
+### v1.0.0-beta.x
+
+Working towards the first stable version.
 
 ### v1.0.0-alpha.2
 

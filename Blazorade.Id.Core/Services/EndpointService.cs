@@ -1,102 +1,78 @@
-﻿using Blazorade.Id.Core.Configuration;
-using Blazorade.Id.Core.Model;
+﻿using Blazorade.Id.Configuration;
+using Blazorade.Id.Model;
 using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 
-namespace Blazorade.Id.Core.Services
+namespace Blazorade.Id.Services
 {
     /// <summary>
     /// A service implementation that is used to resolve various endpoints with.
     /// </summary>
-    public class EndpointService
+    public class EndpointService : IEndpointService
     {
         /// <summary>
         /// Creates an instance of the class.
         /// </summary>
-        /// <param name="clientFactory">The HTTP client factory that is a dependency to this service instance.</param>
-        public EndpointService(IHttpClientFactory? clientFactory, CodeChallengeService codeChallengeService, IOptions<AuthorityOptions> authOptions)
+        public EndpointService(IHttpService httpService, IOptions<AuthorityOptions> authOptions)
         {
-            this.Client = clientFactory?.CreateClient() ?? new HttpClient();
-            this.CodeChallenge = codeChallengeService;
+            this.HttpService = httpService ?? throw new ArgumentNullException(nameof(httpService));
             this.Options = authOptions.Value ?? throw new ArgumentNullException(nameof(authOptions));
         }
 
-        private readonly HttpClient Client;
-        private readonly CodeChallengeService CodeChallenge;
+        private readonly IHttpService HttpService;
         private readonly AuthorityOptions Options;
 
-        /// <summary>
-        /// Creates an endpoint builder that is used to build the authorization endpoint URI with.
-        /// </summary>
-        /// <param name="options">The options to use when resolving the authorization endpoint URI for the configured authority.</param>
-        /// <returns>
-        /// The builder returned is configured with the <see cref="AuthorityOptions.ClientId"/> from <paramref name="options"/>.
-        /// </returns>
-        /// <exception cref="Exception">The exception that is thrown when the authorization endpoint URI could not be resolved.</exception>
-        public async ValueTask<EndpointUriBuilder> CreateAuthorizationUriBuilderAsync()
+
+        /// <inheritdoc/>
+        public async Task<string> GetAuthorizationEndpointAsync()
         {
-            var uri = await this.GetAuthorizationEndpointAsync() ?? throw new Exception("Could not resolve URI for authorization endpoint.");
-            return new EndpointUriBuilder(uri, this.CodeChallenge).WithClientId(this.Options.ClientId);
+            return await this.GetEndpointFromOpenIdConfigurationAsync(this.Options.AuthorizationEndpoint, this.Options.DiscoveryDocumentUri, doc => doc.AuthorizationEndpointUri)
+                ?? throw new NullReferenceException("Could not resolve URI for authorization endpoint.");
+                ;
         }
 
-        /// <summary>
-        /// Returns an URI Builder that can be used to build URIs to the the end session endpoint for the configured authority.
-        /// </summary>
-        /// <exception cref="Exception">
-        /// The exception that is thrown if the end session endpoint could not be resolved.
-        /// </exception>
-        public async ValueTask<EndpointUriBuilder> CreateEndSessionUriBuilderAsync()
+        /// <inheritdoc/>
+        public async Task<string> GetTokenEndpointAsync()
         {
-            var uri = await this.GetEndSessionEndpointAsync() ?? throw new Exception("Could not resolve URI for end session endpoint.");
-            return new EndpointUriBuilder(uri, this.CodeChallenge);
+            return await this.GetEndpointFromOpenIdConfigurationAsync(this.Options.TokenEndpoint, this.Options.DiscoveryDocumentUri, doc => doc.TokenEndpointUri)
+                ?? throw new NullReferenceException("Could not resolve URI for token endpoint.")
+                ;
         }
 
-        /// <summary>
-        /// Creates an URI Builder that is used to build URIs to the token endpoint for the configured authority.
-        /// </summary>
-        /// <returns></returns>
-        /// <exception cref="Exception">
-        /// The exception that is thrown if the token endpoint could not be resolved.
-        /// </exception>
-        public async ValueTask<TokenRequestBuilder> CreateTokenRequestBuilderAsync()
+        /// <inheritdoc/>
+        public async Task<string?> GetEndSessionEndpointAsync()
         {
-            var uri = await this.GetTokenEndpointAsync() ?? throw new Exception("Could not resolve URI for token endpoint");
-            return new TokenRequestBuilder(uri).WithClientId(this.Options.ClientId);
+            return await this.GetEndpointFromOpenIdConfigurationAsync(this.Options.EndSessionEndpoint, this.Options.DiscoveryDocumentUri, doc => doc.EndSessionEndpointUri);
         }
 
-        /// <summary>
-        /// Returns the authorization endpoint for the configured authority.
-        /// </summary>
-        public async ValueTask<string?> GetAuthorizationEndpointAsync()
+        /// <inheritdoc/>
+        public async Task<string?> GetUserInfoEndpointAsync()
         {
-            return await this.GetEndpointFromOpenIdConfigurationAsync(this.Options.AuthorizationEndpoint, this.Options.MetadataUri, doc => doc.AuthorizationEndpointUri);
+            return await this.GetEndpointFromOpenIdConfigurationAsync(null, this.Options.DiscoveryDocumentUri, doc => doc.UserInfoEndpointUri);
         }
 
-        /// <summary>
-        /// Returns the token endpoint for the configured authority.
-        /// </summary>
-        public async ValueTask<string?> GetTokenEndpointAsync()
+        /// <inheritdoc/>
+        public async Task<string?> GetDeviceAuthorizationEndpointAsync()
         {
-            return await this.GetEndpointFromOpenIdConfigurationAsync(this.Options.TokenEndpoint, this.Options.MetadataUri, doc => doc.TokenEndpointUri);
+            return await this.GetEndpointFromOpenIdConfigurationAsync(null, this.Options.DiscoveryDocumentUri, doc => doc.DeviceAuthorizationEndpointUri);
         }
 
-        /// <summary>
-        /// Returns the end session endpoint for the configured authority.
-        /// </summary>
-        public async ValueTask<string?> GetEndSessionEndpointAsync()
+        /// <inheritdoc/>
+        public async Task<string?> GetKerberosEndpointAsync()
         {
-            return await this.GetEndpointFromOpenIdConfigurationAsync(this.Options.EndSessionEndpoint, this.Options.MetadataUri, doc => doc.EndSessionEndpointUri);
+            return await this.GetEndpointFromOpenIdConfigurationAsync(null, this.Options.DiscoveryDocumentUri, doc => doc.KerberosEndpointUri);
         }
 
 
 
-        private async ValueTask<string?> GetEndpointFromOpenIdConfigurationAsync(string? endpointUri, string? metadataUri, Func<OpenIdConfiguration, string?> uriResolver)
+        private async Task<string?> GetEndpointFromOpenIdConfigurationAsync(string? endpointUri, string? discoveryDocumentUri, Func<OpenIdDiscoveryDocument, string?> uriResolver)
         {
             string? result = null;
 
@@ -104,9 +80,9 @@ namespace Blazorade.Id.Core.Services
             {
                 result = endpointUri;
             }
-            else if(metadataUri?.Length > 0)
+            else if(discoveryDocumentUri?.Length > 0)
             {
-                var doc = await this.LoadOpenIdConfigurationAsync(metadataUri);
+                var doc = await this.LoadOpenIdConfigurationAsync(discoveryDocumentUri);
                 if(null != doc)
                 {
                     result = uriResolver(doc);
@@ -116,21 +92,21 @@ namespace Blazorade.Id.Core.Services
             return result;
         }
 
-        private async ValueTask<OpenIdConfiguration?> LoadOpenIdConfigurationAsync(string metadataUri)
+        private async Task<OpenIdDiscoveryDocument?> LoadOpenIdConfigurationAsync(string discoveryDocumentUri)
         {
-            OpenIdConfiguration? metadata = null!;
+            OpenIdDiscoveryDocument? metadata = null!;
 
             var request = new HttpRequestMessage
             {
                 Method = HttpMethod.Get,
-                RequestUri = new Uri(metadataUri)
+                RequestUri = new Uri(discoveryDocumentUri)
             };
-            var response = await this.Client.SendAsync(request);
+            var response = await this.HttpService.SendRequestAsync(request);
             if (response.IsSuccessStatusCode)
             {
                 using (var strm = await response.Content.ReadAsStreamAsync())
                 {
-                    metadata = await JsonSerializer.DeserializeAsync<OpenIdConfiguration>(await response.Content.ReadAsStreamAsync());
+                    metadata = await JsonSerializer.DeserializeAsync<OpenIdDiscoveryDocument>(await response.Content.ReadAsStreamAsync());
                 }
             }
 

@@ -1,0 +1,40 @@
+﻿@using Microsoft.Graph.Models
+@inject GraphClientService GraphClient
+
+<MudText Typo="Typo.subtitle1">Select Application</MudText>
+
+<MudStack Row="true">
+    <MudTextField @bind-Value="this.query" Label="Search"></MudTextField>
+    <MudIconButton Icon="@Icons.Material.Filled.Search" Color="Color.Primary" OnClick="this.OnSearchClickAsync" />
+</MudStack>
+
+<MudList T="@Application">
+    @foreach(var app in this.Applications)
+    {
+        <MudListItem Value="app" OnClick="async () => { await this.OnApplicationSelectedAsync(app); }">@app.DisplayName</MudListItem>
+    }
+</MudList>
+@code {
+
+    [Parameter]
+    public EventCallback<Application> ApplicationSelected { get; set; }
+
+    private string? query;
+    private List<Application> Applications = new();
+
+    private async Task OnApplicationSelectedAsync(Application app)
+    {
+        var refreshedApp = await this.GraphClient.GetApplicationAsync(app.Id);
+        await this.ApplicationSelected.InvokeAsync(refreshedApp);
+    }
+
+    private async Task OnSearchClickAsync(MouseEventArgs args)
+    {
+        this.Applications.Clear();
+
+        await foreach(var app in this.GraphClient.GetApplicationsAsync(this.query))
+        {
+            this.Applications.Add(app);
+        }
+    }
+}

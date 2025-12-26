@@ -1,0 +1,83 @@
+﻿@page "/acquire-tokens"
+
+@using Microsoft.AspNetCore.Components.Forms
+@using System.IdentityModel.Tokens.Jwt
+@using Blazorade.Id.Model
+@using Blazorade.Id.Services
+
+@inject ITokenService tokenService
+
+<PageTitle>Acquire Tokens</PageTitle>
+<h1>Acquire Tokens</h1>
+
+<div>
+    <label for="scopes">Scopes</label>
+</div>
+<InputTextArea DisplayName="Scopes" id="scopes" @bind-Value="this.Scopes" style="width: 320px; height: 48px"/>
+<div style="margin-top: 1em">
+    <button @onclick="async () => await this.GetTokensAsync()">Get Tokens</button>
+</div>
+
+@if(this.AccessTokens.Count > 0 || null != this.IdToken)
+{
+    <h2>Tokens</h2>
+    @if(this.AccessTokens.Count > 0)
+    {
+        <h3>Access Tokens</h3>
+        @foreach(var item in this.AccessTokens)
+        {
+            <h4>Resource: @item.Key</h4>
+            <p>
+                <a href="https://jwt.ms/#access_token=@item.Value.RawData" target="_blank">@item.Value.RawData</a>
+            </p>
+        }
+    }
+
+    @if(null != this.IdToken)
+    {
+        <h3>Identity Token</h3>
+        <p>
+            <a href="https://jwt.ms/#id_token=@this.IdToken.RawData" target="_blank">@this.IdToken.RawData</a>
+        </p>
+    }
+}
+
+@code {
+    private const string DefaultScopes = "openid profile email User.Read";
+    private string? Scopes;
+    private AccessTokenDictionary AccessTokens = new AccessTokenDictionary();
+    private JwtSecurityToken? IdToken = null;
+
+    protected async override Task OnAfterRenderAsync(bool firstRender)
+    {
+        await base.OnAfterRenderAsync(firstRender);
+        if(firstRender)
+        {
+            this.Scopes = DefaultScopes;
+            await this.GetTokensAsync(Prompt.None);
+            this.StateHasChanged();
+        }
+    }
+
+    private async Task GetTokensAsync(Prompt? prompt = null)
+    {
+        this.AccessTokens.Clear();
+        this.IdToken = null;
+
+        var scp = this.Scopes ?? DefaultScopes;
+        var scpArr = scp.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+
+        var getOptions = new GetTokenOptions
+            {
+                Prompt = prompt,
+                Scopes = scpArr,
+            };
+
+        this.AccessTokens = await this.tokenService.GetAccessTokensAsync(getOptions);
+
+        // No need to prompt when getting ID token, since any prompting
+        // was done when getting access tokens.
+        getOptions.Prompt = Prompt.None;
+        this.IdToken = await this.tokenService.GetIdentityTokenAsync(getOptions);
+    }
+}
