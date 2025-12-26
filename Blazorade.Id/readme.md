@@ -8,6 +8,10 @@ Get started with Blazorade Id by visiting the Getting Started page on the [Blazo
 
 ## Version Highlights
 
+### v1.0.0
+
+Initial stable release of Blazorade ID.
+
 ### v1.0.0-rc.6
 
 - Implemented updated service interfaces where methods now have `CancellationToken` parameters to support cancellation of asynchronous operations.
