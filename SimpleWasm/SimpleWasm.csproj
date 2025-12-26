@@ -13,6 +13,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Blazorade.Id\Blazorade.Id.csproj" />
+    <ProjectReference Include="..\BlazoradeIdSampleComponents\BlazoradeIdSampleComponents.csproj" />
   </ItemGroup>
 
 </Project>

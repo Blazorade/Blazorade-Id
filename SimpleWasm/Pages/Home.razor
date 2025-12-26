@@ -2,57 +2,14 @@
 @using Blazorade.Id.Model
 @inject ITokenService TokenService
 
-<PageTitle>Blazorade ID WASM Sample</PageTitle>
+<PageTitle>Blazorade Id Sample WASM App</PageTitle>
 
-<h1>Blazorade ID for Blazor WASM</h1>
+<h1>Blazorade Id Sample WASM App</h1>
 
 <p>
-    This simple application demonstrates how you can use Blazorade ID in your application.
+    A sample Blazor WASM application that uses a shared sample component
+    library to demonstrate authentication and token acquisition using Blazorade ID.
 </p>
-
-<AuthorizeView>
-    <Authorized Context="auth">
-        <h2>@auth.User.Identity?.Name</h2>
-        <button class="btn btn-primary" @onclick="async () => await this.LogIn(Prompt.Select_Account)">Switch Account</button>
-    </Authorized>
-    <NotAuthorized>
-        <button class="btn btn-primary" @onclick="async () => await this.LogIn()">Log In</button>
-    </NotAuthorized>
-</AuthorizeView>
-
-@if(this.accessTokens?.Count > 0)
-{
-    <h3>Access Tokens</h3>
-    @foreach(var item in this.accessTokens)
-    {
-        <h4>@item.Key</h4>
-        <p><a href="https://jwt.ms/#access_token=@item.Value.RawData" target="_blank">@item.Value.RawData</a></p>
-    }
-}
-
-@if(this.idToken?.Length > 0)
-{
-    <h3>Identity Token</h3>
-    <p><a href="https://jwt.ms/#id_token=@this.idToken" target="_blank">@this.idToken</a></p>
-}
-
-@code {
-    AccessTokenDictionary? accessTokens;
-    string? idToken;
-    private async Task LogIn(Prompt? prompt = null)
-    {
-        this.idToken = null;
-        this.accessTokens = null;
-        this.StateHasChanged();
-
-        var options = new GetTokenOptions { Prompt = prompt };
-
-        this.accessTokens = await this.TokenService.GetAccessTokensAsync(options: options);
-        options.Prompt = Prompt.None; // We don't want to prompt again for the id token.
-
-        var idTokenJwt = await this.TokenService.GetIdentityTokenAsync(options: options);
-        this.idToken = idTokenJwt?.RawData;
-
-        this.StateHasChanged();
-    }
-}
+<p>
+    Use the menu above to navigate through various samples.
+</p>

@@ -1,5 +1,7 @@
 ﻿@page "/sign-in-sign-out"
 
+@using Blazorade.Id.Services
+@using Blazorade.Id.Model
 @inject IAuthenticationService authService
 @inject IAuthorizationCodeFailureNotifier authCodeFailures
 
@@ -16,15 +18,15 @@
 }
 
 <AuthorizeView>
-    <Authorized Context="auth">
-        <h2>@auth.User.Identity?.Name</h2>
+    <Authorized Context="authState">
+        <h2>@authState.User.Identity?.Name</h2>
         <button @onclick="async () => await this.authService.SignInAsync(new SignInOptions { Prompt = Prompt.Select_Account })">Change user</button>
         <button @onclick="async () => await this.authService.SignOutAsync(new SignOutOptions { SkipEndIdpSession = true })">Sign out</button>
         <button @onclick="async () => await this.authService.SignOutAsync()">Sign out and end session</button>
 
         <h3>Identity Token Claims</h3>
         <ul>
-            @foreach(var claim in auth.User.Claims)
+            @foreach (var claim in authState.User.Claims)
             {
                 <li><b>@claim.Type</b>: @claim.Value</li>
             }

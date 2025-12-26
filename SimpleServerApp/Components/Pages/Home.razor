@@ -1,120 +1,14 @@
-﻿@using Blazorade.Id.Model
-
+﻿
 @page "/"
-@inject ITokenService TokenService
-@inject ILocalStorageService LocalStore
-@inject IAuthenticationStateNotifier AuthStateNotifier
-@inject IAuthenticationService AuthService
 
 <PageTitle>Blazorade Id Sample Server App</PageTitle>
 
-<h1>Get Tokens</h1>
+<h1>Blazorade Id Sample Server App</h1>
 
-<AuthorizeView>
-    <Authorized Context="auth">
-        <h2>Logged in as: @auth.User.Identity?.Name</h2>
-        <button @onclick="async () => await this.OnGetTokensAsync(prompt: Blazorade.Id.Model.Prompt.Select_Account)">Switch Account</button>
-        <button @onclick="async () => await this.SignOutAsync()">Sign Out</button>
-    </Authorized>
-    <NotAuthorized>
-
-    </NotAuthorized>
-</AuthorizeView>
-<div>
-    <label for="scopesField">Scopes</label>
-    <InputText @bind-Value="this.Scopes" DisplayName="Scopes" id="scopesField" />
-</div>
-<div style="margin-top: 1em;">
-    <label for="promptField">Prompt</label>
-    <InputSelect TValue="Prompt?" @bind-Value="this.Prompt" id="promptField">
-        <option value="">Not Specified</option>
-        <option value="None">None</option>
-        <option value="Login">Login</option>
-        <option value="Consent">Consent</option>
-        <option value="Select_Account">Select Account</option>
-    </InputSelect>
-</div>
-<div style="margin-top: 1em;">
-
-</div>
-<button type="submit" @onclick="async () => await this.OnGetTokensAsync()">Get Tokens</button>
-
-@if(this.AccessTokens.Count > 0)
-{
-    <h2>Access Tokens</h2>
-    @foreach(var item in this.AccessTokens)
-    {
-        <h3>Resource: @item.Key</h3>
-        <p>
-            <a href="https://jwt.ms/#access_token=@item.Value.RawData" target="_blank">@item.Value.RawData</a>
-        </p>
-    }
-}
-
-@if(this.IdToken?.RawData?.Length > 0)
-{
-    <h2>ID Token</h2>
-    <p>
-        <a href="https://jwt.ms/#id_token=@this.IdToken.RawData" target="_blank">@this.IdToken.RawData</a>
-    </p>
-}
-
-@code {
-
-
-    private const string DefaultScopes = "openid profile email";
-    private string? Scopes;
-    private AccessTokenDictionary AccessTokens = new AccessTokenDictionary();
-    private JwtSecurityToken? IdToken;
-    private Prompt? Prompt;
-
-    private async Task SignOutAsync()
-    {
-        await this.AuthService.SignOutAsync(new SignOutOptions { SkipEndIdpSession = true, UseDefaultRedirectUri = true });
-        this.AccessTokens.Clear();
-        this.IdToken = null;
-    }
-
-    protected async override Task OnAfterRenderAsync(bool firstRender)
-    {
-        await base.OnAfterRenderAsync(firstRender);
-        if(firstRender)
-        {
-            this.Scopes = await this.LocalStore.GetItemAsync<string?>("scopes") ?? DefaultScopes;
-
-            var options = new GetTokenOptions
-                {
-                    Prompt = Blazorade.Id.Model.Prompt.None,
-                    Scopes = this.Scopes.Split(' ', StringSplitOptions.RemoveEmptyEntries)
-                };
-
-            this.AccessTokens = await this.TokenService.GetAccessTokensAsync(options);
-            this.IdToken = await this.TokenService.GetIdentityTokenAsync(options);
-
-            if(null != this.IdToken)
-            {
-                await this.AuthStateNotifier.StateHasChangedAsync();
-            }
-
-            this.StateHasChanged();
-        }
-    }
-
-    private async Task OnGetTokensAsync(Prompt? prompt = null)
-    {
-        this.AccessTokens.Clear();
-        this.IdToken = null;
-
-        await this.LocalStore.SetItemAsync("scopes", this.Scopes);
-
-        var getOptions = new GetTokenOptions
-            {
-                Prompt = prompt ?? this.Prompt,
-                Scopes = $"{this.Scopes}".Split(' ', StringSplitOptions.RemoveEmptyEntries)
-            };
-
-        this.AccessTokens = await this.TokenService.GetAccessTokensAsync(getOptions);
-
-        this.IdToken = await this.TokenService.GetIdentityTokenAsync(new GetTokenOptions { Prompt = Blazorade.Id.Model.Prompt.None, Scopes = getOptions.Scopes });
-    }
-}
+<p>
+    A sample Blazor Server application that uses a shared sample component
+    library to demonstrate authentication and token acquisition using Blazorade ID.
+</p>
+<p>
+    Use the menu above to navigate through various samples.
+</p>

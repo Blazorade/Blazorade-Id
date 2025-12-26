@@ -1,6 +1,8 @@
+using Microsoft.Extensions.DependencyInjection;
 using Blazorade.Id.Components.Pages;
 using Blazorade.Id.Services;
 using SimpleServerApp.Components;
+using BlazoradeIdSampleComponents;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,6 +18,9 @@ builder.Services
             var config = sp.GetRequiredService<IConfiguration>(); 
             config.GetRequiredSection("blazorade:id").Bind(options);
         })
+        .AddTokenStore<BrowserSessionStorageTokenStore>()
+        .AddRefreshTokenStore<InMemoryRefreshTokenStore>()
+
     ;
 
 
@@ -33,10 +38,9 @@ app.UseHttpsRedirection();
 
 app.UseStaticFiles();
 app.UseAntiforgery();
-
 app.MapRazorComponents<App>()
+    .AddAdditionalAssemblies(typeof(OAuthCallback).Assembly, typeof(SampleMenu).Assembly)
     .AddInteractiveServerRenderMode()
-    .AddAdditionalAssemblies(typeof(OAuthCallback).Assembly)
     ;
 
 app.Run();

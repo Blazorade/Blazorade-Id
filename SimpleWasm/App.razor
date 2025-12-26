@@ -1,5 +1,16 @@
-﻿<CascadingAuthenticationState>
-    <Router AppAssembly="@typeof(App).Assembly" AdditionalAssemblies="new Assembly[] { typeof(OAuthCallback).Assembly }">
+﻿@using System.Reflection
+@using BlazoradeIdSampleComponents
+
+@code {
+    Assembly[] assemblies = new Assembly[]
+    {
+        typeof(OAuthCallback).Assembly,
+        typeof(SampleMenu).Assembly
+    };
+}
+
+<CascadingAuthenticationState>
+    <Router AppAssembly="@typeof(App).Assembly" AdditionalAssemblies="assemblies">
         <Found Context="routeData">
             <RouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)" />
         </Found>
