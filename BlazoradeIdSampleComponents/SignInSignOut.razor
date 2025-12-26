@@ -21,6 +21,7 @@
         <button @onclick="async () => await this.authService.SignOutAsync(new SignOutOptions { SkipEndIdpSession = true })">Sign out</button>
         <button @onclick="async () => await this.authService.SignOutAsync()">Sign out and end session</button>
 
+        <h3>Identity Token Claims</h3>
         <ul>
             @foreach(var claim in auth.User.Claims)
             {
