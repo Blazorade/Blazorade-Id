@@ -116,8 +116,8 @@ export function openAuthorizationPopup(args) {
     }, 250);
 }
 
-export function signalAuthorizationPopupResponseUrl(args) {
-    console.debug("signalAuthorizationPopupResponseUrl", args);
+export function signalAuthorizationResponse(args) {
+    console.debug("signalAuthorizationResponse", args);
 
     try {
         if (window.opener && !window.opener.closed) {

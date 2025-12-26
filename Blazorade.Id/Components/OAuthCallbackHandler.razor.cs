@@ -38,7 +38,7 @@ namespace Blazorade.Id.Components
                         { "responseUrl", this.NavMan.Uri }
                     };
 
-                    using(var handler = await this.ScriptService.CreateCallbackHandlerAsync<bool>("signalAuthorizationPopupResponseUrl", data: input))
+                    using(var handler = await this.ScriptService.CreateCallbackHandlerAsync<bool>("signalAuthorizationResponse", data: input))
                     {
                         var result = await handler.GetResultAsync();
                     }
