@@ -11,7 +11,7 @@ namespace Blazorade.Id.Services
     /// <summary>
     /// A base implementation that can be used as base class for token store implementations.
     /// </summary>
-    public abstract class TokenStoreBase : ITokenStore
+    public abstract class TokenStoreBase : StoreBase, ITokenStore
     {
 
 
@@ -32,32 +32,5 @@ namespace Blazorade.Id.Services
 
 
 
-        /// <summary>
-        /// Returns a key that can be used to store/retrieve a token of the specified <paramref name="tokenType"/>.
-        /// </summary>
-        protected string GetKey(TokenType tokenType, string? suffix = null)
-        {
-            return this.GetKey(tokenType.ToString(), suffix: suffix);
-        }
-
-        /// <summary>
-        /// Returns the prefix for all keys stored by Blazorade Id token store implementations.
-        /// </summary>
-        /// <returns></returns>
-        protected string GetKeyPrefix()
-        {
-            return "blazorade.id.";
-        }
-
-        /// <summary>
-        /// Returns a fully qualified key for the specified <paramref name="name"/>.
-        /// </summary>
-        protected string GetKey(string name, string? suffix = null)
-        {
-            var prefix = this.GetKeyPrefix();
-
-            suffix = null != suffix ? $".{suffix}" : string.Empty;
-            return $"{prefix}{name.ToLower()}{suffix}";
-        }
     }
 }
