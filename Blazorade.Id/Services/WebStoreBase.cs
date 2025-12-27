@@ -30,7 +30,7 @@ namespace Blazorade.Id.Services
 
         private readonly string StoragePrefix;
         private readonly IJSRuntime JsRuntime;
-        private JsonSerializerOptions JsonOptions;
+        private readonly JsonSerializerOptions JsonOptions;
 
 
         /// <summary>
