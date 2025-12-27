@@ -153,7 +153,7 @@ namespace Blazorade.Id.Services
         /// Stores the given access token in the token store.
         /// </summary>
         /// <returns>Returns the container holding the access token.</returns>
-        public async static Task<TokenContainer?> SetAccessTokenAsync(this ITokenStore store, string resourceId, string? token)
+        public static async Task<TokenContainer?> SetAccessTokenAsync(this ITokenStore store, string resourceId, string? token)
         {
             var jwt = new JwtSecurityToken(token);
             return await store.SetAccessTokenAsync(resourceId, jwt);
@@ -163,7 +163,7 @@ namespace Blazorade.Id.Services
         /// Stores the given access token in the token store.
         /// </summary>
         /// <returns>Returns the container holding the access token.</returns>
-        public async static Task<TokenContainer?> SetAccessTokenAsync(this ITokenStore store, string resourceId, JwtSecurityToken? token)
+        public static async Task<TokenContainer?> SetAccessTokenAsync(this ITokenStore store, string resourceId, JwtSecurityToken? token)
         {
             if(null != token)
             {
@@ -187,7 +187,7 @@ namespace Blazorade.Id.Services
         /// Stores the given identity token in the token store.
         /// </summary>
         /// <returns>Returns the container holding the identity token.</returns>
-        public async static Task<TokenContainer?> SetIdentityTokenAsync(this ITokenStore store, string? token)
+        public static async Task<TokenContainer?> SetIdentityTokenAsync(this ITokenStore store, string? token)
         {
             var jwt = new JwtSecurityToken(token);
             return await store.SetIdentityTokenAsync(jwt);
@@ -197,7 +197,7 @@ namespace Blazorade.Id.Services
         /// Stores the given identity token in the token store.
         /// </summary>
         /// <returns>Returns the container holding the identity token.</returns>
-        public async static Task<TokenContainer?> SetIdentityTokenAsync(this ITokenStore store, JwtSecurityToken? token)
+        public static async Task<TokenContainer?> SetIdentityTokenAsync(this ITokenStore store, JwtSecurityToken? token)
         {
             if (null != token)
             {
@@ -211,7 +211,7 @@ namespace Blazorade.Id.Services
         /// <summary>
         /// Sets the timestamp of the last successful authentication code.
         /// </summary>
-        public async static Task SetLastSuccessfulAuthCodeTimestampAsync(this IPropertyStore store, DateTime timestamp)
+        public static async Task SetLastSuccessfulAuthCodeTimestampAsync(this IPropertyStore store, DateTime timestamp)
         {
             var key = PrefixKey(LastSuccessfulAuthCodeTimestampKey);
             await store.SetPropertyAsync(key, timestamp.ToUniversalTime());
