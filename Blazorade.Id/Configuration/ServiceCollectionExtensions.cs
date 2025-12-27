@@ -1,8 +1,6 @@
 ﻿using Blazorade.Id.Components;
 using Blazorade.Id.Configuration;
 using Blazorade.Id.Services;
-using Blazored.LocalStorage;
-using Blazored.SessionStorage;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using System;
@@ -66,8 +64,6 @@ namespace Microsoft.Extensions.DependencyInjection
                     var stateProvider = sp.GetRequiredService<AuthenticationStateProvider>();
                     return (IHostEnvironmentAuthenticationStateProvider)stateProvider;
                 })
-                .AddBlazoredSessionStorage()
-                .AddBlazoredLocalStorage()
                 .AddScoped<IRedirectUriProvider, BlazorRedirectUriProvider>()
                 .AddScoped<IAuthorizationCodeProvider, BlazorAuthorizationCodeProvider>()
                 .AddScoped<IPropertyStore, BrowserSessionStoragePropertyStore>()
