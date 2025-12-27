@@ -175,7 +175,7 @@ namespace Blazorade.Id.Services
             catch (Exception ex)
             {
                 var msg = ex.Message;
-                result.FailureReason = AuthorizationCodeFailureReason.TimedOut;
+                result.FailureReason = AuthorizationCodeFailureReason.SystemFailure;
             }
 
             return result;
