@@ -116,6 +116,108 @@ export function openAuthorizationPopup(args) {
     }, 250);
 }
 
+export function openAuthorizationIframe(args) {
+    console.debug("openAuthorizationIframe", args);
+
+    const authorizeUrl = args.data.authorizeUrl;
+
+    // Reason codes: choose values that fit your existing enum strategy
+    // 3 = iframe timed out / no response
+    // 4 = iframe returned error response (optional if you parse it on C# side instead)
+    const timeoutMs = 1000;
+
+    function invokeFailure(payload) {
+        console.debug("invokeFailure", payload);
+
+        if (args.failureCallback && args.failureCallback.target) {
+            args.failureCallback.target.invokeMethodAsync(
+                args.failureCallback.methodName,
+                payload
+            );
+        }
+    }
+
+    let completed = false;
+    let timer = null;
+    let iframe = null;
+
+    function cleanup() {
+        console.debug("cleanup (iframe)");
+
+        window.removeEventListener("message", onMessage);
+        if (timer) {
+            clearTimeout(timer);
+            timer = null;
+        }
+        try {
+            if (iframe) {
+                iframe.remove();
+                iframe = null;
+            }
+        } catch { }
+    }
+
+    function completeSuccess(url) {
+        console.debug("completeSuccess (iframe)", url);
+
+        if (completed) return;
+        completed = true;
+        cleanup();
+
+        args.successCallback.target.invokeMethodAsync(args.successCallback.methodName, url);
+    }
+
+    function completeFailure(payload) {
+        console.debug("completeFailure (iframe)", payload);
+
+        if (completed) return;
+        completed = true;
+        cleanup();
+
+        invokeFailure(payload);
+    }
+
+    function onMessage(event) {
+        console.debug("onMessage (iframe)", event);
+
+        // Same origin check as popup version
+        if (event.origin != window.location.origin) {
+            return;
+        }
+
+        const url = event?.data?.url;
+        if (!url) {
+            return;
+        }
+
+        completeSuccess(url);
+    }
+
+    window.addEventListener("message", onMessage);
+
+    timer = setTimeout(() => {
+        completeFailure({
+            error: "Iframe authorization timed out.",
+            reason: 3
+        });
+    }, timeoutMs);
+
+    iframe = document.createElement("iframe");
+    iframe.style.width = "0";
+    iframe.style.height = "0";
+    iframe.style.border = "0";
+    iframe.style.position = "absolute";
+    iframe.style.left = "-9999px";
+    iframe.style.top = "-9999px";
+    iframe.setAttribute("aria-hidden", "true");
+    iframe.tabIndex = -1;
+
+    document.body.appendChild(iframe);
+
+    // Navigate after append for reliability
+    iframe.src = authorizeUrl;
+}
+
 export function signalAuthorizationResponse(args) {
     console.debug("signalAuthorizationResponse", args);
 

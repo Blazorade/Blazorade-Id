@@ -14,6 +14,7 @@ using System.Security.Cryptography;
 using System.Text.Json;
 using Blazorade.Id.Model;
 using Blazorade.Id.Configuration;
+using Blazored.LocalStorage;
 
 namespace Blazorade.Id.Services
 {
@@ -32,6 +33,7 @@ namespace Blazorade.Id.Services
             NavigationManager navMan,
             BlazoradeIdScriptService scriptService,
             IRedirectUriProvider redirUriProvider,
+            ILocalStorageService localStorage,
             IOptions<AuthorityOptions> authOptions
         ) {
             this.EndpointService = endpointService ?? throw new ArgumentNullException(nameof(endpointService));
@@ -41,6 +43,7 @@ namespace Blazorade.Id.Services
             this.NavMan = navMan ?? throw new ArgumentNullException(nameof(navMan));
             this.ScriptService = scriptService ?? throw new ArgumentNullException(nameof(scriptService));
             this.RedirUriProvider = redirUriProvider ?? throw new ArgumentNullException(nameof(redirUriProvider));
+            this.LocalStore = new BrowserLocalStoragePropertyStore(localStorage);
         }
 
         private readonly IEndpointService EndpointService;
@@ -50,6 +53,7 @@ namespace Blazorade.Id.Services
         private readonly AuthorityOptions AuthOptions;
         private readonly BlazoradeIdScriptService ScriptService;
         private readonly IRedirectUriProvider RedirUriProvider;
+        private readonly IPropertyStore LocalStore;
 
         private const int AuthorizeTimeout = 300000;
 
@@ -84,12 +88,12 @@ namespace Blazorade.Id.Services
             var uri = uriBuilder.Build();
             string? code = null;
 
-            var input = new Dictionary<string, object>
+            AuthorizationCallbackResult callbackResult = await this.AttemptIFrameAsync(uri);
+            if (string.IsNullOrEmpty(callbackResult.ResponseUrl) || callbackResult.FailureReason != null)
             {
-                { "authorizeUrl", uri }
-            };
-
-            AuthorizationCallbackResult callbackResult = await this.AttemptPopupAsync(input);
+                // IFrame attempt failed, try popup.
+                callbackResult = await this.AttemptPopupAsync(uri);
+            }
 
             if (callbackResult.ResponseUrl?.Length > 0 && callbackResult.ResponseUrl.Contains('?') && null == callbackResult.FailureReason)
             {
@@ -109,15 +113,32 @@ namespace Blazorade.Id.Services
         }
 
 
-        private async Task<AuthorizationCallbackResult> AttemptPopupAsync(Dictionary<string, object> input)
+        private async Task<AuthorizationCallbackResult> AttemptIFrameAsync(string authorizeUrl)
+        {
+            var result = await this.AttemptAuthorizeEndpointAsync(authorizeUrl, "openAuthorizationIframe");
+            return result;
+        }
+
+        private async Task<AuthorizationCallbackResult> AttemptPopupAsync(string authorizeUrl)
+        {
+            var result = await this.AttemptAuthorizeEndpointAsync(authorizeUrl, "openAuthorizationPopup");
+            return result;
+        }
+
+        private async Task<AuthorizationCallbackResult> AttemptAuthorizeEndpointAsync(string authorizeUrl, string jsFunction)
         {
             var result = new AuthorizationCallbackResult();
+            var input = new Dictionary<string, object>
+            {
+                { "authorizeUrl", authorizeUrl }
+            };
 
             try
             {
-                using (var handler = await this.ScriptService.CreateCallbackHandlerAsync<string>("openAuthorizationPopup", data: input))
+                using (var handler = await this.ScriptService.CreateCallbackHandlerAsync<string>(jsFunction, data: input))
                 {
                     result.ResponseUrl = await handler.GetResultAsync(timeout: AuthorizeTimeout);
+                    result.FailureReason = null;
                 }
             }
             catch (FailureCallbackException ex)
@@ -126,7 +147,7 @@ namespace Blazorade.Id.Services
                 var json = JsonSerializer.Serialize(ex.Result);
                 try
                 {
-                    var popupResult = JsonSerializer.Deserialize<AuthorizationPopupFailure>(json, options: new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                    var popupResult = JsonSerializer.Deserialize<AuthorizationEndpointFailure>(json, options: new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
                     result.FailureReason = popupResult?.Reason;
                 }
                 catch (Exception innerEx)
@@ -148,7 +169,6 @@ namespace Blazorade.Id.Services
 
             return result;
         }
-
 
         private string CreateNonce()
         {
