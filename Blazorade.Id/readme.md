@@ -8,6 +8,12 @@ Get started with Blazorade Id by visiting the Getting Started page on the [Blazo
 
 ## Version Highlights
 
+### v2.0.0
+
+- Removed references to Blazored libraries. Turned out that all Blazored libraries where archived and deprecated on the same day as we published the inital v1.0.0 of Blazorade ID. Blazored libraries have been replaced with JS Interop in Blazorade ID.
+	- This is a breaking change in Blazorade ID, so we had to bump the major version to v2.0.0.
+- Added functionality to attempt refreshing tokens silently using IFrames before opening up popups to refresh tokens.
+
 ### v1.0.0
 
 Initial stable release of Blazorade ID.
