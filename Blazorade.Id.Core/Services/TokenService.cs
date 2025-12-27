@@ -96,7 +96,7 @@ namespace Blazorade.Id.Services
 
                     // No container was found, or it has expired, or it does not contain all requested scopes, so we
                     // need to refresh it.
-                    if (await this.TokenRefresher.RefreshTokensAsync(new TokenRefreshOptions { Scopes = item.Value.Select(x => x.ToString()) }))
+                    if (await this.TokenRefresher.RefreshTokensAsync(new TokenRefreshOptions { Scopes = item.Value.Select(x => x.Value) }))
                     {
                         container = await this.TokenStore.GetAccessTokenAsync(item.Key);
                     }
@@ -163,6 +163,12 @@ namespace Blazorade.Id.Services
                 if(await this.TokenRefresher.RefreshTokensAsync(new TokenRefreshOptions { Scopes = openIdScopes.ToArray() }))
                 {
                     container = await this.TokenStore.GetIdentityTokenAsync();
+                    if(null != container)
+                    {
+                        var idToken = container.ParseToken();
+                        var username = idToken.GetPreferredUsername();
+
+                    }
                 }
             }
 
@@ -171,7 +177,10 @@ namespace Blazorade.Id.Services
                 container = await this.TokenStore.GetIdentityTokenAsync();
             }
 
-            return container?.ParseToken();
+            var token = container?.ParseToken();
+            await this.PropertyStore.SetLoginHintAsync(token?.GetPreferredUsername());
+
+            return token;
         }
 
 
@@ -180,6 +189,8 @@ namespace Blazorade.Id.Services
         {
             // If the prompt option is None, we should not attempt to acquire tokens interactively.
             if (options.Prompt == Prompt.None) return false;
+
+            options.LoginHint = options.LoginHint ?? await this.PropertyStore.GetLoginHintAsync();
 
             var codeResult = await this.AuthCodeProvider.GetAuthorizationCodeAsync(options);
             if(codeResult?.Code?.Length > 0)

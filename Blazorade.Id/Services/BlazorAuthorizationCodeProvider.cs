@@ -14,6 +14,7 @@ using System.Security.Cryptography;
 using System.Text.Json;
 using Blazorade.Id.Model;
 using Blazorade.Id.Configuration;
+using System.Collections.Specialized;
 
 namespace Blazorade.Id.Services
 {
@@ -32,7 +33,9 @@ namespace Blazorade.Id.Services
             NavigationManager navMan,
             BlazoradeIdScriptService scriptService,
             IRedirectUriProvider redirUriProvider,
-            IOptions<AuthorityOptions> authOptions
+            IJSRuntime jsRuntime,
+            IOptions<AuthorityOptions> authOptions,
+            IOptions<JsonSerializerOptions> jsonOptions
         ) {
             this.EndpointService = endpointService ?? throw new ArgumentNullException(nameof(endpointService));
             this.AuthOptions = authOptions?.Value ?? throw new ArgumentNullException(nameof(authOptions));
@@ -41,6 +44,7 @@ namespace Blazorade.Id.Services
             this.NavMan = navMan ?? throw new ArgumentNullException(nameof(navMan));
             this.ScriptService = scriptService ?? throw new ArgumentNullException(nameof(scriptService));
             this.RedirUriProvider = redirUriProvider ?? throw new ArgumentNullException(nameof(redirUriProvider));
+            this.LocalStore = new BrowserLocalStoragePropertyStore(jsRuntime, jsonOptions);
         }
 
         private readonly IEndpointService EndpointService;
@@ -50,6 +54,7 @@ namespace Blazorade.Id.Services
         private readonly AuthorityOptions AuthOptions;
         private readonly BlazoradeIdScriptService ScriptService;
         private readonly IRedirectUriProvider RedirUriProvider;
+        private readonly IPropertyStore LocalStore;
 
         private const int AuthorizeTimeout = 300000;
 
@@ -81,19 +86,59 @@ namespace Blazorade.Id.Services
 
             if(options.Prompt.HasValue) uriBuilder.WithPrompt(options.Prompt.Value);
 
-            AuthorizationCodeFailureReason? failureReason = null;
-            var uri = uriBuilder.Build();
-            string responseUrl = string.Empty;
-            string? code = null;
+            var lastSuccessfulTimestamp = await this.LocalStore.GetLastSuccessfulAuthCodeTimestampAsync();
+
+            AuthorizationCodeResult result = null != lastSuccessfulTimestamp && !options.Prompt.RequiresInteraction()
+                ? await this.AttemptIFrameAsync(uriBuilder, options)
+                : new AuthorizationCodeResult();
+
+            if (string.IsNullOrEmpty(result.Code) || result.FailureReason != null)
+            {
+                // IFrame attempt failed, was not attempted, or authentication has never succeeded before, try popup.
+                result = await this.AttemptPopupAsync(uriBuilder, options);
+            }
+
+            if(result.Code?.Length > 0 && result.FailureReason == null)
+            {
+                await this.LocalStore.SetLastSuccessfulAuthCodeTimestampAsync(DateTime.UtcNow);
+            }
+
+            return result;
+        }
+
+
+        private async Task<AuthorizationCodeResult> AttemptIFrameAsync(EndpointUriBuilder authorizeUriBuilder, GetTokenOptions getOptions)
+        {
+            authorizeUriBuilder.WithPrompt(Prompt.None);
+            var authorizeUrl = authorizeUriBuilder.Build();
+
+            var result = await this.AttemptAuthorizeEndpointAsync(authorizeUrl, "openAuthorizationIframe");
+            return result;
+        }
+
+        private async Task<AuthorizationCodeResult> AttemptPopupAsync(EndpointUriBuilder authorizeUriBuilder, GetTokenOptions getOptions)
+        {
+            authorizeUriBuilder.WithPrompt(getOptions.Prompt);
+            var authorizeUrl = authorizeUriBuilder.Build();
+
+            var result = await this.AttemptAuthorizeEndpointAsync(authorizeUrl, "openAuthorizationPopup");
+            return result;
+        }
+
+        private async Task<AuthorizationCodeResult> AttemptAuthorizeEndpointAsync(string authorizeUrl, string jsFunction)
+        {
+            var result = new AuthorizationCodeResult();
             var input = new Dictionary<string, object>
             {
-                { "authorizeUrl", uri }
+                { "authorizeUrl", authorizeUrl }
             };
+
             try
             {
-                using (var handler = await this.ScriptService.CreateCallbackHandlerAsync<string>("openAuthorizationPopup", data: input))
+                using (var handler = await this.ScriptService.CreateCallbackHandlerAsync<string>(jsFunction, data: input))
                 {
-                    responseUrl = await handler.GetResultAsync(timeout: AuthorizeTimeout);
+                    var responseUrl = await handler.GetResultAsync(timeout: AuthorizeTimeout);
+                    this.AugmentAuthorizationCodeResultFromResponseUrl(result, responseUrl);
                 }
             }
             catch (FailureCallbackException ex)
@@ -102,44 +147,70 @@ namespace Blazorade.Id.Services
                 var json = JsonSerializer.Serialize(ex.Result);
                 try
                 {
-                    var result = JsonSerializer.Deserialize<AuthorizationPopupFailure>(json, options: new JsonSerializerOptions { PropertyNameCaseInsensitive = true});
-                    failureReason = result?.Reason;
+                    var popupResult = JsonSerializer.Deserialize<AuthorizationEndpointFailure>(json, options: new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                    result.FailureReason = popupResult?.Reason;
                 }
                 catch (Exception innerEx)
                 {
                     var innerMsg = innerEx.Message;
-                    failureReason = AuthorizationCodeFailureReason.SystemFailure;
+                    result.FailureReason = AuthorizationCodeFailureReason.SystemFailure;
                 }
             }
-            catch(InteropTimeoutException ex)
+            catch (InteropTimeoutException ex)
             {
                 var msg = ex.Message;
-                failureReason = AuthorizationCodeFailureReason.TimedOut;
+                result.FailureReason = AuthorizationCodeFailureReason.TimedOut;
             }
             catch (Exception ex)
             {
                 var msg = ex.Message;
-                failureReason = AuthorizationCodeFailureReason.TimedOut;
+                result.FailureReason = AuthorizationCodeFailureReason.SystemFailure;
             }
 
-            if(responseUrl?.Length > 0 && responseUrl.Contains('?'))
+            if(result.FailureReason != null)
             {
-                var query = responseUrl.Substring(responseUrl.IndexOf('?') + 1);
-                var queryParameters = System.Web.HttpUtility.ParseQueryString(query);
-                if (queryParameters.AllKeys.Contains("code"))
-                {
-                    code = queryParameters["code"];
-                }
+                result.Code = null;
             }
 
-            return new AuthorizationCodeResult
-            {
-                Code = code,
-                FailureReason = code?.Length > 0 ? null : failureReason
-            };
+            return result;
         }
 
+        private void AugmentAuthorizationCodeResultFromResponseUrl(AuthorizationCodeResult result, string responseUrl)
+        {
+            if (responseUrl.Contains('?'))
+            {
+                var query = responseUrl.Substring(responseUrl.IndexOf('?') + 1);
+                NameValueCollection queryParameters = System.Web.HttpUtility.ParseQueryString(query);
+                string? error = this.GetValue(queryParameters, "error");
+                string? code = this.GetValue(queryParameters, "code");
 
+                if (error?.Length > 0)
+                {
+                    result.FailureReason = AuthorizationCodeFailureReason.IdPError;
+                    result.ErrorCode = error;
+                    result.ErrorDescription = this.GetValue(queryParameters, "error_description");
+                    result.ErrorUri = this.GetValue(queryParameters, "error_uri");
+                    result.Code = null;
+                }
+                else if (code?.Length > 0)
+                {
+                    result.Code = code;
+                    result.ErrorCode = null;
+                    result.ErrorDescription = null;
+                    result.FailureReason = null;
+                }
+            }
+        }
+
+        private string? GetValue(NameValueCollection collection, string key)
+        {
+            if(collection.AllKeys.Contains(key))
+            {
+                return collection[key];
+            }
+
+            return null;
+        }
 
         private string CreateNonce()
         {

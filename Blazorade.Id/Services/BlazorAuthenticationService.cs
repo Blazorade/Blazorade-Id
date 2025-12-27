@@ -2,11 +2,13 @@
 using Blazorade.Id.Model;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.Options;
+using Microsoft.JSInterop;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace Blazorade.Id.Services
@@ -26,7 +28,9 @@ namespace Blazorade.Id.Services
             IAuthenticationStateNotifier authStateNotifier, 
             IEndpointService endpointService, 
             NavigationManager navMan, 
-            IOptions<AuthorityOptions> authOptions) : base(tokenService, tokenStore, refreshTokenStore, authStateNotifier)
+            IJSRuntime jsRuntime,
+            IOptions<AuthorityOptions> authOptions,
+            IOptions<JsonSerializerOptions> jsonOptions) : base(tokenService, tokenStore, refreshTokenStore, authStateNotifier)
         {
             this.TokenService = tokenService ?? throw new ArgumentNullException(nameof(tokenService));
             this.TokenStore = tokenStore ?? throw new ArgumentNullException(nameof(tokenStore));
@@ -34,6 +38,8 @@ namespace Blazorade.Id.Services
             this.AuthStateNotifier = authStateNotifier ?? throw new ArgumentNullException(nameof(authStateNotifier));
             this.EndpointService = endpointService ?? throw new ArgumentNullException(nameof(endpointService));
             this.NavMan = navMan ?? throw new ArgumentNullException(nameof(navMan));
+            this.SessionPropertyStore = new BrowserSessionStoragePropertyStore(jsRuntime, jsonOptions);
+            this.LocalPropertyStore = new BrowserLocalStoragePropertyStore(jsRuntime, jsonOptions);
             this.AuthOptions = authOptions?.Value ?? throw new ArgumentNullException(nameof(authOptions));
         }
 
@@ -43,8 +49,9 @@ namespace Blazorade.Id.Services
         private readonly IAuthenticationStateNotifier AuthStateNotifier;
         private readonly IEndpointService EndpointService;
         private readonly NavigationManager NavMan;
+        private readonly IPropertyStore SessionPropertyStore;
+        private readonly IPropertyStore LocalPropertyStore;
         private readonly AuthorityOptions AuthOptions;
-
 
         /// <inheritdoc/>
         public async override Task SignOutAsync(SignOutOptions? options = null, CancellationToken cancellationToken = default)
@@ -57,6 +64,8 @@ namespace Blazorade.Id.Services
             await this.RefreshTokenStore.ClearAsync();
             await this.TokenStore.ClearAsync();
             await this.AuthStateNotifier.StateHasChangedAsync();
+            await this.SessionPropertyStore.RemoveAllAsync();
+            await this.LocalPropertyStore.RemoveAllAsync();
 
             if (!options.SkipEndIdpSession)
             {

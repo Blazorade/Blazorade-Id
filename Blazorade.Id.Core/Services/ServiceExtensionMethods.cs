@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -18,6 +19,9 @@ namespace Blazorade.Id.Services
         private const string LoginHintKey = "loginHint";
         private const string ScopeKey = "scope";
         private const string NonceKey = "nonce";
+        private const string LastSuccessfulAuthCodeTimestampKey = "lastSuccessfulAuthCodeTimestamp";
+
+        private static readonly string[] Keys = [CodeVerifierKey, LoginHintKey, ScopeKey, NonceKey, LastSuccessfulAuthCodeTimestampKey ];
 
 
         /// <summary>
@@ -58,6 +62,15 @@ namespace Blazorade.Id.Services
         }
 
         /// <summary>
+        /// Returns the timestamp of the last successful authorization code exchange.
+        /// </summary>
+        public static async Task<DateTime?> GetLastSuccessfulAuthCodeTimestampAsync(this IPropertyStore store)
+        {
+            var key = PrefixKey(LastSuccessfulAuthCodeTimestampKey);
+            return await store.GetPropertyAsync<DateTime?>(key);
+        }
+
+        /// <summary>
         /// Returns the login hint that was used when starting the previous login process.
         /// </summary>
         public static async Task<string?> GetLoginHintAsync(this IPropertyStore store)
@@ -85,6 +98,20 @@ namespace Blazorade.Id.Services
         }
 
         /// <summary>
+        /// Removes all properties stored by Blazorade ID.
+        /// </summary>
+        /// <param name="store"></param>
+        /// <returns></returns>
+        public static async Task RemoveAllAsync(this IPropertyStore store)
+        {
+            foreach(var key in Keys)
+            {
+                var prefixedKey = PrefixKey(key);
+                await store.RemovePropertyAsync(prefixedKey);
+            }
+        }
+
+        /// <summary>
         /// Removes the code verifier that was used when starting the current login process.
         /// </summary>
         /// <returns></returns>
@@ -92,6 +119,15 @@ namespace Blazorade.Id.Services
         {
             var key = PrefixKey(CodeVerifierKey);
             await storage.RemovePropertyAsync(key);
+        }
+
+        /// <summary>
+        /// Removes the timestamp of the last successful authentication code.
+        /// </summary>
+        public static async Task RemoveLastSuccessfulAuthCodeTimestampAsync(this IPropertyStore store)
+        {
+            var key = PrefixKey(LastSuccessfulAuthCodeTimestampKey);
+            await store.RemovePropertyAsync(key);
         }
 
         /// <summary>
@@ -170,6 +206,15 @@ namespace Blazorade.Id.Services
                 return container;
             }
             return null;
+        }
+
+        /// <summary>
+        /// Sets the timestamp of the last successful authentication code.
+        /// </summary>
+        public async static Task SetLastSuccessfulAuthCodeTimestampAsync(this IPropertyStore store, DateTime timestamp)
+        {
+            var key = PrefixKey(LastSuccessfulAuthCodeTimestampKey);
+            await store.SetPropertyAsync(key, timestamp.ToUniversalTime());
         }
 
         /// <summary>

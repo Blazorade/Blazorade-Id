@@ -27,5 +27,12 @@ namespace Blazorade.Id.Model
         /// The authorization code request failed due to a system failure.
         /// </summary>
         SystemFailure = 4,
+        /// <summary>
+        /// The authorization code request failed due to an error code returned by the identity provider.
+        /// </summary>
+        /// <remarks>
+        /// The error code and description are available elsewhere in the response.
+        /// </remarks>
+        IdPError = 5,
     }
 }

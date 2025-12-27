@@ -1,7 +1,7 @@
 ﻿
 namespace Blazorade.Id.Model
 {
-    internal class AuthorizationPopupFailure
+    internal class AuthorizationEndpointFailure
     {
         public string Error { get; set; } = string.Empty;
 
