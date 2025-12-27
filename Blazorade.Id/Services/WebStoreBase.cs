@@ -24,7 +24,8 @@ namespace Blazorade.Id.Services
         {
             this.StoragePrefix = storeType == WebStoreType.LocalStorage ? "localStorage" : "sessionStorage";
             this.JsRuntime = jsRuntime;
-            this.JsonOptions = jsonOptions?.Value ?? throw new NullReferenceException(nameof(jsonOptions));
+            if (jsonOptions is null) throw new ArgumentNullException(nameof(jsonOptions));
+            this.JsonOptions = jsonOptions.Value;
         }
 
         private readonly string StoragePrefix;
