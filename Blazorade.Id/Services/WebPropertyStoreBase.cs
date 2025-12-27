@@ -13,7 +13,7 @@ namespace Blazorade.Id.Services
     /// <summary>
     /// A base class for property store implementations that use web storage in a browser.
     /// </summary>
-    public abstract class WebPropertyStoreBase : WebStoreBase , IPropertyStore
+    public abstract class WebPropertyStoreBase : WebStoreBase, IPropertyStore
     {
         /// <summary>
         /// Creates a new instance of the class.
