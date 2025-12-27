@@ -18,8 +18,6 @@ builder.Services
             var config = sp.GetRequiredService<IConfiguration>(); 
             config.GetRequiredSection("blazorade:id").Bind(options);
         })
-        .AddTokenStore<BrowserSessionStorageTokenStore>()
-        .AddRefreshTokenStore<InMemoryRefreshTokenStore>()
 
     ;
 
