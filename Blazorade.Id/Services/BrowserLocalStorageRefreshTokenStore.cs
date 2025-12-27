@@ -1,9 +1,11 @@
-﻿using Blazored.LocalStorage;
-using Blazored.SessionStorage;
+﻿using Blazorade.Id.Model;
+using Microsoft.Extensions.Options;
+using Microsoft.JSInterop;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace Blazorade.Id.Services
@@ -16,51 +18,14 @@ namespace Blazorade.Id.Services
     /// This is especially true for refresh tokens, which are long-lived tokens that can be used 
     /// to obtain new access tokens.
     /// </remarks>
-    public class BrowserLocalStorageRefreshTokenStore : StoreBase, IRefreshTokenStore
+    public class BrowserLocalStorageRefreshTokenStore : WebRefreshTokenStoreBase
     {
         /// <summary>
         /// Creates a new instance of the class.
         /// </summary>
-        public BrowserLocalStorageRefreshTokenStore(ILocalStorageService service)
+        public BrowserLocalStorageRefreshTokenStore(IJSRuntime jsRuntime, IOptions<JsonSerializerOptions> jsonOptions) : base(WebStoreType.LocalStorage, jsRuntime, jsonOptions)
         {
-            this.Service = service ?? throw new ArgumentNullException(nameof(service));
         }
 
-        private ILocalStorageService Service;
-
-        /// <inheritdoc/>
-        public async Task ClearAsync()
-        {
-            var key = this.GetKey(Model.TokenType.RefreshToken);
-            if (await this.Service.ContainKeyAsync(key))
-            {
-                await this.Service.RemoveItemAsync(key);
-            }
-        }
-
-        /// <inheritdoc/>
-        public async Task<string?> GetRefreshTokenAsync()
-        {
-            var key = this.GetKey(Model.TokenType.RefreshToken);
-            if (await this.Service.ContainKeyAsync(key))
-            {
-                return await this.Service.GetItemAsync<string>(key);
-            }
-            return null;
-        }
-
-        /// <inheritdoc/>
-        public async Task SetRefreshTokenAsync(string? token)
-        {
-            var key = this.GetKey(Model.TokenType.RefreshToken);
-            if (null != token)
-            {
-                await this.Service.SetItemAsync(key, token);
-            }
-            else
-            {
-                await this.ClearAsync();
-            }
-        }
     }
 }
