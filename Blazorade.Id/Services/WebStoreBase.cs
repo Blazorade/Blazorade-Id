@@ -91,15 +91,9 @@ namespace Blazorade.Id.Services
         {
             if(null != value)
             {
-                string storeValue;
-                if(value is string)
-                {
-                    storeValue = (string)value;
-                }
-                else
-                {
-                    storeValue = JsonSerializer.Serialize(value, this.JsonOptions);
-                }
+                var storeValue = value is string s
+                    ? s
+                    : JsonSerializer.Serialize(value, this.JsonOptions);
 
                 await this.JsRuntime.InvokeVoidAsync($"{this.StoragePrefix}.setItem", key, storeValue);
             }
