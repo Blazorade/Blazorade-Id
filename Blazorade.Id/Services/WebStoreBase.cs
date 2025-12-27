@@ -82,7 +82,7 @@ namespace Blazorade.Id.Services
         }
 
         /// <summary>
-        /// Sets the specified item without tracking they key.
+        /// Sets the specified item without tracking the key.
         /// </summary>
         protected async Task SetItemInternalAsync(string key, object? value)
         {
