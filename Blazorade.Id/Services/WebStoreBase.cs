@@ -50,7 +50,10 @@ namespace Blazorade.Id.Services
                 {
                     return JsonSerializer.Deserialize<T>(val, this.JsonOptions);
                 }
-                catch { }
+                catch (JsonException ex)
+                {
+                    Console.Error.WriteLine($"Failed to deserialize value for key '{key}' to type '{typeof(T)}'. Exception: {ex}");
+                }
             }
 
             return default;
