@@ -75,6 +75,11 @@ namespace Blazorade.Id.Services
 
             var redirUri = this.AuthOptions.RedirectUri ?? this.RedirUriProvider.GetRedirectUri().ToString();
 
+            // At this point we are ready to exchange the auth code for tokens, so in order not to
+            // leave any outdated data, we clear any existing tokens first.
+            await this.TokenStore.ClearAsync();
+            await this.RefreshTokenStore.ClearAsync();
+
             // First, we exchange the auth code for the initial set of tokens. In this exchange, we are
             // only interested in the refresh token. We will then use that refresh token to acquire both
             // access tokens and identity tokens using the token refresher service.

@@ -87,11 +87,15 @@ namespace Blazorade.Id.Services
 
             var uri = uriBuilder.Build();
             string? code = null;
+            var lastSuccessfulTimestamp = await this.LocalStore.GetLastSuccessfulAuthCodeTimestampAsync();
 
-            AuthorizationCallbackResult callbackResult = await this.AttemptIFrameAsync(uri);
+            AuthorizationCallbackResult callbackResult = null != lastSuccessfulTimestamp && !options.Prompt.RequiresInteraction()
+                ? await this.AttemptIFrameAsync(uri)
+                : new AuthorizationCallbackResult();
+
             if (string.IsNullOrEmpty(callbackResult.ResponseUrl) || callbackResult.FailureReason != null)
             {
-                // IFrame attempt failed, try popup.
+                // IFrame attempt failed or authentication has never been attempted before, try popup.
                 callbackResult = await this.AttemptPopupAsync(uri);
             }
 
@@ -105,11 +109,18 @@ namespace Blazorade.Id.Services
                 }
             }
 
-            return new AuthorizationCodeResult
+            var result = new AuthorizationCodeResult
             {
                 Code = code,
                 FailureReason = code?.Length > 0 ? null : callbackResult.FailureReason
             };
+
+            if(result.Code?.Length > 0 && result.FailureReason == null)
+            {
+                await this.LocalStore.SetLastSuccessfulAuthCodeTimestampAsync(DateTime.UtcNow);
+            }
+
+            return result;
         }
 
 
