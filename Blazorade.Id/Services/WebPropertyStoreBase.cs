@@ -32,19 +32,22 @@ namespace Blazorade.Id.Services
         /// <inheritdoc/>
         public async Task<T> GetPropertyAsync<T>(string key)
         {
-            return await this.GetItemAsync<T>(key);
+            var prefixedKey = this.GetKey(key);
+            return await this.GetItemAsync<T>(prefixedKey) ?? default!;
         }
 
         /// <inheritdoc/>
         public async Task RemovePropertyAsync(string key)
         {
-            await this.RemoveItemAsync(key);
+            var prefixedKey = this.GetKey(key);
+            await this.RemoveItemAsync(prefixedKey);
         }
 
         /// <inheritdoc/>
         public async Task SetPropertyAsync<T>(string key, T value)
         {
-            await this.SetItemAsync(key, value);
+            var prefixedKey = this.GetKey(key);
+            await this.SetItemAsync(prefixedKey, value);
         }
     }
 }
