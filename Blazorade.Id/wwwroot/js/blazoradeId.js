@@ -124,7 +124,7 @@ export function openAuthorizationIframe(args) {
     // Reason codes: choose values that fit your existing enum strategy
     // 3 = iframe timed out / no response
     // 4 = iframe returned error response (optional if you parse it on C# side instead)
-    const timeoutMs = 1000;
+    const timeoutMs = 1200;
 
     function invokeFailure(payload) {
         console.debug("invokeFailure", payload);

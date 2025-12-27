@@ -29,5 +29,20 @@ namespace Blazorade.Id.Model
         /// If <see cref="Code"/> is not <see langword="null"/>, this property must be <see langword="null"/>.
         /// </remarks>
         public AuthorizationCodeFailureReason? FailureReason { get; set; }
+
+        /// <summary>
+        /// The error code that is returned from an identity provider during authorization code requests.
+        /// </summary>
+        public string? ErrorCode { get; set; } = null;
+
+        /// <summary>
+        /// The error description returned from an identity provider during authorization code requests.
+        /// </summary>
+        public string? ErrorDescription { get; set; } = null;
+
+        /// <summary>
+        /// The error URI returned from an identity provider during authorization code requests.
+        /// </summary>
+        public string? ErrorUri { get; set; } = null;
     }
 }

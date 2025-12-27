@@ -53,7 +53,6 @@ namespace Blazorade.Id.Services
         private readonly IPropertyStore LocalPropertyStore;
         private readonly AuthorityOptions AuthOptions;
 
-
         /// <inheritdoc/>
         public async override Task SignOutAsync(SignOutOptions? options = null, CancellationToken cancellationToken = default)
         {

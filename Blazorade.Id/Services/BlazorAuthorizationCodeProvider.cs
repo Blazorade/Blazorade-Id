@@ -15,6 +15,7 @@ using System.Text.Json;
 using Blazorade.Id.Model;
 using Blazorade.Id.Configuration;
 using Blazored.LocalStorage;
+using System.Collections.Specialized;
 
 namespace Blazorade.Id.Services
 {
@@ -85,35 +86,17 @@ namespace Blazorade.Id.Services
 
             if(options.Prompt.HasValue) uriBuilder.WithPrompt(options.Prompt.Value);
 
-            var uri = uriBuilder.Build();
-            string? code = null;
             var lastSuccessfulTimestamp = await this.LocalStore.GetLastSuccessfulAuthCodeTimestampAsync();
 
-            AuthorizationCallbackResult callbackResult = null != lastSuccessfulTimestamp && !options.Prompt.RequiresInteraction()
-                ? await this.AttemptIFrameAsync(uri)
-                : new AuthorizationCallbackResult();
+            AuthorizationCodeResult result = null != lastSuccessfulTimestamp && !options.Prompt.RequiresInteraction()
+                ? await this.AttemptIFrameAsync(uriBuilder, options)
+                : new AuthorizationCodeResult();
 
-            if (string.IsNullOrEmpty(callbackResult.ResponseUrl) || callbackResult.FailureReason != null)
+            if (string.IsNullOrEmpty(result.Code) || result.FailureReason != null)
             {
                 // IFrame attempt failed, was not attempted, or authentication has never succeeded before, try popup.
-                callbackResult = await this.AttemptPopupAsync(uri);
+                result = await this.AttemptPopupAsync(uriBuilder, options);
             }
-
-            if (callbackResult.ResponseUrl?.Length > 0 && callbackResult.ResponseUrl.Contains('?') && null == callbackResult.FailureReason)
-            {
-                var query = callbackResult.ResponseUrl.Substring(callbackResult.ResponseUrl.IndexOf('?') + 1);
-                var queryParameters = System.Web.HttpUtility.ParseQueryString(query);
-                if (queryParameters.AllKeys.Contains("code"))
-                {
-                    code = queryParameters["code"];
-                }
-            }
-
-            var result = new AuthorizationCodeResult
-            {
-                Code = code,
-                FailureReason = code?.Length > 0 ? null : callbackResult.FailureReason
-            };
 
             if(result.Code?.Length > 0 && result.FailureReason == null)
             {
@@ -124,21 +107,27 @@ namespace Blazorade.Id.Services
         }
 
 
-        private async Task<AuthorizationCallbackResult> AttemptIFrameAsync(string authorizeUrl)
+        private async Task<AuthorizationCodeResult> AttemptIFrameAsync(EndpointUriBuilder authorizeUriBuilder, GetTokenOptions getOptions)
         {
+            authorizeUriBuilder.WithPrompt(Prompt.None);
+            var authorizeUrl = authorizeUriBuilder.Build();
+
             var result = await this.AttemptAuthorizeEndpointAsync(authorizeUrl, "openAuthorizationIframe");
             return result;
         }
 
-        private async Task<AuthorizationCallbackResult> AttemptPopupAsync(string authorizeUrl)
+        private async Task<AuthorizationCodeResult> AttemptPopupAsync(EndpointUriBuilder authorizeUriBuilder, GetTokenOptions getOptions)
         {
+            authorizeUriBuilder.WithPrompt(getOptions.Prompt);
+            var authorizeUrl = authorizeUriBuilder.Build();
+
             var result = await this.AttemptAuthorizeEndpointAsync(authorizeUrl, "openAuthorizationPopup");
             return result;
         }
 
-        private async Task<AuthorizationCallbackResult> AttemptAuthorizeEndpointAsync(string authorizeUrl, string jsFunction)
+        private async Task<AuthorizationCodeResult> AttemptAuthorizeEndpointAsync(string authorizeUrl, string jsFunction)
         {
-            var result = new AuthorizationCallbackResult();
+            var result = new AuthorizationCodeResult();
             var input = new Dictionary<string, object>
             {
                 { "authorizeUrl", authorizeUrl }
@@ -148,8 +137,8 @@ namespace Blazorade.Id.Services
             {
                 using (var handler = await this.ScriptService.CreateCallbackHandlerAsync<string>(jsFunction, data: input))
                 {
-                    result.ResponseUrl = await handler.GetResultAsync(timeout: AuthorizeTimeout);
-                    result.FailureReason = null;
+                    var responseUrl = await handler.GetResultAsync(timeout: AuthorizeTimeout);
+                    this.AugmentAuthorizationCodeResultFromResponseUrl(result, responseUrl);
                 }
             }
             catch (FailureCallbackException ex)
@@ -178,7 +167,49 @@ namespace Blazorade.Id.Services
                 result.FailureReason = AuthorizationCodeFailureReason.SystemFailure;
             }
 
+            if(result.FailureReason != null)
+            {
+                result.Code = null;
+            }
+
             return result;
+        }
+
+        private void AugmentAuthorizationCodeResultFromResponseUrl(AuthorizationCodeResult result, string responseUrl)
+        {
+            if (responseUrl.Contains('?'))
+            {
+                var query = responseUrl.Substring(responseUrl.IndexOf('?') + 1);
+                NameValueCollection queryParameters = System.Web.HttpUtility.ParseQueryString(query);
+                string? error = this.GetValue(queryParameters, "error");
+                string? code = this.GetValue(queryParameters, "code");
+
+                if (error?.Length > 0)
+                {
+                    result.FailureReason = AuthorizationCodeFailureReason.IdPError;
+                    result.ErrorCode = error;
+                    result.ErrorDescription = this.GetValue(queryParameters, "error_description");
+                    result.ErrorUri = this.GetValue(queryParameters, "error_uri");
+                    result.Code = null;
+                }
+                else if (code?.Length > 0)
+                {
+                    result.Code = code;
+                    result.ErrorCode = null;
+                    result.ErrorDescription = null;
+                    result.FailureReason = null;
+                }
+            }
+        }
+
+        private string? GetValue(NameValueCollection collection, string key)
+        {
+            if(collection.AllKeys.Contains(key))
+            {
+                return collection[key];
+            }
+
+            return null;
         }
 
         private string CreateNonce()
@@ -193,12 +224,5 @@ namespace Blazorade.Id.Services
                 .Replace("=", "");
         }
 
-
-        private class AuthorizationCallbackResult
-        {
-            public string? ResponseUrl { get; set; }
-
-            public AuthorizationCodeFailureReason? FailureReason { get; set; }
-        }
     }
 }

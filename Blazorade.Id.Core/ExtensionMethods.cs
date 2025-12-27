@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
+using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -51,6 +52,14 @@ namespace Blazorade.Id
         public static string? GetPreferredUsername(this JwtSecurityToken? token)
         {
             return token?.GetClaimValue("preferred_username");
+        }
+
+        /// <summary>
+        /// Returns the preferred username from the given <paramref name="principal"/>.
+        /// </summary>
+        public static string? GetPreferredUsername(this ClaimsPrincipal principal)
+        {
+            return principal.Claims?.FirstOrDefault(c => c.Type == "preferred_username")?.Value;
         }
 
         /// <summary>
