@@ -21,7 +21,7 @@ namespace Blazorade.Id.Services
         private const string NonceKey = "nonce";
         private const string LastSuccessfulAuthCodeTimestampKey = "lastSuccessfulAuthCodeTimestamp";
 
-        private static string[] Keys = [CodeVerifierKey, LoginHintKey, ScopeKey, NonceKey, LastSuccessfulAuthCodeTimestampKey ];
+        private static readonly string[] Keys = [CodeVerifierKey, LoginHintKey, ScopeKey, NonceKey, LastSuccessfulAuthCodeTimestampKey ];
 
 
         /// <summary>
