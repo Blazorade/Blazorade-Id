@@ -120,16 +120,21 @@ export function signalAuthorizationResponse(args) {
     console.debug("signalAuthorizationResponse", args);
 
     try {
+        const payload = { url: args.data.responseUrl };
+
         if (window.opener && !window.opener.closed) {
-            window.opener.postMessage({ url: args.data.responseUrl });
+            // Popup flow
+            window.opener.postMessage(payload);
+        }
+        else if (window.parent && window.parent !== window) {
+            // Iframe flow
+            window.parent.postMessage(payload);
         }
 
         args.successCallback.target.invokeMethodAsync(args.successCallback.methodName, true);
     }
-    catch (ex)
-    {
+    catch (ex) {
         console.error(ex);
         args.failureCallback.target.invokeMethodAsync(args.failureCallback.methodName, ex);
     }
 }
- 

@@ -81,50 +81,19 @@ namespace Blazorade.Id.Services
 
             if(options.Prompt.HasValue) uriBuilder.WithPrompt(options.Prompt.Value);
 
-            AuthorizationCodeFailureReason? failureReason = null;
             var uri = uriBuilder.Build();
-            string responseUrl = string.Empty;
             string? code = null;
+
             var input = new Dictionary<string, object>
             {
                 { "authorizeUrl", uri }
             };
-            try
-            {
-                using (var handler = await this.ScriptService.CreateCallbackHandlerAsync<string>("openAuthorizationPopup", data: input))
-                {
-                    responseUrl = await handler.GetResultAsync(timeout: AuthorizeTimeout);
-                }
-            }
-            catch (FailureCallbackException ex)
-            {
-                var msg = ex.Message;
-                var json = JsonSerializer.Serialize(ex.Result);
-                try
-                {
-                    var result = JsonSerializer.Deserialize<AuthorizationPopupFailure>(json, options: new JsonSerializerOptions { PropertyNameCaseInsensitive = true});
-                    failureReason = result?.Reason;
-                }
-                catch (Exception innerEx)
-                {
-                    var innerMsg = innerEx.Message;
-                    failureReason = AuthorizationCodeFailureReason.SystemFailure;
-                }
-            }
-            catch(InteropTimeoutException ex)
-            {
-                var msg = ex.Message;
-                failureReason = AuthorizationCodeFailureReason.TimedOut;
-            }
-            catch (Exception ex)
-            {
-                var msg = ex.Message;
-                failureReason = AuthorizationCodeFailureReason.TimedOut;
-            }
 
-            if(responseUrl?.Length > 0 && responseUrl.Contains('?'))
+            AuthorizationCallbackResult callbackResult = await this.AttemptPopupAsync(input);
+
+            if (callbackResult.ResponseUrl?.Length > 0 && callbackResult.ResponseUrl.Contains('?') && null == callbackResult.FailureReason)
             {
-                var query = responseUrl.Substring(responseUrl.IndexOf('?') + 1);
+                var query = callbackResult.ResponseUrl.Substring(callbackResult.ResponseUrl.IndexOf('?') + 1);
                 var queryParameters = System.Web.HttpUtility.ParseQueryString(query);
                 if (queryParameters.AllKeys.Contains("code"))
                 {
@@ -135,10 +104,50 @@ namespace Blazorade.Id.Services
             return new AuthorizationCodeResult
             {
                 Code = code,
-                FailureReason = code?.Length > 0 ? null : failureReason
+                FailureReason = code?.Length > 0 ? null : callbackResult.FailureReason
             };
         }
 
+
+        private async Task<AuthorizationCallbackResult> AttemptPopupAsync(Dictionary<string, object> input)
+        {
+            var result = new AuthorizationCallbackResult();
+
+            try
+            {
+                using (var handler = await this.ScriptService.CreateCallbackHandlerAsync<string>("openAuthorizationPopup", data: input))
+                {
+                    result.ResponseUrl = await handler.GetResultAsync(timeout: AuthorizeTimeout);
+                }
+            }
+            catch (FailureCallbackException ex)
+            {
+                var msg = ex.Message;
+                var json = JsonSerializer.Serialize(ex.Result);
+                try
+                {
+                    var popupResult = JsonSerializer.Deserialize<AuthorizationPopupFailure>(json, options: new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                    result.FailureReason = popupResult?.Reason;
+                }
+                catch (Exception innerEx)
+                {
+                    var innerMsg = innerEx.Message;
+                    result.FailureReason = AuthorizationCodeFailureReason.SystemFailure;
+                }
+            }
+            catch (InteropTimeoutException ex)
+            {
+                var msg = ex.Message;
+                result.FailureReason = AuthorizationCodeFailureReason.TimedOut;
+            }
+            catch (Exception ex)
+            {
+                var msg = ex.Message;
+                result.FailureReason = AuthorizationCodeFailureReason.TimedOut;
+            }
+
+            return result;
+        }
 
 
         private string CreateNonce()
@@ -153,5 +162,12 @@ namespace Blazorade.Id.Services
                 .Replace("=", "");
         }
 
+
+        private class AuthorizationCallbackResult
+        {
+            public string? ResponseUrl { get; set; }
+
+            public AuthorizationCodeFailureReason? FailureReason { get; set; }
+        }
     }
 }
