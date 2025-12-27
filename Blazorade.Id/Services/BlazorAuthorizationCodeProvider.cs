@@ -14,7 +14,6 @@ using System.Security.Cryptography;
 using System.Text.Json;
 using Blazorade.Id.Model;
 using Blazorade.Id.Configuration;
-using Blazored.LocalStorage;
 using System.Collections.Specialized;
 
 namespace Blazorade.Id.Services
@@ -34,8 +33,9 @@ namespace Blazorade.Id.Services
             NavigationManager navMan,
             BlazoradeIdScriptService scriptService,
             IRedirectUriProvider redirUriProvider,
-            ILocalStorageService localStorage,
-            IOptions<AuthorityOptions> authOptions
+            IJSRuntime jsRuntime,
+            IOptions<AuthorityOptions> authOptions,
+            IOptions<JsonSerializerOptions> jsonOptions
         ) {
             this.EndpointService = endpointService ?? throw new ArgumentNullException(nameof(endpointService));
             this.AuthOptions = authOptions?.Value ?? throw new ArgumentNullException(nameof(authOptions));
@@ -44,7 +44,7 @@ namespace Blazorade.Id.Services
             this.NavMan = navMan ?? throw new ArgumentNullException(nameof(navMan));
             this.ScriptService = scriptService ?? throw new ArgumentNullException(nameof(scriptService));
             this.RedirUriProvider = redirUriProvider ?? throw new ArgumentNullException(nameof(redirUriProvider));
-            this.LocalStore = new BrowserLocalStoragePropertyStore(localStorage);
+            this.LocalStore = new BrowserLocalStoragePropertyStore(jsRuntime, jsonOptions);
         }
 
         private readonly IEndpointService EndpointService;
