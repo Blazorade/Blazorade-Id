@@ -95,7 +95,7 @@ namespace Blazorade.Id.Services
 
             if (string.IsNullOrEmpty(callbackResult.ResponseUrl) || callbackResult.FailureReason != null)
             {
-                // IFrame attempt failed or authentication has never been attempted before, try popup.
+                // IFrame attempt failed, was not attempted, or authentication has never succeeded before, try popup.
                 callbackResult = await this.AttemptPopupAsync(uri);
             }
 
