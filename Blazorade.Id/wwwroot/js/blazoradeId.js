@@ -181,7 +181,7 @@ export function openAuthorizationIframe(args) {
         console.debug("onMessage (iframe)", event);
 
         // Same origin check as popup version
-        if (event.origin != window.location.origin) {
+        if (event.origin !== window.location.origin) {
             return;
         }
 
