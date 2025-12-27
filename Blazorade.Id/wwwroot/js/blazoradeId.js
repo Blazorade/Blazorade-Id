@@ -121,10 +121,9 @@ export function openAuthorizationIframe(args) {
 
     const authorizeUrl = args.data.authorizeUrl;
 
-    // Reason codes: choose values that fit your existing enum strategy
-    // 3 = iframe timed out / no response
-    // 4 = iframe returned error response (optional if you parse it on C# side instead)
-    const timeoutMs = 1200;
+    // Reason code 3 must align with the server-side AuthorizationCodeFailureReason value used for iframe timeouts.
+    // It is sent when the iframe does not complete within the configured timeout.
+    const timeoutMs = 1000;
 
     function invokeFailure(payload) {
         console.debug("invokeFailure", payload);
