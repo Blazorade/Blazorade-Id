@@ -48,7 +48,7 @@ namespace Blazorade.Id.Services
             {
                 try
                 {
-                    return JsonSerializer.Deserialize<T>(val ?? "", this.JsonOptions);
+                    return JsonSerializer.Deserialize<T>(val, this.JsonOptions);
                 }
                 catch { }
             }
