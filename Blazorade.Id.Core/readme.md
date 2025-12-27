@@ -10,6 +10,11 @@ Get started with Blazorade Id by visiting the Getting Started page on the [Blazo
 
 The versions of Blazorade ID Core always match the version numbers of the other Blazorade ID libraries. For details, see the *Used By* tab above.
 
+### v1.1.0
+
+- Improved error handling when processing callbacks from the Identity Provider.
+- Improved token handling to prevent tokens from being persisted when switching users.
+
 ### v1.0.0
 
 Initial stable release of Blazorade ID Core.
