@@ -18,7 +18,7 @@ namespace Blazorade.Id.Services
         /// <summary>
         /// Creates a new instance of the class.
         /// </summary>
-        protected WebRefreshTokenStoreBase (WebStoreType storeType, IJSRuntime jsRuntime, IOptions<JsonSerializerOptions> jsonOptions) : base(storeType, jsRuntime, jsonOptions)
+        protected WebRefreshTokenStoreBase(WebStoreType storeType, IJSRuntime jsRuntime, IOptions<JsonSerializerOptions> jsonOptions) : base(storeType, jsRuntime, jsonOptions)
         {
 
         }
