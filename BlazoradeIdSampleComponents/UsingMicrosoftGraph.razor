@@ -1,0 +1,77 @@
+﻿@page "/using-microsoft-graph"
+@using Microsoft.Graph
+@using Microsoft.Graph.Models
+@using Azure.Core
+@using Blazorade.Id
+@using Mdl = Blazorade.Id.Model
+@using Blazorade.Id.Services
+
+@inject ITokenService TokenService
+
+<PageTitle>Using Microsoft Graph</PageTitle>
+<h1>Using Microsoft Graph</h1>
+<p>This is a simple example that shows how you use Blazorade ID to work with <a href="https://learn.microsoft.com/graph" target="_blank">Microsoft Graph</a>.</p>
+<p>It uses an access token with the scope <c>User.Read</c> to read basic information about the logged in user through Microsoft Graph.</p>
+
+<button @onclick="async () => await this.LoadUserAsync()">Get User Info</button>
+
+@if(null != this.user)
+{
+    <h2>User Information</h2>
+    <ul>
+        <li><strong>Display Name:</strong> @this.user.DisplayName</li>
+        <li><strong>Job Title:</strong> @this.user.JobTitle</li>
+        <li><strong>Mail:</strong> @this.user.Mail</li>
+        <li><strong>Given Name:</strong> @this.user.GivenName</li>
+        <li><strong>Surname:</strong> @this.user.Surname</li>
+        <li><strong>User Principal Name:</strong> @this.user.UserPrincipalName</li>
+        <li><strong>Id:</strong> @this.user.Id</li>
+    </ul>
+}
+
+@code {
+    User? user;
+
+    protected async override Task OnAfterRenderAsync(bool firstRender)
+    {
+        await base.OnAfterRenderAsync(firstRender);
+        if(firstRender)
+        {
+            await this.LoadUserAsync(Mdl.Prompt.None);
+        }
+    }
+
+    private async Task<GraphServiceClient?> GetGraphServiceClientAsync(Mdl.Prompt? prompt = null)
+    {
+        var tokenCredential = await this.GetTokenCredentialAsync(prompt);
+        if(null != tokenCredential)
+        {
+            var graphClient = new GraphServiceClient(tokenCredential);
+            return graphClient;
+        }
+        return null;
+    }
+
+    private async Task<TokenCredential?> GetTokenCredentialAsync(Mdl.Prompt? prompt = null)
+    {
+        var tokens = await this.TokenService.GetAccessTokensAsync(new GetTokenOptions { Prompt = prompt, Scopes = ["User.Read"] });
+        if(tokens.Count > 0)
+        {
+            var token = tokens.First().Value;
+            var expires = token.GetExpirationTimeUtc() ?? DateTime.UtcNow.AddHours(1);
+            return new StaticTokenCredential(token.RawData, expires);
+        }
+
+        return null;
+    }
+
+    private async Task LoadUserAsync(Mdl.Prompt? prompt = null)
+    {
+        var client = await this.GetGraphServiceClientAsync(prompt);
+        if(null != client)
+        {
+            this.user = await client.Me.GetAsync();
+            this.StateHasChanged();
+        }
+    }
+}
