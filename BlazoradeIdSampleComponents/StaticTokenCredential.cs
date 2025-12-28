@@ -9,13 +9,12 @@ namespace BlazoradeIdSampleComponents
 {
     public class StaticTokenCredential : TokenCredential
     {
+        private readonly AccessToken AccessToken;
 
         public StaticTokenCredential(string token, DateTimeOffset expiresOn)
         {
             this.AccessToken = new AccessToken(token, expiresOn);
         }
-
-        private readonly AccessToken AccessToken;
 
         public override ValueTask<AccessToken> GetTokenAsync(TokenRequestContext requestContext, CancellationToken cancellationToken)
         {
