@@ -16,6 +16,10 @@
 </div>
 <InputTextArea DisplayName="Scopes" id="scopes" @bind-Value="this.Scopes" style="width: 320px; height: 48px"/>
 <div style="margin-top: 1em">
+    <InputCheckbox @bind-Value="this.selectAccount" id="select-account" style="display: inline" />
+    <label for="select-account" style="display: inline ">Select Account</label>
+</div>
+<div style="margin-top: 1em">
     <button @onclick="async () => await this.GetTokensAsync()">Get Tokens</button>
 </div>
 
@@ -44,7 +48,8 @@
 }
 
 @code {
-    private const string DefaultScopes = "openid profile email User.Read";
+    private bool selectAccount = false;
+    private const string DefaultScopes = "openid profile email";
     private string? Scopes;
     private AccessTokenDictionary AccessTokens = new AccessTokenDictionary();
     private JwtSecurityToken? IdToken = null;
@@ -74,11 +79,15 @@
                 Scopes = scpArr,
             };
 
+        getOptions.Prompt = getOptions.Prompt ?? (this.selectAccount ? Prompt.Select_Account : null);
         this.AccessTokens = await this.tokenService.GetAccessTokensAsync(getOptions);
 
         // No need to prompt when getting ID token, since any prompting
         // was done when getting access tokens.
-        getOptions.Prompt = Prompt.None;
+        if(this.AccessTokens.Count > 0)
+        {
+            getOptions.Prompt = Prompt.None;
+        }
         this.IdToken = await this.tokenService.GetIdentityTokenAsync(getOptions);
     }
 }
