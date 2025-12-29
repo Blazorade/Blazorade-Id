@@ -17,7 +17,7 @@
 <InputTextArea DisplayName="Scopes" id="scopes" @bind-Value="this.Scopes" style="width: 320px; height: 48px"/>
 <div style="margin-top: 1em">
     <InputCheckbox @bind-Value="this.selectAccount" id="select-account" style="display: inline" />
-    <label for="select-account" style="display: inline ">Select Account</label>
+    <label for="select-account" style="display: inline">Select Account</label>
 </div>
 <div style="margin-top: 1em">
     <button @onclick="async () => await this.GetTokensAsync()">Get Tokens</button>
