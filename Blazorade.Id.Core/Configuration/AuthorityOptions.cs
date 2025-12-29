@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using Blazorade.Id.Services;
 
 namespace Blazorade.Id.Configuration
 {
@@ -113,5 +114,28 @@ namespace Blazorade.Id.Configuration
         /// The default is <c>openid profile email</c>.
         /// </remarks>
         public string? Scope { get; set; } = DefaultScope;
+
+        /// <summary>
+        /// Enables a silent, non-interactive OAuth 2.0 Authorization Code Flow with PKCE to acquire tokens without user-visible prompts.
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// When enabled, the configured <see cref="IAuthorizationCodeProvider"/> implementation may decide
+        /// to attempt authorization without direct user interaction, typically by reusing an existing
+        /// authenticated browser session with the identity provider. Whether and when a silent authorization
+        /// attempt is performed is determined by the provider implementation.
+        /// </para>
+        /// <para>
+        /// If this is disabled, the configured <see cref="IAuthorizationCodeProvider"/> must not attempt
+        /// silent authorization code flow.
+        /// </para>
+        /// <para>
+        /// Silent authorization is a best-effort optimization and is subject to browser privacy restrictions,
+        /// identity provider behavior, and user session state. This option does not use refresh tokens and does
+        /// not guarantee success. If silent authorization is not possible, the provider will fall back to an
+        /// interactive authorization flow.
+        /// </para>
+        /// </remarks>
+        public bool EnableSilentAuthorizationCodeFlow { get; set; } = false;
     }
 }

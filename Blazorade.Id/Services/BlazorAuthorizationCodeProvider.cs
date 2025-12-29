@@ -90,7 +90,11 @@ namespace Blazorade.Id.Services
 
             var lastSuccessfulTimestamp = await this.LocalStore.GetLastSuccessfulAuthCodeTimestampAsync();
 
-            AuthorizationCodeResult result = null != lastSuccessfulTimestamp && !options.Prompt.RequiresInteraction()
+            AuthorizationCodeResult result = 
+                null != lastSuccessfulTimestamp 
+                && this.AuthOptions.EnableSilentAuthorizationCodeFlow 
+                && !options.Prompt.RequiresInteraction()
+                
                 ? await this.AttemptIFrameAsync(uriBuilder, options)
                 : new AuthorizationCodeResult();
 
