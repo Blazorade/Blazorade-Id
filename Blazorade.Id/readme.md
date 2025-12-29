@@ -8,6 +8,11 @@ Get started with Blazorade Id by visiting the Getting Started page on the [Blazo
 
 ## Version Highlights
 
+### v.2.1.0
+
+- Added a static HTML page as the OAuth Callback URL to improve performance for callback handling.
+- Improved error handling when silently refreshing tokens in IFrame so that if the IFrame operation indicates an error that needs user interaction, the authorization is retried using a popup window and an adjusted `prompt` parameter.
+
 ### v2.0.0
 
 - Removed references to Blazored libraries. Turned out that all Blazored libraries were archived and deprecated on the same day as we published the initial v1.0.0 of Blazorade ID. Blazored libraries have been replaced with JS Interop in Blazorade ID.
