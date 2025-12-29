@@ -7,6 +7,17 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="appsettings.json.md" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="appsettings.json.md">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\Blazorade.Id\Blazorade.Id.csproj" />
     <ProjectReference Include="..\BlazoradeIdSampleComponents\BlazoradeIdSampleComponents.csproj" />
   </ItemGroup>

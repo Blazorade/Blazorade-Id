@@ -8,7 +8,10 @@ Get started with Blazorade Id by visiting the Getting Started page on the [Blazo
 
 ## Version Highlights
 
-The versions of Blazorade ID Core always match the version numbers of the other Blazorade ID libraries. For details, see the *Used By* tab above.
+### v1.2.0
+
+- Added constants for common OAuth and OIDC authorization errors that can be fixed with user interaction.
+- Added `EnableSilentAuthorizationCodeFlow` to `AuthorityOptions` to enable silent authorization code flow. This setting is `false` by default.
 
 ### v1.1.0
 

@@ -3,10 +3,13 @@
 @using Microsoft.AspNetCore.Components.Web
 @using Microsoft.AspNetCore.Components.Forms
 @using System.IdentityModel.Tokens.Jwt
+@using Blazorade.Id.Configuration
 @using Blazorade.Id.Model
 @using Blazorade.Id.Services
+@using Microsoft.Extensions.Options
 
 @inject ITokenService tokenService
+@inject IOptions<AuthorityOptions> authOptions
 
 <PageTitle>Acquire Tokens</PageTitle>
 <h1>Acquire Tokens</h1>
@@ -54,7 +57,7 @@
         await base.OnAfterRenderAsync(firstRender);
         if(firstRender)
         {
-            this.Scopes = DefaultScopes;
+            this.Scopes = this.authOptions.Value.Scope ?? DefaultScopes;
             await this.GetTokensAsync(Prompt.None);
             this.StateHasChanged();
         }

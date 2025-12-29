@@ -26,7 +26,7 @@ namespace Blazorade.Id.Services
         /// <inheritdoc/>
         public Uri GetRedirectUri()
         {
-            var uri = new Uri(new Uri(this.NavMan.BaseUri), OAuthCallback.RoutePath);
+            var uri = new Uri(new Uri(this.NavMan.BaseUri), "_content/Blazorade.Id/oauth-callback.html");
             return uri;
         }
     }
