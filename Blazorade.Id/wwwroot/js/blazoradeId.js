@@ -123,7 +123,7 @@ export function openAuthorizationIframe(args) {
 
     // Reason code 3 must align with the server-side AuthorizationCodeFailureReason value used for iframe timeouts.
     // It is sent when the iframe does not complete within the configured timeout.
-    const timeoutMs = 1000;
+    const timeoutMs = 1200;
 
     function invokeFailure(payload) {
         console.debug("invokeFailure", payload);
@@ -137,7 +137,7 @@ export function openAuthorizationIframe(args) {
     }
 
     let completed = false;
-    let timer = null;
+    let timeoutTimer = null;
     let iframe = null;
 
     function cleanup() {
@@ -145,8 +145,8 @@ export function openAuthorizationIframe(args) {
 
         window.removeEventListener("message", onMessage);
         if (timer) {
-            clearTimeout(timer);
-            timer = null;
+            clearTimeout(timeoutTimer);
+            timeoutTimer = null;
         }
         try {
             if (iframe) {
@@ -194,9 +194,11 @@ export function openAuthorizationIframe(args) {
 
     window.addEventListener("message", onMessage);
 
-    timer = setTimeout(() => {
+    timeoutTimer = setTimeout(() => {
+        console.debug("iframe timeout reached: " + timeoutMs + "ms");
+
         completeFailure({
-            error: "Iframe authorization timed out.",
+            error: "Iframe authorization timed out: " + timeoutMs + "ms",
             reason: 3
         });
     }, timeoutMs);
