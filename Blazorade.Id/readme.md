@@ -12,6 +12,7 @@ Get started with Blazorade Id by visiting the Getting Started page on the [Blazo
 
 - Added a static HTML page as the OAuth Callback URL to improve performance for callback handling.
 - Improved error handling when silently refreshing tokens in IFrame so that if the IFrame operation indicates an error that needs user interaction, the authorization is retried using a popup window and an adjusted `prompt` parameter.
+- Modified `BlazorAuthorizationCodeProvider` to respect the `EnableSilentAuthorizationCodeFlow` setting in `AuthorityOptions` when attempting to acquire tokens silently using a hidden `IFrame`.
 
 ### v2.0.0
 

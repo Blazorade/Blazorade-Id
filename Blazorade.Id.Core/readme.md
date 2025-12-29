@@ -11,6 +11,7 @@ Get started with Blazorade Id by visiting the Getting Started page on the [Blazo
 ### v1.2.0
 
 - Added constants for common OAuth and OIDC authorization errors that can be fixed with user interaction.
+- Added `EnableSilentAuthorizationCodeFlow` to `AuthorityOptions` to enable silent authorization code flow. This setting is `false` by default.
 
 ### v1.1.0
 
