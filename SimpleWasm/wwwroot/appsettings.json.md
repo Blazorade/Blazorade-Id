@@ -20,7 +20,7 @@ In order for you to run the sample app, you need to create an `appsettings.json`
 - `discoverydocumenturi`: This is the URI to the discovery document of your identity provider. Replace `{URI}` with the actual URI. Blazorade ID will use this URI to automatically discover the authorization and token endpoints.
 - `clientid`: This is the client ID of your application registered with the identity provider. Replace `{string}` with your actual client ID.
 - `scope`: The default scope(s) used when acquiring access tokens in case you acquire access tokens without specifying the scopes to require. This setting is optional, and will default to `openid profile email` if not specified. Replace `{string}` with the appropriate scope for your application.
-- `enablesilentauthorizationcodeflow`: A boolean value (`true` or `false`) indicating whether to enable silent authorization code flow. Set to `true` to enable or `false` to disable silent authorization code flow.
+- `enablesilentauthorizationcodeflow`: A boolean value (`true` or `false`) indicating whether to enable silent authorization code flow. Replace `{bool}` with `true` to enable or `false` to disable.
 
 > In Microsoft Entra ID, the metadata URI is `https://{tenantname}.microsoftonline.com/{tenantid}/v2.0/.well-known/openid-configuration`. In Microsoft Entra External ID, the metadata URI is `https://{tenantname}.ciamlogin.com/{tenantid}/v2.0/.well-known/openid-configuration`.
 
