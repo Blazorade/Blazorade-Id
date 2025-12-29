@@ -1,0 +1,32 @@
+﻿<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="referrer" content="no-referrer" />
+    <title>Blazorade ID - OAuth Callback</title>
+</head>
+<body>
+    <script>
+(function () {
+  try {
+    // Full URL including query/fragment parameters.
+    const payload = { url: window.location.href };
+
+    // Send only to same-origin parent/opener.
+    const targetOrigin = window.location.origin;
+
+    if (window.opener && !window.opener.closed) {
+      window.opener.postMessage(payload, targetOrigin);
+    } else if (window.parent && window.parent !== window) {
+      window.parent.postMessage(payload, targetOrigin);
+    }
+
+    // Some browsers may block window.close() if not user-initiated.
+    try { window.close(); } catch { }
+  } catch (e) {
+    console.error("Blazorade ID OAuth Callback", e);
+  }
+})();
+    </script>
+</body>
+</html>

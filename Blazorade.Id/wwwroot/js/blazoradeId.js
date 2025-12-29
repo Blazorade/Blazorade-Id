@@ -1,5 +1,4 @@
-﻿
-export function openAuthorizationPopup(args) {
+﻿export function openAuthorizationPopup(args) {
 
     console.debug("openAuthorizationPopup", args);
 
@@ -37,12 +36,11 @@ export function openAuthorizationPopup(args) {
     }
 
     const popup = window.open(authorizeUrl, "authPopup", features);
-    //const popup = null;
 
     if (!popup) {
         invokeFailure({
             error: "Popup could not be opened.",
-            reason: 1 // Enum value used in C# to indicate popup could not be opened.
+            reason: 1
         });
         return;
     }
@@ -87,15 +85,12 @@ export function openAuthorizationPopup(args) {
     function onMessage(event) {
         console.debug("onMessage", event);
 
-        // Keep your existing origin check
-        if (event.origin != window.location.origin) {
+        if (event.origin !== window.location.origin) {
             return;
         }
 
-        // Defensive: ensure expected shape
         const url = event?.data?.url;
         if (!url) {
-            // If you prefer, treat this as failure instead of ignore
             return;
         }
 
@@ -104,13 +99,11 @@ export function openAuthorizationPopup(args) {
 
     window.addEventListener("message", onMessage);
 
-    // Detect user closing the popup before we receive a response
     closePollTimer = setInterval(() => {
-        // If the popup is gone or closed and we haven't completed, treat as failure
         if (!popup || popup.closed) {
             completeFailure({
                 error: "Popup was closed before authorization completed.",
-                reason: 2 // Enum value used in C# to indicate user closed popup.
+                reason: 2
             });
         }
     }, 250);
@@ -120,9 +113,6 @@ export function openAuthorizationIframe(args) {
     console.debug("openAuthorizationIframe", args);
 
     const authorizeUrl = args.data.authorizeUrl;
-
-    // Reason code 3 must align with the server-side AuthorizationCodeFailureReason value used for iframe timeouts.
-    // It is sent when the iframe does not complete within the configured timeout.
     const timeoutMs = 1200;
 
     function invokeFailure(payload) {
@@ -144,10 +134,12 @@ export function openAuthorizationIframe(args) {
         console.debug("cleanup (iframe)");
 
         window.removeEventListener("message", onMessage);
-        if (timer) {
+
+        if (timeoutTimer) {
             clearTimeout(timeoutTimer);
             timeoutTimer = null;
         }
+
         try {
             if (iframe) {
                 iframe.remove();
@@ -179,7 +171,6 @@ export function openAuthorizationIframe(args) {
     function onMessage(event) {
         console.debug("onMessage (iframe)", event);
 
-        // Same origin check as popup version
         if (event.origin !== window.location.origin) {
             return;
         }
@@ -215,7 +206,6 @@ export function openAuthorizationIframe(args) {
 
     document.body.appendChild(iframe);
 
-    // Navigate after append for reliability
     iframe.src = authorizeUrl;
 }
 
@@ -224,14 +214,16 @@ export function signalAuthorizationResponse(args) {
 
     try {
         const payload = { url: args.data.responseUrl };
+        console.debug("Posting message to parent/opener", payload);
 
         if (window.opener && !window.opener.closed) {
-            // Popup flow
-            window.opener.postMessage(payload);
+            window.opener.postMessage(payload, window.location.origin);
         }
         else if (window.parent && window.parent !== window) {
-            // Iframe flow
-            window.parent.postMessage(payload);
+            window.parent.postMessage(payload, window.location.origin);
+        }
+        else {
+            console.warn("No parent or opener window to signal to.");
         }
 
         args.successCallback.target.invokeMethodAsync(args.successCallback.methodName, true);
