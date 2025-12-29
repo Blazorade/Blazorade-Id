@@ -135,6 +135,9 @@ namespace Blazorade.Id.Configuration
         /// not guarantee success. If silent authorization is not possible, the provider will fall back to an
         /// interactive authorization flow.
         /// </para>
+        /// <para>
+        /// This option is <see langword="false"/> by default.
+        /// </para>
         /// </remarks>
         public bool EnableSilentAuthorizationCodeFlow { get; set; } = false;
     }
