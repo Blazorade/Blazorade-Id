@@ -11,7 +11,7 @@ In order for you to run the sample app, you need to create an `appsettings.json`
       "discoverydocumenturi": "{URI}",
       "clientid": "{string}",
       "scope": "{string}",
-      "enablesilentauthorizationcodeflow": true
+      "enablesilentauthorizationcodeflow": {bool}
     }
   }
 }
