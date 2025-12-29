@@ -98,14 +98,6 @@ namespace Blazorade.Id.Services
                 ? await this.AttemptIFrameAsync(uriBuilder, options)
                 : new AuthorizationCodeResult();
 
-            if(result.FailureReason != null)
-            {
-                // If the iframe option failed for some reason, then the authorization attempt using
-                // a popup will most likely fail too if we don't explicitly specify a prompt to require
-                // interactive login.
-                options.Prompt = Prompt.Select_Account;
-            }
-
             int maxAttempts = 2, attempts = 0;
             while (string.IsNullOrEmpty(result.Code) && attempts < maxAttempts)
             {
@@ -155,6 +147,12 @@ namespace Blazorade.Id.Services
                     break;
             }
 
+            if(!promptChanged && result.FailureReason != null)
+            {
+                // If the prompt was not changed, but the result we are examining
+                // indicates a failure, we set the prompt to "select_account".
+                options.Prompt = Prompt.Select_Account;
+            }
             return promptChanged;
         }
 
