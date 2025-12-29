@@ -15,6 +15,7 @@ using System.Text.Json;
 using Blazorade.Id.Model;
 using Blazorade.Id.Configuration;
 using System.Collections.Specialized;
+using Blazorade.Id.Authorization;
 
 namespace Blazorade.Id.Services
 {
@@ -85,20 +86,33 @@ namespace Blazorade.Id.Services
                 .WithCodeChallenge(codeVerifier);
 
             if(options.Prompt.HasValue) uriBuilder.WithPrompt(options.Prompt.Value);
+            if(options.LoginHint?.Length > 0) uriBuilder.WithLoginHint(options.LoginHint);
 
             var lastSuccessfulTimestamp = await this.LocalStore.GetLastSuccessfulAuthCodeTimestampAsync();
 
-            AuthorizationCodeResult result = null != lastSuccessfulTimestamp && !options.Prompt.RequiresInteraction()
+            AuthorizationCodeResult result = 
+                null != lastSuccessfulTimestamp 
+                && this.AuthOptions.EnableSilentAuthorizationCodeFlow 
+                && !options.Prompt.RequiresInteraction()
+                
                 ? await this.AttemptIFrameAsync(uriBuilder, options)
                 : new AuthorizationCodeResult();
 
-            if (string.IsNullOrEmpty(result.Code) || result.FailureReason != null)
+            int maxAttempts = 2, attempts = 0;
+            while (string.IsNullOrEmpty(result.Code) && attempts < maxAttempts)
             {
-                // IFrame attempt failed, was not attempted, or authentication has never succeeded before, try popup.
-                result = await this.AttemptPopupAsync(uriBuilder, options);
+                // Try popup with optionally adjusted options.
+                attempts++;
+                var changed = this.ChangePromptFromResult(options, result);
+                if(attempts == 1 || changed)
+                {
+                    // If we are on the first attempt, then we retry anyway. But if we
+                    // are not on the first attempt, we only retry if the prompt was changed.
+                    result = await this.AttemptPopupAsync(uriBuilder, options);
+                }
             }
 
-            if(result.Code?.Length > 0 && result.FailureReason == null)
+            if (result.Code?.Length > 0 && result.FailureReason == null)
             {
                 await this.LocalStore.SetLastSuccessfulAuthCodeTimestampAsync(DateTime.UtcNow);
             }
@@ -106,6 +120,41 @@ namespace Blazorade.Id.Services
             return result;
         }
 
+
+
+        private bool ChangePromptFromResult(GetTokenOptions options, AuthorizationCodeResult result)
+        {
+            bool promptChanged = false;
+            switch(result.ErrorCode)
+            {
+                case AuthorizationErrors.InteractionRequired:
+                case AuthorizationErrors.AccountSelectionRequired:
+                    options.Prompt = Prompt.Select_Account;
+                    promptChanged = true;
+                    break;
+
+                case AuthorizationErrors.ConsentRequired:
+                    options.Prompt = Prompt.Consent;
+                    promptChanged = true;
+                    break;
+
+                case AuthorizationErrors.LoginRequired:
+                    options.Prompt = Prompt.Login;
+                    promptChanged = true;
+                    break;
+
+                default:
+                    break;
+            }
+
+            if(!promptChanged && result.FailureReason != null)
+            {
+                // If the prompt was not changed, but the result we are examining
+                // indicates a failure, we set the prompt to "select_account".
+                options.Prompt = Prompt.Select_Account;
+            }
+            return promptChanged;
+        }
 
         private async Task<AuthorizationCodeResult> AttemptIFrameAsync(EndpointUriBuilder authorizeUriBuilder, GetTokenOptions getOptions)
         {
