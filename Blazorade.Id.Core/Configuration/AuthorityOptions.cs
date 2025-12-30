@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Text;
 using Blazorade.Id.Services;
 
@@ -140,5 +141,23 @@ namespace Blazorade.Id.Configuration
         /// </para>
         /// </remarks>
         public bool EnableSilentAuthorizationCodeFlow { get; set; } = false;
+
+        /// <summary>
+        /// The width of the authorization window in pixels.
+        /// </summary>
+        /// <remarks>
+        /// The default is 500. Must be greater than 0.
+        /// </remarks>
+        [Range(1, int.MaxValue, ErrorMessage = "Authorization window width must be greater than 0.")]
+        public int AuthorizationWindowWidth { get; set; } = 500;
+
+        /// <summary>
+        /// The height of the authorization window in pixels.
+        /// </summary>
+        /// <remarks>
+        /// The default is 650. Must be greater than 0.
+        /// </remarks>
+        [Range(1, int.MaxValue, ErrorMessage = "Authorization window height must be greater than 0.")]
+        public int AuthorizationWindowHeight { get; set; } = 650;
     }
 }

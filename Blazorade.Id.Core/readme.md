@@ -8,6 +8,10 @@ Get started with Blazorade Id by visiting the Getting Started page on the [Blazo
 
 ## Version Highlights
 
+### v1.3.0
+
+- Added configuration options for specifying the size of the authorization popup window that is used during interactive sign-in.
+
 ### v1.2.0
 
 - Added constants for common OAuth and OIDC authorization errors that can be fixed with user interaction.

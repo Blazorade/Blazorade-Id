@@ -8,6 +8,10 @@ Get started with Blazorade Id by visiting the Getting Started page on the [Blazo
 
 ## Version Highlights
 
+### v.2.2.0
+
+- Implemented configurable authorization popup window size through properties on the `AuthorityOptions` class.
+
 ### v.2.1.0
 
 - Added a static HTML page as the OAuth Callback URL to improve performance for callback handling.

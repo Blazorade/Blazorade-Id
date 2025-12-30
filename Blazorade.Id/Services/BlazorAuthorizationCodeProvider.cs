@@ -179,7 +179,9 @@ namespace Blazorade.Id.Services
             var result = new AuthorizationCodeResult();
             var input = new Dictionary<string, object>
             {
-                { "authorizeUrl", authorizeUrl }
+                { "authorizeUrl", authorizeUrl },
+                { "windowWidth", this.AuthOptions.AuthorizationWindowWidth },
+                { "windowHeight", this.AuthOptions.AuthorizationWindowHeight }
             };
 
             try
