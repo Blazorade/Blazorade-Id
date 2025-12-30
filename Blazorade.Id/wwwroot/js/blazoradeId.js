@@ -3,8 +3,8 @@
     console.debug("openAuthorizationPopup", args);
 
     const authorizeUrl = args.data.authorizeUrl;
-    const width = 500;
-    const height = 650;
+    const width = args.data.windowWidth ?? 500;
+    const height = args.data.windowHeight ?? 650;
 
     const dualScreenLeft = window.screenLeft ?? window.screenX;
     const dualScreenTop = window.screenTop ?? window.screenY;

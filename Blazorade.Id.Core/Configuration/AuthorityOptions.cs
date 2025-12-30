@@ -140,5 +140,21 @@ namespace Blazorade.Id.Configuration
         /// </para>
         /// </remarks>
         public bool EnableSilentAuthorizationCodeFlow { get; set; } = false;
+
+        /// <summary>
+        /// The width of the authorization window in pixels.
+        /// </summary>
+        /// <remarks>
+        /// The default is 500.
+        /// </remarks>
+        public int AuthorizationWindowWidth { get; set; } = 500;
+
+        /// <summary>
+        /// The height of the authorization window in pixels.
+        /// </summary>
+        /// <remarks>
+        /// The default is 650.
+        /// </remarks>
+        public int AuthorizationWindowHeight { get; set; } = 650;
     }
 }
