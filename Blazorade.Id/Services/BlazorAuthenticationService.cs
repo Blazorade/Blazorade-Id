@@ -16,7 +16,7 @@ namespace Blazorade.Id.Services
     /// <summary>
     /// Authentication service for Blazor applications.
     /// </summary>
-    public class BlazorAuthenticationService : AuthenticationService
+    internal class BlazorAuthenticationService : AuthenticationService
     {
         /// <summary>
         /// Creates a new instance of the class.

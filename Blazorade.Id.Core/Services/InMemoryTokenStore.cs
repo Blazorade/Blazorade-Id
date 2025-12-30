@@ -16,14 +16,12 @@ namespace Blazorade.Id.Services
     {
         private Dictionary<string, TokenContainer> AccessTokens = new Dictionary<string, TokenContainer>();
         private TokenContainer? IdentityToken;
-        private TokenContainer? RefreshToken;
 
         /// <inheritdoc/>
         public override Task ClearAsync()
         {
             this.AccessTokens.Clear();
             this.IdentityToken = null;
-            this.RefreshToken = null;
 
             return Task.CompletedTask;
         }

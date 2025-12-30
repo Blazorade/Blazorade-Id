@@ -11,7 +11,7 @@ namespace Blazorade.Id.Services
     /// <summary>
     /// A service that manages interop with the Blazorade ID JavaScript file.
     /// </summary>
-    public class BlazoradeIdScriptService
+    internal class BlazoradeIdScriptService
     {
         /// <summary>
         /// Creates a new instance of the class.

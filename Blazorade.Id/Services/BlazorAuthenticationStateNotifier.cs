@@ -12,7 +12,7 @@ namespace Blazorade.Id.Services
     /// <summary>
     /// Notifies the Blazor authentication state provider about changes in authentication state.
     /// </summary>
-    public class BlazorAuthenticationStateNotifier : IAuthenticationStateNotifier
+    internal class BlazorAuthenticationStateNotifier : IAuthenticationStateNotifier
     {
         /// <summary>
         /// Creates a new instance of the service implementation.

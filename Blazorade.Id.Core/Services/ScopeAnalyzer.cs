@@ -11,7 +11,7 @@ namespace Blazorade.Id.Services
     /// <summary>
     /// Provides a default implementation for sorting, grouping and analyzing scopes.
     /// </summary>
-    public class ScopeAnalyzer : IScopeAnalyzer
+    internal class ScopeAnalyzer : IScopeAnalyzer
     {
         /// <summary>
         /// The default resource identifier for scopes associated with Microsoft Graph.

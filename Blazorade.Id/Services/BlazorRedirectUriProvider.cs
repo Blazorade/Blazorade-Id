@@ -11,7 +11,7 @@ namespace Blazorade.Id.Services
     /// <summary>
     /// Uses Blazor's <see cref="NavigationManager"/> to provide redirect URIs.
     /// </summary>
-    public class BlazorRedirectUriProvider : IRedirectUriProvider
+    internal class BlazorRedirectUriProvider : IRedirectUriProvider
     {
         /// <summary>
         /// Creates a new instance of the <see cref="BlazorRedirectUriProvider"/> class.

@@ -10,7 +10,7 @@ namespace Blazorade.Id.Services
     /// <summary>
     /// The default refresh token store implementation. This implementation does not store refresh tokens at all.
     /// </summary>
-    public class NullRefreshTokenStore : IRefreshTokenStore
+    internal class NullRefreshTokenStore : IRefreshTokenStore
     {
         /// <inheritdoc/>
         public Task ClearAsync()

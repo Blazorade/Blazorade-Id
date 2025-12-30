@@ -11,7 +11,7 @@ namespace Blazorade.Id.Services
     /// A service class that is used for creating code challenges for use with
     /// an authorization code flow with PKCE (Proof Key Code Exchange).
     /// </summary>
-    public class CodeChallengeService : ICodeChallengeService
+    internal class CodeChallengeService : ICodeChallengeService
     {
 
         private Random Rnd = new Random();

@@ -15,7 +15,7 @@ namespace Blazorade.Id.Services
     /// <summary>
     /// A service implementation that is used to resolve various endpoints with.
     /// </summary>
-    public class EndpointService : IEndpointService
+    internal class EndpointService : IEndpointService
     {
         /// <summary>
         /// Creates an instance of the class.

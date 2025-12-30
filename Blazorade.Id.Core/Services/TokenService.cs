@@ -20,7 +20,7 @@ namespace Blazorade.Id.Services
     /// <summary>
     /// A service implementation for working with tokens.
     /// </summary>
-    public class TokenService : ITokenService
+    internal class TokenService : ITokenService
     {
         /// <summary>
         /// Creates a new instance of the token service.
