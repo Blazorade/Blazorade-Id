@@ -17,6 +17,8 @@ builder.Services
         {
             var config = sp.GetRequiredService<IConfiguration>(); 
             config.GetRequiredSection("blazorade:id").Bind(options);
+            options.AuthorizationWindowWidth = 1280;
+            options.AuthorizationWindowHeight = 768;
         })
 
     ;
