@@ -16,7 +16,7 @@ namespace Blazorade.Id.Services
     /// <summary>
     /// Authentication service for Blazor applications.
     /// </summary>
-    internal class BlazorAuthenticationService : AuthenticationService
+    internal class BlazorAuthenticationService : IAuthenticationService
     {
         /// <summary>
         /// Creates a new instance of the class.
@@ -30,7 +30,7 @@ namespace Blazorade.Id.Services
             NavigationManager navMan, 
             IJSRuntime jsRuntime,
             IOptions<AuthorityOptions> authOptions,
-            IOptions<JsonSerializerOptions> jsonOptions) : base(tokenService, tokenStore, refreshTokenStore, authStateNotifier)
+            IOptions<JsonSerializerOptions> jsonOptions)
         {
             this.TokenService = tokenService ?? throw new ArgumentNullException(nameof(tokenService));
             this.TokenStore = tokenStore ?? throw new ArgumentNullException(nameof(tokenStore));
@@ -54,7 +54,23 @@ namespace Blazorade.Id.Services
         private readonly AuthorityOptions AuthOptions;
 
         /// <inheritdoc/>
-        public async override Task SignOutAsync(SignOutOptions? options = null, CancellationToken cancellationToken = default)
+        public virtual async Task<ClaimsPrincipal?> SignInAsync(SignInOptions? options = null, CancellationToken cancellationToken = default)
+        {
+            ClaimsPrincipal? principal = null;
+            options = options ?? new SignInOptions();
+
+            var idToken = await this.TokenService.GetIdentityTokenAsync(options: options.ToGetTokenOptions(), cancellationToken);
+            if (null != idToken)
+            {
+                principal = new ClaimsPrincipal(new ClaimsIdentity(idToken.Claims));
+            }
+            await this.AuthStateNotifier.StateHasChangedAsync();
+
+            return principal;
+        }
+
+        /// <inheritdoc/>
+        public async Task SignOutAsync(SignOutOptions? options = null, CancellationToken cancellationToken = default)
         {
             options = options ?? new SignOutOptions { UseDefaultRedirectUri = true };
             options.RedirectUri = options.RedirectUri ?? (options.UseDefaultRedirectUri ? this.NavMan.BaseUri : null);

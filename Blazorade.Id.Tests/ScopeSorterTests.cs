@@ -1,4 +1,6 @@
 ﻿using Blazorade.Id.Services;
+using Blazorade.Id.Tests.Services;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,11 +12,19 @@ namespace Blazorade.Id.Tests
     [TestClass]
     public class ScopeSorterTests
     {
+        private IServiceProvider Provider = null!;
+
+        [TestInitialize]
+        public void TestInitialize()
+        {
+            this.Provider = ServiceRegistrations.GetServiceProvider();
+        }
+
 
         [TestMethod]
         public async Task SortScopes01()
         {
-            var sorter = new ScopeAnalyzer();
+            var sorter = this.Provider.GetRequiredService<IScopeAnalyzer>();
             var analyzed = await sorter.AnalyzeScopesAsync(new[] 
             { 
                 "openid", 
@@ -39,7 +49,7 @@ namespace Blazorade.Id.Tests
         public async Task SortScopes02()
         {
             string[] source = ["api://foo-bar/stuff.do", "https://api.mycompany.com/read"];
-            var sorter = new ScopeAnalyzer();
+            var sorter = this.Provider.GetRequiredService<IScopeAnalyzer>();
             var analyzed = await sorter.AnalyzeScopesAsync(source);
 
             Assert.HasCount(2, analyzed);

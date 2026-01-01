@@ -14,7 +14,7 @@ namespace Blazorade.Id.Services
     /// <remarks>
     /// 
     /// </remarks>
-    public class AuthorizationCodeFailureNotifier : IAuthorizationCodeFailureNotifier
+    internal class AuthorizationCodeFailureNotifier : IAuthorizationCodeFailureNotifier
     {
         private EventHandler<AuthorizationCodeResult>? FailedHandler;
         /// <inheritdoc/>

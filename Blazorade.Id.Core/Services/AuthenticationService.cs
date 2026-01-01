@@ -12,7 +12,7 @@ namespace Blazorade.Id.Services
     /// <summary>
     /// The default implementation of the <see cref="IAuthenticationService"/> service interface.
     /// </summary>
-    public class AuthenticationService : IAuthenticationService
+    internal class AuthenticationService : IAuthenticationService
     {
         /// <summary>
         /// Creates a new instance of the class.
