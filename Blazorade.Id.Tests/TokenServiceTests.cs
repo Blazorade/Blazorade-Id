@@ -2,6 +2,7 @@
 using Blazorade.Id.Model;
 using Blazorade.Id.Services;
 using Blazorade.Id.Tests.Services;
+using Microsoft.Extensions.Options;
 using Microsoft.Testing.Platform.Services;
 using System;
 using System.Collections.Generic;
@@ -27,6 +28,7 @@ namespace Blazorade.Id.Tests
         private TestCodeProvider CodeProvider = null!;
         private ITokenStore TokenStore = null!;
         private IRefreshTokenStore RefreshTokenStore = null!;
+        private AuthorityOptions AuthOptions = null!;
 
         [TestInitialize]
         public void TestInitialize()
@@ -38,7 +40,9 @@ namespace Blazorade.Id.Tests
             this.CodeProvider = this.Provider.GetAuthCodeProvider();
             this.TokenStore = this.Provider.GetRequiredService<ITokenStore>();
             this.RefreshTokenStore = this.Provider.GetRequiredService<IRefreshTokenStore>();
+            this.AuthOptions = this.Provider.GetRequiredService<IOptions<AuthorityOptions>>().Value;
         }
+
 
 
         [TestMethod]
@@ -46,7 +50,7 @@ namespace Blazorade.Id.Tests
         {
             await this.RefreshTokenStore.SetRefreshTokenAsync("refresh-token");
             this.TokenRefresher.Expiration = DateTimeOffset.UtcNow.AddHours(1);
-            var ats = await this.TokenService.GetAccessTokensAsync(new GetTokenOptions { Scopes = new[] { "openid", "profile", "email", "urn:blazorade:id/user_impersonation" } });
+            var ats = await this.TokenService.GetAccessTokensAsync(new GetTokenOptions { Scopes = new[] { "openid", "profile", "email", "User.Read", "urn:blazorade:id/user_impersonation" } });
             Assert.IsNotNull(ats);
             Assert.HasCount(2, ats);
 
@@ -59,11 +63,11 @@ namespace Blazorade.Id.Tests
         public async Task GetAccessTokens002()
         {
             this.TokenRefresher.Expiration = DateTimeOffset.UtcNow.AddHours(1);
-            this.CodeProcessor.ScopesToProcess = AuthorityOptions.DefaultScope.Split(' ');
+            this.CodeProcessor.ScopesToProcess = this.AuthOptions.Scope?.Split(' ') ?? [];
 
             var ats = await this.TokenService.GetAccessTokensAsync();
             Assert.IsNotNull(ats);
-            Assert.HasCount(1, ats);
+            Assert.HasCount(2, ats);
 
             var token = ats.GetTokenByScope(AuthorityOptions.DefaultScope);
             Assert.IsNotNull(token);
@@ -71,6 +75,7 @@ namespace Blazorade.Id.Tests
             Assert.Contains("openid", scopes);
             Assert.Contains("profile", scopes);
             Assert.Contains("email", scopes);
+            Assert.Contains("User.Read", scopes);
         }
 
         [TestMethod]
@@ -96,10 +101,5 @@ namespace Blazorade.Id.Tests
             Assert.Contains("openid", scopes);
         }
 
-        [TestMethod]
-        public async Task GetAccessTokens004()
-        {
-
-        }
     }
 }

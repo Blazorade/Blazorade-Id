@@ -8,14 +8,14 @@ using System.Threading.Tasks;
 namespace Blazorade.Id.Tests
 {
     [TestClass]
-    public class ScopeSorterTests
+    public class ScopeAnalyzerTests
     {
 
         [TestMethod]
-        public async Task SortScopes01()
+        public async Task AnalyzeScopes01()
         {
-            var sorter = new ScopeAnalyzer();
-            var analyzed = await sorter.AnalyzeScopesAsync(new[] 
+            var analyzer = new ScopeAnalyzer();
+            var analyzed = await analyzer.AnalyzeScopesAsync(new[] 
             { 
                 "openid", 
                 "profile", 
@@ -36,12 +36,11 @@ namespace Blazorade.Id.Tests
         }
 
         [TestMethod]
-        public async Task SortScopes02()
+        public async Task AnalyzeScopes02()
         {
             string[] source = ["api://foo-bar/stuff.do", "https://api.mycompany.com/read"];
-            var sorter = new ScopeAnalyzer();
-            var analyzed = await sorter.AnalyzeScopesAsync(source);
-
+            var analyzer = new ScopeAnalyzer();
+            var analyzed = await analyzer.AnalyzeScopesAsync(source);
             Assert.HasCount(2, analyzed);
             foreach(var key in analyzed.Keys)
             {

@@ -37,7 +37,7 @@ namespace Blazorade.Id.Tests.Services
             {
                 var claims = new List<Claim>()
                 {
-                    new Claim("scp", string.Join(' ', item.Value))
+                    new Claim("scp", string.Join(' ', from x in item.Value select x.Value))
                 };
 
                 if(this.Expiration.HasValue)
