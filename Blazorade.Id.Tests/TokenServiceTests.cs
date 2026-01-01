@@ -101,10 +101,5 @@ namespace Blazorade.Id.Tests
             Assert.Contains("openid", scopes);
         }
 
-        [TestMethod]
-        public async Task GetAccessTokens004()
-        {
-
-        }
     }
 }
