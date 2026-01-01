@@ -24,8 +24,8 @@ namespace Blazorade.Id.Tests
         [TestMethod]
         public async Task AnalyzeScopes01()
         {
-            var sorter = this.Provider.GetRequiredService<IScopeAnalyzer>();
-            var analyzed = await sorter.AnalyzeScopesAsync(new[] 
+            var analyzer = this.Provider.GetRequiredService<IScopeAnalyzer>();
+            var analyzed = await analyzer.AnalyzeScopesAsync(new[] 
             { 
                 "openid", 
                 "profile", 
@@ -49,8 +49,8 @@ namespace Blazorade.Id.Tests
         public async Task AnalyzeScopes02()
         {
             string[] source = ["api://foo-bar/stuff.do", "https://api.mycompany.com/read"];
-            var sorter = this.Provider.GetRequiredService<IScopeAnalyzer>();
-            var analyzed = await sorter.AnalyzeScopesAsync(source);
+            var analyzer = this.Provider.GetRequiredService<IScopeAnalyzer>();
+            var analyzed = await analyzer.AnalyzeScopesAsync(source);
 
             Assert.HasCount(2, analyzed);
             foreach(var key in analyzed.Keys)
