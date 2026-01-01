@@ -20,7 +20,8 @@ builder.Services
             options.AuthorizationWindowWidth = 1280;
             options.AuthorizationWindowHeight = 768;
         })
-
+        .AddTokenStore<BrowserSessionStorageTokenStore>()
+        .AddRefreshTokenStore<BrowserSessionStorageRefreshTokenStore>()
     ;
 
 
