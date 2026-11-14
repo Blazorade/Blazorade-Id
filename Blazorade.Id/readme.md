@@ -8,6 +8,11 @@ Get started with Blazorade Id by visiting the Getting Started page on the [Blazo
 
 ## Version Highlights
 
+### v3.0.0
+
+- Retargeted Blazorade ID to .NET 10. This is a breaking change; applications using this release must target .NET 10 or later.
+- Updated ASP.NET Core dependencies to patched .NET 10 versions.
+
 ### v.2.2.0
 
 - Implemented configurable authorization popup window size through properties on the `AuthorityOptions` class.
