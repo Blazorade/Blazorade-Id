@@ -8,6 +8,11 @@ Get started with Blazorade Id by visiting the Getting Started page on the [Blazo
 
 ## Version Highlights
 
+### v2.0.0
+
+- Retargeted Blazorade ID Core to .NET 10. This is a breaking change; applications using this release must target .NET 10 or later.
+- Updated Microsoft.Extensions and IdentityModel dependencies for .NET 10.
+
 ### v1.3.0
 
 - Added configuration options for specifying the size of the authorization popup window that is used during interactive sign-in.
